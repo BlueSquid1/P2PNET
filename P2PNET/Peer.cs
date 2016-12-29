@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 
 namespace P2PNET
 {
-    class MsgReceivedEventArgs : EventArgs
+    public class Peer
     {
+        //constructor
+        public Peer()
+        {
 
+        }
     }
 }
