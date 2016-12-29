@@ -14,6 +14,7 @@ namespace P2P_Sample
 {
     public partial class Form1 : Form
     {
+        private List<Peer> knownPeers;
         private PeerManager peerManager;
 
         public Form1()
@@ -28,23 +29,39 @@ namespace P2P_Sample
             peerManager.msgReceived += PeerManager_msgReceived;
             peerManager.PeerChange += PeerManager_PeerChange;
             peerManager.Start();
+            Console.WriteLine("started listening");
         }
 
         private void PeerManager_PeerChange(object sender, P2PNET.EventArgs.PeerChangeEventArgs e)
         {
-            Console.WriteLine("peer connected");
+            foreach(Peer peer in e.Peers)
+            {
+                string ipAddress = peer.SocketClient.RemoteAddress;
+                Console.WriteLine("new peer. IP address = " + ipAddress);
+            }
+            this.knownPeers = e.Peers;
         }
 
         private void PeerManager_msgReceived(object sender, P2PNET.EventArgs.MsgReceivedEventArgs e)
         {
-            Console.WriteLine("message = " + e.Message.ToString());
+            Console.WriteLine("message = " + e.Message);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             byte[] x = new byte[5];
             x[0] = 255;
-            peerManager.SendBroadcastUDP(x);
+            peerManager.SendMsgAsyncTCP("", x);
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            Peer firstPeer = knownPeers[0];
+            string ipAddress = firstPeer.SocketClient.RemoteAddress;
+
+            byte[] x = new byte[5];
+            x[0] = 255;
+            peerManager.SendMsgAsyncTCP(ipAddress, x);
         }
     }
 }

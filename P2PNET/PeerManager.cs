@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using P2PNET.EventArgs;
+using System.Threading.Tasks;
 
 namespace P2PNET
 {
     public class PeerManager
     {
         private Listener listener;
-        private HeartBeat heartBeat;
         private BaseStation baseStation;
 
         public event EventHandler<PeerChangeEventArgs> PeerChange;
@@ -32,19 +32,14 @@ namespace P2PNET
             this.PortNum = mPortNum;
             this.listener = new Listener(this.PortNum);
             this.baseStation = new BaseStation(this.PortNum);
-            this.heartBeat = new HeartBeat();
 
             this.baseStation.PeerChange += BaseStation_PeerChange;
-
+            this.baseStation.MsgReceived += Listener_IncomingMsg;
             this.listener.IncomingMsg += Listener_IncomingMsg;
+
             //baseStation looks up incoming messages to see if there is a new peer talk to us
             this.listener.IncomingMsg += baseStation.IncomingMsg;
             this.listener.PeerConnectTCPRequest += baseStation.NewTCPConnection;
-        }
-
-        private void BaseStation_PeerChange(object sender, PeerChangeEventArgs e)
-        {
-            PeerChange?.Invoke(this, e);
         }
 
         public void Start()
@@ -52,26 +47,38 @@ namespace P2PNET
             listener.Start();
         }
 
-        public void SendMsgAsyncTCP(string ipAddress, byte[] msg)
+        public async void SendMsgAsyncTCP(string ipAddress, byte[] msg)
         {
-            
+            await baseStation.SendTCPMsgAsync(ipAddress, msg);
         }
 
-        public void SendMsgAsyncUDP(string ipAddress, byte[] msg)
+        public async void SendMsgAsyncUDP(string ipAddress, byte[] msg)
         {
-            baseStation.SendUDPMsg(ipAddress, msg);
+            await baseStation.SendUDPMsgAsync(ipAddress, msg);
         }
 
-        public void SendBroadcastUDP(byte[] msg)
+        public async void SendBroadcastAsyncUDP(byte[] msg)
         {
-            baseStation.SendUDPBroadcast(msg);
+            await baseStation.SendUDPBroadcastAsync(msg);
         }
 
+        //This is here for existing Peer to Peer systems that use asynchronous Connections.
+        //This method is not needed otherwise because this class automatically keeps track
+        //of peer connections
+        public void DirrectConnectTCP(string ipAddress)
+        {
+            baseStation.DirectConnectTCP(ipAddress);
+        }
 
         private void Listener_IncomingMsg(object sender, MsgReceivedEventArgs e)
         {
             //send message out
             msgReceived?.Invoke(this, e);
+        }
+
+        private void BaseStation_PeerChange(object sender, PeerChangeEventArgs e)
+        {
+            PeerChange?.Invoke(this, e);
         }
     }
 }
