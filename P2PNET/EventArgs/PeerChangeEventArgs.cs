@@ -6,15 +6,14 @@ using System.Threading.Tasks;
 
 namespace P2PNET.EventArgs
 {
-    public class PeerChangeEventArgs : System.EventArgs
+    public class PeerChangeEventArgs
     {
-        public byte[] message { get; }
-        public TransportType bindingType { get; }
+        public List<Peer> Peers { get; }
 
-        public PeerChangeEventArgs(byte[] msg, TransportType bindType)
+        //constructor
+        public PeerChangeEventArgs( List<Peer> peers )
         {
-            this.message = msg;
-            this.bindingType = bindType;
+            this.Peers = peers;
         }
     }
 }

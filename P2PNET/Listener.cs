@@ -8,11 +8,13 @@ namespace P2PNET
     public class Listener
     {
         //triggered when a peer send a connect request to this peer
-        public event EventHandler<PeerConnectReqEventArgs> PeerConnectTCPRequest;
+        public event EventHandler<TcpSocketListenerConnectEventArgs> PeerConnectTCPRequest;
         public event EventHandler<MsgReceivedEventArgs> IncomingMsg;
 
         private UdpSocketReceiver listenerUDP;
         private TcpSocketListener listenerTCP;
+
+        private int portNum;
 
         //constructor
         public Listener(int mPortNum)
@@ -20,8 +22,13 @@ namespace P2PNET
             this.listenerUDP = new UdpSocketReceiver();
             this.listenerTCP = new TcpSocketListener();
 
-            StartListeningTCP(mPortNum);
-            StartListeningUDP(mPortNum);
+            this.portNum = mPortNum;
+        }
+
+        public void Start()
+        {
+            StartListeningTCP(this.portNum);
+            StartListeningUDP(this.portNum);
         }
 
         private void StartListeningTCP(int portNum)
@@ -43,8 +50,7 @@ namespace P2PNET
 
         private void ListenerTCP_ConnectionReceived(object sender, TcpSocketListenerConnectEventArgs e)
         {
-            Peer newPeer = new Peer();
-            PeerConnectTCPRequest?.Invoke(this, new PeerConnectReqEventArgs(newPeer));
+            PeerConnectTCPRequest?.Invoke(this, e);
         }
     }
 }

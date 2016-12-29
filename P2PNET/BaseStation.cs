@@ -1,5 +1,6 @@
 ﻿using P2PNET.EventArgs;
 using Sockets.Plugin;
+using Sockets.Plugin.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,24 @@ namespace P2PNET
 {
     public class BaseStation
     {
-        private UdpSocketClient senderUDP;
+        public event EventHandler<PeerChangeEventArgs> PeerChange;
 
+        public List<Peer> KnownPeers {
+            get
+            {
+                return knownPeers;
+            }
+        }
+
+        private List<Peer> knownPeers;
         private int portNum;
+
+        private UdpSocketClient senderUDP;
 
         //constructor
         public BaseStation(int mPortNum)
         {
+            this.knownPeers = new List<Peer>();
             this.senderUDP = new UdpSocketClient();
 
             this.portNum = mPortNum;
@@ -27,9 +39,16 @@ namespace P2PNET
             senderUDP.SendToAsync(msg, ipAddress, this.portNum);
         }
 
+        public void SendUDPBroadcast(byte[] msg)
+        {
+            string brdcstAddress = "255.255.255.255";
+            senderUDP.SendToAsync(msg, brdcstAddress, this.portNum);
+        }
+
 
         public void IncomingMsg(object sender, MsgReceivedEventArgs e)
         {
+            //check if its from a new peer
             if(e.BindingType == TransportType.UDP)
             {
                 string remotePeeripAddress = e.RemoteIp;
@@ -44,7 +63,7 @@ namespace P2PNET
             ConnectionWithNewPeer();
         }
 
-        public void NewTCPConnection(object sender, PeerConnectReqEventArgs e)
+        public void NewTCPConnection(object sender, TcpSocketListenerConnectEventArgs e)
         {
             ConnectionWithNewPeer();
         }
@@ -52,7 +71,9 @@ namespace P2PNET
         private void ConnectionWithNewPeer()
         {
             //TODO
-
+            //...
+            
+            PeerChange?.Invoke(this, new PeerChangeEventArgs(knownPeers));
         }
 
         private bool isNewPeer(string ipAddress)
