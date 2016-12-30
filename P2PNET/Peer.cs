@@ -27,11 +27,13 @@ namespace P2PNET
         public async Task SendMsgTCPAsync(byte[] msg)
         {
             Stream outputStream = SocketClient.WriteStream;
-            if(outputStream.CanWrite)
+            if(!outputStream.CanWrite)
             {
                 throw (new StreamCannotWrite("Cannot send message to peer because stream is not writable"));
             }
+            outputStream.Write(msg, 0, msg.Length);
             await outputStream.FlushAsync();
+            int x = 1 + 1;
         }
 
         private async void StartListening()

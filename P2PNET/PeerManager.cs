@@ -24,6 +24,14 @@ namespace P2PNET
             }
         }
 
+        private string ipAddress;
+        public string IpAddress
+        {
+            get
+            {
+                return ipAddress;
+            }
+        }
         public int PortNum { get; }
 
         //constructor
@@ -34,30 +42,31 @@ namespace P2PNET
             this.baseStation = new BaseStation(this.PortNum);
 
             this.baseStation.PeerChange += BaseStation_PeerChange;
-            this.baseStation.MsgReceived += Listener_IncomingMsg;
-            this.listener.IncomingMsg += Listener_IncomingMsg;
+            this.baseStation.MsgReceived += IncomingMsg;
 
             //baseStation looks up incoming messages to see if there is a new peer talk to us
-            this.listener.IncomingMsg += baseStation.IncomingMsg;
+            this.listener.IncomingMsg += baseStation.IncomingMsgAsync;
             this.listener.PeerConnectTCPRequest += baseStation.NewTCPConnection;
         }
 
-        public void Start()
+        public async Task StartAsync()
         {
-            listener.Start();
+            this.ipAddress = await this.GetLocalIPAddress();
+            baseStation.LocalIpAddress = this.ipAddress;
+            await listener.StartAsync();
         }
 
-        public async void SendMsgAsyncTCP(string ipAddress, byte[] msg)
+        public async Task SendMsgAsyncTCP(string ipAddress, byte[] msg)
         {
             await baseStation.SendTCPMsgAsync(ipAddress, msg);
         }
 
-        public async void SendMsgAsyncUDP(string ipAddress, byte[] msg)
+        public async Task SendMsgAsyncUDP(string ipAddress, byte[] msg)
         {
             await baseStation.SendUDPMsgAsync(ipAddress, msg);
         }
 
-        public async void SendBroadcastAsyncUDP(byte[] msg)
+        public async Task SendBroadcastAsyncUDP(byte[] msg)
         {
             await baseStation.SendUDPBroadcastAsync(msg);
         }
@@ -65,12 +74,12 @@ namespace P2PNET
         //This is here for existing Peer to Peer systems that use asynchronous Connections.
         //This method is not needed otherwise because this class automatically keeps track
         //of peer connections
-        public void DirrectConnectTCP(string ipAddress)
+        public async Task DirrectConnectAsyncTCP(string ipAddress)
         {
-            baseStation.DirectConnectTCP(ipAddress);
+            await baseStation.DirectConnectTCPAsync(ipAddress);
         }
 
-        private void Listener_IncomingMsg(object sender, MsgReceivedEventArgs e)
+        private void IncomingMsg(object sender, MsgReceivedEventArgs e)
         {
             //send message out
             msgReceived?.Invoke(this, e);
@@ -79,6 +88,21 @@ namespace P2PNET
         private void BaseStation_PeerChange(object sender, PeerChangeEventArgs e)
         {
             PeerChange?.Invoke(this, e);
+        }
+
+        private async Task<string> GetLocalIPAddress()
+        {
+            List<CommsInterface> interfaces = await CommsInterface.GetAllInterfacesAsync();
+            foreach(CommsInterface comms in interfaces)
+            {
+                if(comms.ConnectionStatus == Sockets.Plugin.Abstractions.CommsInterfaceStatus.Connected)
+                {
+                    return comms.IpAddress;
+                }
+            }
+
+            //raise exception
+            throw (new NoNetworkInterface("Unable to find an active network interface connection. Is this device connected to wifi?"));
         }
     }
 }

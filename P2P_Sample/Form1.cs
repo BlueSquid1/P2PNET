@@ -22,13 +22,13 @@ namespace P2P_Sample
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
             int portNum = 8080;
             peerManager = new PeerManager(portNum);
             peerManager.msgReceived += PeerManager_msgReceived;
             peerManager.PeerChange += PeerManager_PeerChange;
-            peerManager.Start();
+            await peerManager.StartAsync();
             Console.WriteLine("started listening");
         }
 
@@ -44,24 +44,23 @@ namespace P2P_Sample
 
         private void PeerManager_msgReceived(object sender, P2PNET.EventArgs.MsgReceivedEventArgs e)
         {
-            Console.WriteLine("message = " + e.Message);
+            string msg = Encoding.UTF8.GetString(e.Message);
+            Console.WriteLine("message = " + msg + ". From = " + e.BindingType.ToString());
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private async void button1_Click(object sender, EventArgs e)
         {
-            byte[] x = new byte[5];
-            x[0] = 255;
-            peerManager.SendMsgAsyncTCP("", x);
+            byte[] x = Encoding.UTF8.GetBytes("Hello World!");
+            await peerManager.SendBroadcastAsyncUDP(x);
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private async void button3_Click(object sender, EventArgs e)
         {
             Peer firstPeer = knownPeers[0];
             string ipAddress = firstPeer.SocketClient.RemoteAddress;
 
-            byte[] x = new byte[5];
-            x[0] = 255;
-            peerManager.SendMsgAsyncTCP(ipAddress, x);
+            byte[] x = Encoding.UTF8.GetBytes("TCP Hello World!");
+            await peerManager.SendMsgAsyncTCP(ipAddress, x);
         }
     }
 }

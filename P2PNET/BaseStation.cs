@@ -22,6 +22,8 @@ namespace P2PNET
             }
         }
 
+        public string LocalIpAddress { get; set; }
+
         private List<Peer> knownPeers;
         private int portNum;
 
@@ -51,10 +53,10 @@ namespace P2PNET
         {
             int indexNum;
             bool peerKnown = IsPeerKnown(ipAddress, out indexNum);
-            if (!peerKnown)
+            if (!peerKnown || indexNum < 0)
             {
                 //maybe I should attempt to connect to it instead?
-                throw (new PeerNotKnown("The ipAddress your have entered does not correspond to a known Peer. Check the IP address"));
+                throw (new PeerNotKnown("The ipAddress your have entered does not correspond to a valid Peer. Check the IP address"));
 
             }
 
@@ -62,25 +64,31 @@ namespace P2PNET
 
         }
 
-        public void IncomingMsg(object sender, MsgReceivedEventArgs e)
+        public async void IncomingMsgAsync(object sender, MsgReceivedEventArgs e)
         {
+            //check if message is from this peer
+            if(e.RemoteIp == this.LocalIpAddress)
+            {
+                //from this peer.
+                //no futher proccessing needed
+                return;
+            }
+
             //check if its from a new peer
             if(e.BindingType == TransportType.UDP)
             {
                 string remotePeeripAddress = e.RemoteIp;
                 int indexNum;
                 bool peerKnown = IsPeerKnown(remotePeeripAddress, out indexNum);
-                if (peerKnown)
+                if (!peerKnown)
                 {
-                    //not a new peer
-                    return;
+                    //not a known peer
+                    await DirectConnectTCPAsync(remotePeeripAddress);
                 }
             }
 
-            string ipAddress = e.RemoteIp;
-
-            //new peer establish a TCP connection with this peer
-            DirectConnectTCP(ipAddress);
+            //trigger sent message
+            MsgReceived?.Invoke(this, e);
         }
 
         public void NewTCPConnection(object sender, TcpSocketListenerConnectEventArgs e)
@@ -88,7 +96,7 @@ namespace P2PNET
             StoreConnectedPeerTCP(e.SocketClient);
         }
 
-        public async void DirectConnectTCP(string ipAddress)
+        public async Task DirectConnectTCPAsync(string ipAddress)
         {
             //send connection request
             TcpSocketClient senderTCP = new TcpSocketClient();
@@ -113,8 +121,17 @@ namespace P2PNET
             MsgReceived?.Invoke(this, e);
         }
 
+        //returns true if the ip address corresponds to known peer. If the ip address is equal to this peer's
+        //local ip address then returns true and indexNum = -1
         private bool IsPeerKnown(string ipAddress, out int indexNum)
         {
+            if(this.LocalIpAddress == ipAddress)
+            {
+                //msg from this peer
+                indexNum = -1;
+                return true;
+            }
+
             for(indexNum = 0; indexNum < this.knownPeers.Count; ++indexNum)
             {
                 if(this.knownPeers[indexNum].SocketClient.RemoteAddress == ipAddress)

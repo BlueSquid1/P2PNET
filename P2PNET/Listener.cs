@@ -2,6 +2,7 @@
 using P2PNET.EventArgs;
 using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
+using System.Threading.Tasks;
 
 namespace P2PNET
 {
@@ -25,22 +26,22 @@ namespace P2PNET
             this.portNum = mPortNum;
         }
 
-        public void Start()
+        public async Task StartAsync()
         {
-            StartListeningTCP(this.portNum);
-            StartListeningUDP(this.portNum);
+            await StartListeningAsyncTCP(this.portNum);
+            await StartListeningAsyncUDP(this.portNum);
         }
 
-        private void StartListeningTCP(int portNum)
+        private async Task StartListeningAsyncTCP(int portNum)
         {
             listenerTCP.ConnectionReceived += ListenerTCP_ConnectionReceived;
-            listenerTCP.StartListeningAsync(portNum);
+            await listenerTCP.StartListeningAsync(portNum);
         }
 
-        private void StartListeningUDP(int portNum)
+        private async Task StartListeningAsyncUDP(int portNum)
         {
             listenerUDP.MessageReceived += ListenerUDP_MessageReceived;
-            listenerUDP.StartListeningAsync(portNum);
+            await listenerUDP.StartListeningAsync(portNum);
         }
 
         private void ListenerUDP_MessageReceived(object sender, UdpSocketMessageReceivedEventArgs e)

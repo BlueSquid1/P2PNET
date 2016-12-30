@@ -19,4 +19,12 @@ namespace P2PNET
 
         }
     }
+
+    public class NoNetworkInterface : Exception
+    {
+        public NoNetworkInterface(string message) : base(message)
+        {
+
+        }
+    }
 }
