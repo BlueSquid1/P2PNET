@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.IO;
 using Sockets.Plugin.Abstractions;
 using P2PNET.EventArgs;
+using System.Text;
 
 namespace P2PNET
 {
@@ -19,11 +20,15 @@ namespace P2PNET
         }
 
         private ITcpSocketClient socketClient;
+        private BinaryWriter writeStream;
+        private BinaryReader readStream;
 
         //constructor
-        public Peer(ITcpSocketClient socketClient)
+        public Peer(ITcpSocketClient mSocketClient)
         {
-            this.socketClient = socketClient;
+            this.socketClient = mSocketClient;
+            this.writeStream = new BinaryWriter(socketClient.WriteStream, Encoding.Unicode);
+            this.readStream = new BinaryReader(socketClient.ReadStream, Encoding.Unicode);
 
             StartListening();
         }
@@ -36,9 +41,10 @@ namespace P2PNET
 
         public async Task SendMsgTCPAsync(byte[] msg)
         {
-            Stream outputStream = socketClient.WriteStream;
+            this.readStream.ReadString
+            this.writeStream.Write()
 
-            if(!outputStream.CanWrite)
+            if (!outputStream.CanWrite)
             {
                 throw (new StreamCannotWrite("Cannot send message to peer because stream is not writable"));
             }

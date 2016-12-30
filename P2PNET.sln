@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P2PNET", "P2PNET\P2PNET.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P2P_Sample", "P2P_Sample\P2P_Sample.csproj", "{55A778E4-CE32-453B-9AC0-C392ED0B065E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P2P_Advance_Sample", "P2P_Advance_Sample\P2P_Advance_Sample.csproj", "{5D40D49E-BE0F-4FC2-B440-040269CBDFA9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{55A778E4-CE32-453B-9AC0-C392ED0B065E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55A778E4-CE32-453B-9AC0-C392ED0B065E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55A778E4-CE32-453B-9AC0-C392ED0B065E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D40D49E-BE0F-4FC2-B440-040269CBDFA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D40D49E-BE0F-4FC2-B440-040269CBDFA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D40D49E-BE0F-4FC2-B440-040269CBDFA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D40D49E-BE0F-4FC2-B440-040269CBDFA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
