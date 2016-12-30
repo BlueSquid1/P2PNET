@@ -3,9 +3,6 @@ using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace P2PNET
@@ -51,13 +48,27 @@ namespace P2PNET
 
         public async Task SendTCPMsgAsync(string ipAddress, byte[] msg)
         {
+            //check if ipAddress is from this peer
+            if(this.LocalIpAddress == ipAddress)
+            {
+                throw (new PeerNotKnown("The ipAddress your have entered does not correspond to a valid Peer. Check the IP address"));
+            }
+
+            //check if from unknown peer
             int indexNum;
             bool peerKnown = IsPeerKnown(ipAddress, out indexNum);
-            if (!peerKnown || indexNum < 0)
+            if (!peerKnown)
             {
-                //maybe I should attempt to connect to it instead?
-                throw (new PeerNotKnown("The ipAddress your have entered does not correspond to a valid Peer. Check the IP address"));
-
+                //ipaddress is unknown
+                //try to establish an connection with this ipAddress
+                try
+                {
+                    await DirectConnectTCPAsync(ipAddress);
+                }
+                catch( Exception )
+                {
+                    throw (new PeerNotKnown("The ip address your have entered does not correspond to a valid Peer. Check the IP address."));
+                }
             }
 
             await this.KnownPeers[indexNum].SendMsgTCPAsync(msg);
@@ -103,7 +114,14 @@ namespace P2PNET
 
             //if you get an error on the line below then the person you trying to connect to
             //hasn't accepted in the incoming connection
-            await senderTCP.ConnectAsync(ipAddress, this.portNum);
+            try
+            {
+                await senderTCP.ConnectAsync(ipAddress, this.portNum);
+            }
+            catch( Exception e1)
+            {
+                throw e1;
+            }
             ITcpSocketClient socketClient = senderTCP;
             StoreConnectedPeerTCP(socketClient);
         }
@@ -134,7 +152,7 @@ namespace P2PNET
 
             for(indexNum = 0; indexNum < this.knownPeers.Count; ++indexNum)
             {
-                if(this.knownPeers[indexNum].SocketClient.RemoteAddress == ipAddress)
+                if(this.knownPeers[indexNum].IpAddress == ipAddress)
                 {
                     return true;
                 }

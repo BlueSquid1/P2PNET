@@ -36,7 +36,7 @@ namespace P2P_Sample
         {
             foreach(Peer peer in e.Peers)
             {
-                string ipAddress = peer.SocketClient.RemoteAddress;
+                string ipAddress = peer.IpAddress;
                 Console.WriteLine("new peer. IP address = " + ipAddress);
             }
             this.knownPeers = e.Peers;
@@ -57,10 +57,16 @@ namespace P2P_Sample
         private async void button3_Click(object sender, EventArgs e)
         {
             Peer firstPeer = knownPeers[0];
-            string ipAddress = firstPeer.SocketClient.RemoteAddress;
+            string ipAddress = firstPeer.IpAddress;
 
             byte[] x = Encoding.UTF8.GetBytes("TCP Hello World!");
             await peerManager.SendMsgAsyncTCP(ipAddress, x);
+        }
+
+        private async void button2_Click(object sender, EventArgs e)
+        {
+            byte[] x = new byte[5];
+            await peerManager.SendMsgAsyncTCP("192.168.1.200", x);
         }
     }
 }

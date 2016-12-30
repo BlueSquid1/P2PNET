@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.IO;
-using System.Threading;
 using Sockets.Plugin.Abstractions;
 using P2PNET.EventArgs;
 
@@ -14,32 +10,47 @@ namespace P2PNET
     {
         public event EventHandler<MsgReceivedEventArgs> MsgReceived;
 
-        public ITcpSocketClient SocketClient { get; set; }
+        public string IpAddress
+        {
+            get
+            {
+                return socketClient.RemoteAddress;
+            }
+        }
+
+        private ITcpSocketClient socketClient;
 
         //constructor
         public Peer(ITcpSocketClient socketClient)
         {
-            this.SocketClient = socketClient;
+            this.socketClient = socketClient;
 
             StartListening();
         }
 
+        //deconstructor
+        ~Peer()
+        {
+            this.socketClient.DisconnectAsync().Wait();
+        }
+
         public async Task SendMsgTCPAsync(byte[] msg)
         {
-            Stream outputStream = SocketClient.WriteStream;
+            Stream outputStream = socketClient.WriteStream;
+
             if(!outputStream.CanWrite)
             {
                 throw (new StreamCannotWrite("Cannot send message to peer because stream is not writable"));
             }
+
             outputStream.Write(msg, 0, msg.Length);
             await outputStream.FlushAsync();
-            int x = 1 + 1;
         }
 
         private async void StartListening()
         {
-            string peerIp = SocketClient.RemoteAddress;
-            Stream inputStream = SocketClient.ReadStream;
+            string peerIp = socketClient.RemoteAddress;
+            Stream inputStream = socketClient.ReadStream;
             while (true)
             {
                 Byte[] buffer = new Byte[5];

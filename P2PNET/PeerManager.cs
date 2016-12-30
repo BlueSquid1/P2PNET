@@ -1,8 +1,6 @@
 ﻿using Sockets.Plugin;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using P2PNET.EventArgs;
 using System.Threading.Tasks;
 
