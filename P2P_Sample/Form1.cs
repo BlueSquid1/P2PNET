@@ -45,7 +45,7 @@ namespace P2P_Sample
         private void PeerManager_msgReceived(object sender, P2PNET.EventArgs.MsgReceivedEventArgs e)
         {
             string msg = Encoding.UTF8.GetString(e.Message);
-            Console.WriteLine("message = " + msg + ". From = " + e.BindingType.ToString());
+            Console.WriteLine("message = " + msg + " From = " + e.BindingType.ToString());
         }
 
         private async void button1_Click(object sender, EventArgs e)

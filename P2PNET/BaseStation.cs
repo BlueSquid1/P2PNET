@@ -46,7 +46,7 @@ namespace P2PNET
             await senderUDP.SendToAsync(msg, brdcstAddress, this.portNum);
         }
 
-        public async Task SendTCPMsgAsync(string ipAddress, byte[] msg)
+        public async Task<bool> SendTCPMsgAsync(string ipAddress, byte[] msg)
         {
             //check if ipAddress is from this peer
             if(this.LocalIpAddress == ipAddress)
@@ -71,7 +71,7 @@ namespace P2PNET
                 }
             }
 
-            await this.KnownPeers[indexNum].SendMsgTCPAsync(msg);
+            return await this.KnownPeers[indexNum].SendMsgTCPAsync(msg);
 
         }
 
@@ -130,8 +130,28 @@ namespace P2PNET
         {
             Peer newPeer = new Peer(socketClient);
             newPeer.MsgReceived += NewPeer_MsgReceived;
+            newPeer.peerStatusChange += NewPeer_peerStatusChange;
             knownPeers.Add(newPeer);
             PeerChange?.Invoke(this, new PeerChangeEventArgs(knownPeers));
+        }
+
+        private void NewPeer_peerStatusChange(object sender, System.EventArgs e)
+        {
+            Peer changedPeer = (Peer)sender;
+            int indexNum;
+            IsPeerKnown(changedPeer.IpAddress, out indexNum);
+            if(indexNum < 0)
+            {
+                throw (new PeerNotKnown("This error message is imposible to reach. Changed peer is not known"));
+            }
+
+            //delete inactive peers
+            bool isPeerInactive = knownPeers[indexNum].IsPeerActive;
+            if(isPeerInactive)
+            {
+                //delete from list
+                knownPeers.Remove(changedPeer);
+            }
         }
 
         private void NewPeer_MsgReceived(object sender, MsgReceivedEventArgs e)

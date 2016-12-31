@@ -54,9 +54,9 @@ namespace P2PNET
             await listener.StartAsync();
         }
 
-        public async Task SendMsgAsyncTCP(string ipAddress, byte[] msg)
+        public async Task<bool> SendMsgAsyncTCP(string ipAddress, byte[] msg)
         {
-            await baseStation.SendTCPMsgAsync(ipAddress, msg);
+            return await baseStation.SendTCPMsgAsync(ipAddress, msg);
         }
 
         public async Task SendMsgAsyncUDP(string ipAddress, byte[] msg)

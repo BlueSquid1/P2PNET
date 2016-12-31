@@ -10,6 +10,7 @@ namespace P2PNET
     public class Peer
     {
         public event EventHandler<MsgReceivedEventArgs> MsgReceived;
+        public event EventHandler peerStatusChange;
 
         public string IpAddress
         {
@@ -19,16 +20,15 @@ namespace P2PNET
             }
         }
 
+        public bool IsPeerActive { get; set; }
+
         private ITcpSocketClient socketClient;
-        private BinaryWriter writeStream;
-        private BinaryReader readStream;
 
         //constructor
         public Peer(ITcpSocketClient mSocketClient)
         {
+            this.IsPeerActive = true;
             this.socketClient = mSocketClient;
-            this.writeStream = new BinaryWriter(socketClient.WriteStream, Encoding.Unicode);
-            this.readStream = new BinaryReader(socketClient.ReadStream, Encoding.Unicode);
 
             StartListening();
         }
@@ -39,31 +39,68 @@ namespace P2PNET
             this.socketClient.DisconnectAsync().Wait();
         }
 
-        public async Task SendMsgTCPAsync(byte[] msg)
+        public async Task<bool> SendMsgTCPAsync(byte[] msg)
         {
-            this.readStream.ReadString
-            this.writeStream.Write()
-
-            if (!outputStream.CanWrite)
+            if(this.IsPeerActive == false)
             {
-                throw (new StreamCannotWrite("Cannot send message to peer because stream is not writable"));
+                //peer has disconnected
+                return false;
             }
+            //send number indicating message size
+            int lenMsg = (int)msg.Length;
+            byte[] lenBin = IntToBinary(lenMsg);
+            await socketClient.WriteStream.WriteAsync(lenBin, 0, lenBin.Length);
 
-            outputStream.Write(msg, 0, msg.Length);
-            await outputStream.FlushAsync();
+            //send the msg
+            await socketClient.WriteStream.WriteAsync(msg, 0, lenMsg);
+            await socketClient.WriteStream.FlushAsync();
+            return true;
         }
 
         private async void StartListening()
         {
-            string peerIp = socketClient.RemoteAddress;
-            Stream inputStream = socketClient.ReadStream;
             while (true)
             {
-                Byte[] buffer = new Byte[5];
-                await inputStream.ReadAsync(buffer, 0, 1);
-                MsgReceived?.Invoke(this, new MsgReceivedEventArgs(peerIp, buffer, TransportType.TCP));
+                const int intSize = sizeof(int);
+                Byte[] lengthBin = new Byte[intSize];
+                //socketClient.
+                try
+                {
+                    await socketClient.ReadStream.ReadAsync(lengthBin, 0, intSize);
+                }
+                catch(System.IO.IOException e1)
+                {
+                    //peer has disconnected
+                    this.IsPeerActive = false;
+                    peerStatusChange?.Invoke(this, new System.EventArgs());
+                    return;
+                }
+                int msgSize = BinaryToInt(lengthBin);
+
+                byte[] messageBin = new byte[msgSize];
+                await socketClient.ReadStream.ReadAsync(messageBin, 0, msgSize);
+
+                MsgReceived?.Invoke(this, new MsgReceivedEventArgs(socketClient.RemoteAddress, messageBin, TransportType.TCP));
             }
-            
+        }
+
+        private byte[] IntToBinary(int value)
+        {
+            byte[] valueBin = BitConverter.GetBytes(value);
+            if(BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(valueBin);
+            }
+            return valueBin;
+        }
+
+        private int BinaryToInt(byte[] binArray)
+        {
+            if(BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(binArray);
+            }
+            return BitConverter.ToInt32(binArray, 0);
         }
         
     }
