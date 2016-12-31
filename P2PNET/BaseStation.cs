@@ -105,6 +105,13 @@ namespace P2PNET
                 }
             }
 
+            //check if its a blank UDP packet
+            //These are used as heart beats
+            if(e.Message.Length <= 0)
+            {
+                return;
+            }
+
             //trigger sent message
             MsgReceived?.Invoke(this, e);
         }

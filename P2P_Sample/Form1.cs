@@ -28,6 +28,7 @@ namespace P2P_Sample
             peerManager = new PeerManager(portNum);
             peerManager.msgReceived += PeerManager_msgReceived;
             peerManager.PeerChange += PeerManager_PeerChange;
+            peerManager.EnableAutomaticConnect(1000);
             await peerManager.StartAsync();
             Console.WriteLine("started listening");
         }

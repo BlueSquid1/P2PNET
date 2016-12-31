@@ -9,11 +9,13 @@ namespace P2PNET
 {
     public class PeerManager
     {
-        private Listener listener;
-        private BaseStation baseStation;
-
         public event EventHandler<PeerChangeEventArgs> PeerChange;
         public event EventHandler<MsgReceivedEventArgs> msgReceived;
+
+        private Listener listener;
+        private BaseStation baseStation;
+        private HeartBeat heartBeat;
+
 
         public List<Peer> KnownPeers
         {
@@ -48,25 +50,21 @@ namespace P2PNET
             this.listener.PeerConnectTCPRequest += baseStation.NewTCPConnection;
         }
 
-        /*
+        
         //This function will enable a heartbeat.
         //refreshRateMilliSec is the period before heartbeats
         //heartbeats helps other peers find out which other peers
         //are avaliable on the same local network (same subnet)
         public void EnableAutomaticConnect(int refreshRateMilliSec)
         {
-            Thread.Sleep(Timer;
-            
-
-            System.Timers.Timer x;
-            var timer = new Timer(Callback, null, TIME_INTERVAL_IN_MILLISECONDS, Timeout.Infinite);
+            heartBeat = new HeartBeat(refreshRateMilliSec, baseStation);
         }
-        */
 
         public async Task StartAsync()
         {
             this.ipAddress = await this.GetLocalIPAddress();
             baseStation.LocalIpAddress = this.ipAddress;
+            heartBeat?.StartBroadcasting();
             await listener.StartAsync();
         }
 
