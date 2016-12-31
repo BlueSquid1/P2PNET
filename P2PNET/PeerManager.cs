@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using P2PNET.EventArgs;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace P2PNET
 {
@@ -46,6 +47,21 @@ namespace P2PNET
             this.listener.IncomingMsg += baseStation.IncomingMsgAsync;
             this.listener.PeerConnectTCPRequest += baseStation.NewTCPConnection;
         }
+
+        /*
+        //This function will enable a heartbeat.
+        //refreshRateMilliSec is the period before heartbeats
+        //heartbeats helps other peers find out which other peers
+        //are avaliable on the same local network (same subnet)
+        public void EnableAutomaticConnect(int refreshRateMilliSec)
+        {
+            Thread.Sleep(Timer;
+            
+
+            System.Timers.Timer x;
+            var timer = new Timer(Callback, null, TIME_INTERVAL_IN_MILLISECONDS, Timeout.Infinite);
+        }
+        */
 
         public async Task StartAsync()
         {

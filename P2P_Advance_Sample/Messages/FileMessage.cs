@@ -9,6 +9,7 @@ namespace P2P_Advance_Sample.Messages
     public class FileMessage : IMessage
     {
         public MessageType MsgType{ get; set; }
+        public string filePath { get; set; }
         public byte[] FileData { get; set; }
 
         //constructor

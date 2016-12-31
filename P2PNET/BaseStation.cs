@@ -3,6 +3,7 @@ using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace P2PNET
@@ -71,6 +72,12 @@ namespace P2PNET
                 }
             }
 
+            //make sure peer is active
+            if(!this.KnownPeers[indexNum].IsPeerActive)
+            {
+                //peer not active
+                return false;
+            }
             return await this.KnownPeers[indexNum].SendMsgTCPAsync(msg);
 
         }
