@@ -37,7 +37,6 @@
     <Compile Include="BaseStation.cs" />
     <Compile Include="EventArgs\PeerChangeEventArgs.cs" />
     <Compile Include="Exceptions.cs" />
-    <Compile Include="HeartBeat.cs" />
     <Compile Include="Listener.cs" />
     <Compile Include="EventArgs\MsgReceivedEventArgs.cs" />
     <Compile Include="Peer.cs" />
@@ -61,6 +60,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="DLLs\Sockets.Plugin.Abstractions.dll" />
+    <EmbeddedResource Include="DLLs\Sockets.Plugin.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

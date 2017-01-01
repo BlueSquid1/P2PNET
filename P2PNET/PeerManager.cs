@@ -14,7 +14,6 @@ namespace P2PNET
 
         private Listener listener;
         private BaseStation baseStation;
-        private HeartBeat heartBeat;
 
 
         public List<Peer> KnownPeers
@@ -25,19 +24,22 @@ namespace P2PNET
             }
         }
 
-        private string ipAddress;
-        public string IpAddress
+        private string ipAddress = null;
+
+        public async Task<string> GetIpAddress()
         {
-            get
+            if(ipAddress == null)
             {
-                return ipAddress;
+                ipAddress = await GetLocalIPAddress();
             }
+            return ipAddress;
         }
         public int PortNum { get; }
 
         //constructor
         public PeerManager(int mPortNum = 8080)
         {
+
             this.PortNum = mPortNum;
             this.listener = new Listener(this.PortNum);
             this.baseStation = new BaseStation(this.PortNum);
@@ -50,21 +52,9 @@ namespace P2PNET
             this.listener.PeerConnectTCPRequest += baseStation.NewTCPConnection;
         }
 
-        
-        //This function will enable a heartbeat.
-        //refreshRateMilliSec is the period before heartbeats
-        //heartbeats helps other peers find out which other peers
-        //are avaliable on the same local network (same subnet)
-        public void EnableAutomaticConnect(int refreshRateMilliSec)
-        {
-            heartBeat = new HeartBeat(refreshRateMilliSec, baseStation);
-        }
-
         public async Task StartAsync()
         {
-            this.ipAddress = await this.GetLocalIPAddress();
-            baseStation.LocalIpAddress = this.ipAddress;
-            heartBeat?.StartBroadcasting();
+            baseStation.LocalIpAddress = await GetLocalIPAddress();
             await listener.StartAsync();
         }
 
