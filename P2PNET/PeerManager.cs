@@ -63,14 +63,25 @@ namespace P2PNET
             return await baseStation.SendTCPMsgAsync(ipAddress, msg);
         }
 
-        public async Task SendMsgAsyncUDP(string ipAddress, byte[] msg)
+        public async Task<bool> SendMsgAsyncUDP(string ipAddress, byte[] msg)
         {
-            await baseStation.SendUDPMsgAsync(ipAddress, msg);
+            return await baseStation.SendUDPMsgAsync(ipAddress, msg);
         }
 
         public async Task SendBroadcastAsyncUDP(byte[] msg)
         {
             await baseStation.SendUDPBroadcastAsync(msg);
+        }
+
+        public async Task SendMsgToAllPeersAsyncUDP(byte[] msg)
+        {
+            await baseStation.SendTCPMsgToAllUDPAsync(msg);
+        }
+
+        //sends the message to all known peers
+        public async Task SendMsgToAllPeersAsyncTCP(byte[] msg)
+        {
+            await baseStation.SendTCPMsgToAllTCPAsync(msg);
         }
 
         //This is here for existing Peer to Peer systems that use asynchronous Connections.

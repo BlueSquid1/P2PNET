@@ -36,9 +36,22 @@ namespace P2PNET
             this.portNum = mPortNum;
         }
 
-        public async Task SendUDPMsgAsync(string ipAddress, byte[] msg)
+        public async Task<bool> SendUDPMsgAsync(string ipAddress, byte[] msg)
         {
+            int peerIndex;
+            bool isPeerKnown = IsPeerKnown(ipAddress, out peerIndex);
+            if(isPeerKnown && peerIndex >= 0)
+            {
+                bool isPeerActive = knownPeers[peerIndex].IsPeerActive;
+                if(!isPeerActive)
+                {
+                    //peer not active. therefore can't received messages
+                    return false;
+                }
+            }
+
             await senderUDP.SendToAsync(msg, ipAddress, this.portNum);
+            return true;
         }
 
         public async Task SendUDPBroadcastAsync(byte[] msg)
@@ -47,6 +60,21 @@ namespace P2PNET
             await senderUDP.SendToAsync(msg, brdcstAddress, this.portNum);
         }
 
+        public async Task SendTCPMsgToAllUDPAsync(byte[] msg)
+        {
+            foreach(Peer peer in knownPeers)
+            {
+                string curIpAddress = peer.IpAddress;
+                bool isActive = peer.IsPeerActive;
+                if (isActive)
+                {
+                    await SendUDPMsgAsync(curIpAddress, msg);
+                }
+            }
+        }
+
+        //returns false if was unsuccessful
+        //thinking about throwing an exception instead
         public async Task<bool> SendTCPMsgAsync(string ipAddress, byte[] msg)
         {
             //check if ipAddress is from this peer
@@ -80,6 +108,19 @@ namespace P2PNET
             }
             return await this.KnownPeers[indexNum].SendMsgTCPAsync(msg);
 
+        }
+
+        public async Task SendTCPMsgToAllTCPAsync(byte[] msg)
+        {
+            foreach(Peer peer in knownPeers)
+            {
+                string curIpAddress = peer.IpAddress;
+                bool isActive = peer.IsPeerActive;
+                if(isActive)
+                {
+                    await SendTCPMsgAsync(curIpAddress, msg);
+                }
+            }
         }
 
         public async void IncomingMsgAsync(object sender, MsgReceivedEventArgs e)
