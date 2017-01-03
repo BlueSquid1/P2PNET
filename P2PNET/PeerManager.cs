@@ -11,10 +11,11 @@ namespace P2PNET
     {
         public event EventHandler<PeerChangeEventArgs> PeerChange;
         public event EventHandler<MsgReceivedEventArgs> msgReceived;
+        public event EventHandler<ObjReceivedEventArgs> objReceived;
 
         private Listener listener;
         private BaseStation baseStation;
-
+        private Serializer serializer;
 
         public List<Peer> KnownPeers
         {
@@ -43,6 +44,9 @@ namespace P2PNET
             this.PortNum = mPortNum;
             this.listener = new Listener(this.PortNum);
             this.baseStation = new BaseStation(this.PortNum);
+            this.serializer = new Serializer();
+
+            //this.serializer
 
             this.baseStation.PeerChange += BaseStation_PeerChange;
             this.baseStation.MsgReceived += IncomingMsg;
@@ -82,6 +86,17 @@ namespace P2PNET
         public async Task SendMsgToAllPeersAsyncTCP(byte[] msg)
         {
             await baseStation.SendTCPMsgToAllTCPAsync(msg);
+        }
+
+        //TODO: not finished yet....
+        public void SendObjToAllPeersAsyncUDP<T>(T obj)
+        {
+            ObjectMessage objMsg = new ObjectMessage(obj, obj.GetType());
+            var temp = obj.GetType();
+            string msg = serializer.SerializeObjectJSON(obj);
+
+            ObjectMessage tempObjMsg = serializer.DeserializeObjectJSON<ObjectMessage>(msg);
+
         }
 
         //This is here for existing Peer to Peer systems that use asynchronous Connections.
