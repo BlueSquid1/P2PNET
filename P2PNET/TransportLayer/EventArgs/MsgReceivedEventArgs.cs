@@ -1,4 +1,4 @@
-﻿namespace P2PNET.EventArgs
+﻿namespace P2PNET.TransportLayer.EventArgs
 {
     public class MsgReceivedEventArgs : System.EventArgs
     {

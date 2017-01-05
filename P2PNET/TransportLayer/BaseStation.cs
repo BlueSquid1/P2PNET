@@ -1,4 +1,4 @@
-﻿using P2PNET.EventArgs;
+﻿using P2PNET.TransportLayer.EventArgs;
 using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 using System;
@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace P2PNET
+namespace P2PNET.TransportLayer
 {
     public class BaseStation
     {

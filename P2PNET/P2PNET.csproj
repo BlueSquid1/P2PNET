@@ -34,18 +34,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="BaseStation.cs" />
-    <Compile Include="EventArgs\ObjReceivedEventArgs.cs" />
-    <Compile Include="EventArgs\PeerChangeEventArgs.cs" />
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="Listener.cs" />
-    <Compile Include="EventArgs\MsgReceivedEventArgs.cs" />
-    <Compile Include="ObjectMessage.cs" />
-    <Compile Include="Peer.cs" />
-    <Compile Include="PeerManager.cs" />
+    <Compile Include="ApplicationLayer\MsgMetadata\IMetadata.cs" />
+    <Compile Include="ApplicationLayer\MsgMetadata\ObjectMetadata.cs" />
+    <Compile Include="ApplicationLayer\ObjectManager.cs" />
+    <Compile Include="TransportLayer\BaseStation.cs" />
+    <Compile Include="ApplicationLayer\EventArgs\ObjReceivedEventArgs.cs" />
+    <Compile Include="TransportLayer\EventArgs\PeerChangeEventArgs.cs" />
+    <Compile Include="TransportLayer\Exceptions.cs" />
+    <Compile Include="TransportLayer\Listener.cs" />
+    <Compile Include="TransportLayer\EventArgs\MsgReceivedEventArgs.cs" />
+    <Compile Include="TransportLayer\ObjectMessage.cs" />
+    <Compile Include="TransportLayer\Peer.cs" />
+    <Compile Include="TransportLayer\PeerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Serializer.cs" />
-    <Compile Include="TransportType.cs" />
+    <Compile Include="ApplicationLayer\Serializer.cs" />
+    <Compile Include="TransportLayer\TransportType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -64,10 +67,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="DLLs\Sockets.Plugin.Abstractions.dll" />
-    <EmbeddedResource Include="DLLs\Sockets.Plugin.dll" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

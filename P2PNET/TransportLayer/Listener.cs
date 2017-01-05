@@ -1,10 +1,10 @@
 ﻿using System;
-using P2PNET.EventArgs;
+using P2PNET.TransportLayer.EventArgs;
 using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 using System.Threading.Tasks;
 
-namespace P2PNET
+namespace P2PNET.TransportLayer
 {
     public class Listener
     {

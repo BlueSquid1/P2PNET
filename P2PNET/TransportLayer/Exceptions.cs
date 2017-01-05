@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace P2PNET
+namespace P2PNET.TransportLayer
 {
     public class PeerNotKnown : Exception
     {

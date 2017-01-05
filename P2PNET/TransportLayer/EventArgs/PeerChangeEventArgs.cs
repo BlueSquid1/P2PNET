@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace P2PNET.EventArgs
+namespace P2PNET.TransportLayer.EventArgs
 {
     public class PeerChangeEventArgs
     {

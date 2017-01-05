@@ -1,4 +1,6 @@
-﻿namespace P2PNET.EventArgs
+﻿using P2PNET.TransportLayer;
+
+namespace P2PNET.ApplicationLayer.EventArgs
 {
     public class ObjReceivedEventArgs : System.EventArgs
     {

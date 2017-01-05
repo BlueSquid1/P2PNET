@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using System.IO;
 using Sockets.Plugin.Abstractions;
-using P2PNET.EventArgs;
+using P2PNET.TransportLayer.EventArgs;
 using System.Text;
 
-namespace P2PNET
+namespace P2PNET.TransportLayer
 {
     public class Peer
     {

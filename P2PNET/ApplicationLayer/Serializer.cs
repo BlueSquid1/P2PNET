@@ -1,26 +1,26 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
-using P2PNET.EventArgs;
+using P2PNET.ApplicationLayer.MsgMetadata;
+using P2PNET.TransportLayer.EventArgs;
 using System;
 using System.IO;
 
-namespace P2PNET
+namespace P2PNET.ApplicationLayer
 {
     public class Serializer
     {
-        public event EventHandler<ObjReceivedEventArgs> objDeserialized;
-
+        //seralizes the object to Binary JSON
+        //this has better output size when sending binary files (which typically
+        //make up the majority of file sizes)
         public byte[] SerializeObjectBSON<T>(T keyMsg)
         {
-            //seralizes the object to Binary JSON
-            //this has better output size when sending binary files (which typically
-            //make up the majority of file sizes)
+            //generate metadata
+            //ObjectMetadata x;
+
             MemoryStream ms = new MemoryStream();
-            using(BsonWriter writer = new BsonWriter(ms))
-            { 
-                JsonSerializer serializer = new JsonSerializer();
-                serializer.Serialize(writer, keyMsg);
-            }
+            BsonWriter writer = new BsonWriter(ms);
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Serialize(writer, keyMsg);
             return ms.ToArray();
         }
 
