@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using P2PNET.TransportLayer;
 using P2PNET.TransportLayer.EventArgs;
 using P2PNET.ApplicationLayer.EventArgs;
+using P2PNET.ApplicationLayer.MsgMetadata;
 
 namespace P2PNET.ApplicationLayer
 {
@@ -27,15 +28,24 @@ namespace P2PNET.ApplicationLayer
             peerManager.PeerChange += PeerManager_PeerChange;
         }
 
+        /*
         public async void SendObjBroadcastUDP<T>(T obj)
         {
+            await GenerateSendMetadata(obj);
             byte[] objBin = serializer.SerializeObjectBSON(obj);
             await peerManager.SendBroadcastAsyncUDP(objBin);
         }
 
+        private async Task<Metadata> GenerateSendMetadata<T>(T obj, bool twoWayHndShke = false)
+        {
+            string sourceIp = await peerManager.GetIpAddress();
+            //Metadata metaInfo = new Metadata()
+        }
+        */
+
         private void PeerManager_PeerChange(object sender, TransportLayer.EventArgs.PeerChangeEventArgs e)
         {
-            throw new NotImplementedException();
+            PeerChange?.Invoke(this, e);
         }
 
         private void PeerManager_msgReceived(object sender, TransportLayer.EventArgs.MsgReceivedEventArgs e)

@@ -34,8 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ApplicationLayer\MsgMetadata\IMetadata.cs" />
-    <Compile Include="ApplicationLayer\MsgMetadata\ObjectMetadata.cs" />
+    <Compile Include="ApplicationLayer\Metadata.cs" />
     <Compile Include="ApplicationLayer\ObjectManager.cs" />
     <Compile Include="TransportLayer\BaseStation.cs" />
     <Compile Include="ApplicationLayer\EventArgs\ObjReceivedEventArgs.cs" />
