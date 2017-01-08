@@ -29,6 +29,5 @@ namespace P2PNET.ApplicationLayer
         public bool IsTwoWay { get; set; }
 
         public string SourceIp { get; set; }
-        public string TargetIp { get; set; }
     }
 }

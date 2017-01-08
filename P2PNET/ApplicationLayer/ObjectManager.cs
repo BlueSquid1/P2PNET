@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using P2PNET.TransportLayer;
 using P2PNET.TransportLayer.EventArgs;
 using P2PNET.ApplicationLayer.EventArgs;
-using System.IO;
 
 namespace P2PNET.ApplicationLayer
 {
@@ -16,12 +12,12 @@ namespace P2PNET.ApplicationLayer
         public event EventHandler<ObjReceivedEventArgs> objReceived;
 
         private Serializer serializer;
-        private PeerManager peerManager;
+        private MessageManager peerManager;
 
         //constructor
         public ObjectManager(int portNum = 8080)
         {
-            peerManager = new PeerManager(portNum, true);
+            peerManager = new MessageManager(portNum, true);
             serializer = new Serializer();
 
             peerManager.msgReceived += PeerManager_msgReceived;
@@ -33,11 +29,46 @@ namespace P2PNET.ApplicationLayer
             await peerManager.StartAsync();
         }
         
-        public async void SendObjBroadcastUDP<T>(T obj)
+        public async Task SendBroadcastAsyncUDP<T>(T obj)
+        {
+            byte[] msg = await PackObjectIntoMsg(obj);
+
+            await peerManager.SendBroadcastAsyncUDP(msg);
+        }
+
+        public async Task<bool> SendAsyncTCP<T>(string ipAddress, T obj)
+        {
+            byte[] msg = await PackObjectIntoMsg(obj);
+
+            return await peerManager.SendAsyncTCP(ipAddress, msg);
+        }
+
+        public async Task<bool> SendAsyncUDP<T>(string ipAddress, T obj)
+        {
+            byte[] msg = await PackObjectIntoMsg(obj);
+
+            return await peerManager.SendAsyncUDP(ipAddress, msg);
+        }
+
+        public async Task SendToAllPeersAsyncUDP<T>(T obj)
+        {
+            byte[] msg = await PackObjectIntoMsg(obj);
+
+            await peerManager.SendToAllPeersAsyncUDP(msg);
+        }
+
+        public async Task SendToAllPeersAsyncTCP<T>(T obj)
+        {
+            byte[] msg = await PackObjectIntoMsg(obj);
+
+            await peerManager.SendToAllPeersAsyncTCP(msg);
+        }
+
+        private async Task<byte[]> PackObjectIntoMsg<T>(T obj)
         {
             //generate metadata
             Metadata metadata = await CreateMetadataObj(obj);
-            
+
             //seralize object
             byte[] objMsg = serializer.SerializeObjectBSON(obj);
 
@@ -50,13 +81,11 @@ namespace P2PNET.ApplicationLayer
 
             //msg = metadataSizeMsg + metadataMsg + objMsg
             byte[] msg = new byte[metadataSizeMsg.Length + metadataMsg.Length + objMsg.Length];
-            
+
             Array.Copy(metadataSizeMsg, msg, metadataSizeMsg.Length);
             Array.Copy(metadataMsg, 0, msg, metadataSizeMsg.Length, metadataMsg.Length);
             Array.Copy(objMsg, 0, msg, metadataSizeMsg.Length + metadataMsg.Length, objMsg.Length);
-            
-            //send msg
-            await peerManager.SendBroadcastAsyncUDP(msg);
+            return msg;
         }
 
         private async Task<Metadata> CreateMetadataObj<T>(T obj, bool forceTwoWayHandShake = false)
@@ -117,8 +146,8 @@ namespace P2PNET.ApplicationLayer
             }
             else
             {
-                //message send seperately
-
+                //message sent seperately
+                //TODO
             }
         }
     }

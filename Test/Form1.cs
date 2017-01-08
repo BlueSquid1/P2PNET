@@ -21,6 +21,9 @@ namespace Test
                 case "Person":
                     Person person = e.Obj.GetObject<Person>();
                     break;
+                case "HardClass":
+                    HardClass test = e.Obj.GetObject<HardClass>();
+                    break;
                 default:
                     //unknown type
                     Console.WriteLine("unknown object type");
@@ -36,7 +39,8 @@ namespace Test
         private void SendObj_Click(object sender, EventArgs e)
         {
             Person person = new Person("Phillip", "King", 20);
-            objectManager.SendObjBroadcastUDP(person);
+            HardClass test = new HardClass();
+            objectManager.SendObjBroadcastUDP(test);
         }
     }
 }

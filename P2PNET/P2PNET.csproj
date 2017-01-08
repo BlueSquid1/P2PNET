@@ -44,7 +44,7 @@
     <Compile Include="TransportLayer\Listener.cs" />
     <Compile Include="TransportLayer\EventArgs\MsgReceivedEventArgs.cs" />
     <Compile Include="TransportLayer\Peer.cs" />
-    <Compile Include="TransportLayer\PeerManager.cs" />
+    <Compile Include="TransportLayer\MessageManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ApplicationLayer\Serializer.cs" />
     <Compile Include="TransportLayer\TransportType.cs" />

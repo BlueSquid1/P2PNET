@@ -3,11 +3,10 @@ using System;
 using System.Collections.Generic;
 using P2PNET.TransportLayer.EventArgs;
 using System.Threading.Tasks;
-using System.Threading;
 
 namespace P2PNET.TransportLayer
 {
-    public class PeerManager
+    public class MessageManager
     {
         public event EventHandler<PeerChangeEventArgs> PeerChange;
         public event EventHandler<MsgReceivedEventArgs> msgReceived;
@@ -38,7 +37,7 @@ namespace P2PNET.TransportLayer
         //constructor
         //mForwardAll = true will listener for duplicate messages and messages broadcasted from
         //this peer
-        public PeerManager(int mPortNum = 8080, bool mForwardAll = false)
+        public MessageManager(int mPortNum = 8080, bool mForwardAll = false)
         {
 
             this.PortNum = mPortNum;
@@ -61,12 +60,12 @@ namespace P2PNET.TransportLayer
             await listener.StartAsync();
         }
 
-        public async Task<bool> SendMsgAsyncTCP(string ipAddress, byte[] msg)
+        public async Task<bool> SendAsyncTCP(string ipAddress, byte[] msg)
         {
             return await baseStation.SendTCPMsgAsync(ipAddress, msg);
         }
 
-        public async Task<bool> SendMsgAsyncUDP(string ipAddress, byte[] msg)
+        public async Task<bool> SendAsyncUDP(string ipAddress, byte[] msg)
         {
             return await baseStation.SendUDPMsgAsync(ipAddress, msg);
         }
@@ -76,13 +75,13 @@ namespace P2PNET.TransportLayer
             await baseStation.SendUDPBroadcastAsync(msg);
         }
 
-        public async Task SendMsgToAllPeersAsyncUDP(byte[] msg)
+        public async Task SendToAllPeersAsyncUDP(byte[] msg)
         {
             await baseStation.SendTCPMsgToAllUDPAsync(msg);
         }
 
         //sends the message to all known peers
-        public async Task SendMsgToAllPeersAsyncTCP(byte[] msg)
+        public async Task SendToAllPeersAsyncTCP(byte[] msg)
         {
             await baseStation.SendTCPMsgToAllTCPAsync(msg);
         }
