@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using P2PNET.TransportLayer;
 using P2PNET.TransportLayer.EventArgs;
 using P2PNET.ApplicationLayer.EventArgs;
-using P2PNET.ApplicationLayer.MsgMetadata;
 using System.IO;
 
 namespace P2PNET.ApplicationLayer
@@ -63,10 +62,12 @@ namespace P2PNET.ApplicationLayer
         private async Task<Metadata> CreateMetadataObj<T>(T obj, bool forceTwoWayHandShake = false)
         {
             string sourceIp = await peerManager.GetIpAddress();
-            //TODO: check for if type is a file
             MessageType msgType = MessageType.Object;
             bool isTwoWay = false;
-            if (obj.GetType().Name == "File")
+
+            string objType = obj.GetType().Name;
+
+            if (objType == "File")
             {
                 msgType = MessageType.File;
                 isTwoWay = true;
@@ -81,7 +82,8 @@ namespace P2PNET.ApplicationLayer
             metaData.MsgType = msgType;
             metaData.SourceIp = sourceIp;
             metaData.IsTwoWay = isTwoWay;
-            
+            metaData.ObjType = objType;
+
             return metaData;
         }
 
@@ -92,7 +94,32 @@ namespace P2PNET.ApplicationLayer
 
         private void PeerManager_msgReceived(object sender, TransportLayer.EventArgs.MsgReceivedEventArgs e)
         {
-            //e.Message
+            byte[] msg = e.Message;
+
+            //get metadata size
+            byte[] metadataSizeMsg = new byte[sizeof(int)];
+            Array.Copy(msg, metadataSizeMsg, sizeof(int));
+            int metadataSize = serializer.ReadInt32(metadataSizeMsg);
+
+            //get metadata
+            byte[] metadataMsg = new byte[metadataSize];
+            Array.Copy(msg, sizeof(int), metadataMsg, 0, metadataSize);
+            Metadata metadata = serializer.DeserializeObjectBSON<Metadata>(metadataMsg);
+
+            //get message
+            byte[] objectMsg = new byte[metadata.TotalMsgSizeBytes];
+            if (metadata.IsTwoWay == false)
+            {
+                //message attached to this request
+                Array.Copy(msg, sizeof(int) + metadataSize, objectMsg, 0, metadata.TotalMsgSizeBytes);
+                BObject bObject = new BObject(objectMsg, serializer);
+                objReceived?.Invoke(this, new ObjReceivedEventArgs(bObject, metadata));
+            }
+            else
+            {
+                //message send seperately
+
+            }
         }
     }
 }

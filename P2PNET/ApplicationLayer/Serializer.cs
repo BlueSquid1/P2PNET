@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
-using P2PNET.ApplicationLayer.MsgMetadata;
-using P2PNET.TransportLayer.EventArgs;
 using System;
 using System.IO;
-using System.Text;
 
 namespace P2PNET.ApplicationLayer
 {
@@ -61,6 +58,10 @@ namespace P2PNET.ApplicationLayer
         public byte[] WriteInt32(int value)
         {
             byte[] binary = BitConverter.GetBytes(value);
+            if(BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(binary);
+            }
             return binary;
         }
     }

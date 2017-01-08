@@ -34,6 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ApplicationLayer\BObject.cs" />
     <Compile Include="ApplicationLayer\Metadata.cs" />
     <Compile Include="ApplicationLayer\ObjectManager.cs" />
     <Compile Include="TransportLayer\BaseStation.cs" />

@@ -10,7 +10,22 @@ namespace Test
         public Form1()
         {
             objectManager = new ObjectManager();
+            objectManager.objReceived += ObjectManager_objReceived;
             InitializeComponent();
+        }
+
+        private void ObjectManager_objReceived(object sender, P2PNET.ApplicationLayer.EventArgs.ObjReceivedEventArgs e)
+        {
+            switch(e.Metadata.ObjType)
+            {
+                case "Person":
+                    Person person = e.Obj.GetObject<Person>();
+                    break;
+                default:
+                    //unknown type
+                    Console.WriteLine("unknown object type");
+                    break;
+            }
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -20,7 +35,7 @@ namespace Test
 
         private void SendObj_Click(object sender, EventArgs e)
         {
-            Person person = new Test.Person("Phillip", "King", 20);
+            Person person = new Person("Phillip", "King", 20);
             objectManager.SendObjBroadcastUDP(person);
         }
     }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace P2PNET.ApplicationLayer.MsgMetadata
+namespace P2PNET.ApplicationLayer
 {
     public enum MessageType
     {
@@ -13,6 +13,9 @@ namespace P2PNET.ApplicationLayer.MsgMetadata
     }
     public class Metadata
     {
+        //the type of the object
+        public string ObjType { get; set; }
+
         //whether the message is an object or a file
         public MessageType MsgType { get; set; }
         //the number of bytes to be send across the network
