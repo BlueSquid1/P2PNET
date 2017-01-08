@@ -24,15 +24,17 @@ namespace P2PNET.TransportLayer
 
         private List<Peer> knownPeers;
         private int portNum;
+        private bool forwardAll;
 
         private UdpSocketClient senderUDP;
 
         //constructor
-        public BaseStation(int mPortNum)
+        public BaseStation(int mPortNum, bool mForwardAll = false)
         {
             this.knownPeers = new List<Peer>();
             this.senderUDP = new UdpSocketClient();
 
+            this.forwardAll = mForwardAll;
             this.portNum = mPortNum;
         }
 
@@ -130,7 +132,10 @@ namespace P2PNET.TransportLayer
             {
                 //from this peer.
                 //no futher proccessing needed
-                return;
+                if(forwardAll == false)
+                {
+                    return;
+                }
             }
 
             //check if its from a new peer

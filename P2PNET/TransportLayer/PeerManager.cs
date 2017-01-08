@@ -36,12 +36,14 @@ namespace P2PNET.TransportLayer
         public int PortNum { get; }
 
         //constructor
-        public PeerManager(int mPortNum = 8080)
+        //mForwardAll = true will listener for duplicate messages and messages broadcasted from
+        //this peer
+        public PeerManager(int mPortNum = 8080, bool mForwardAll = false)
         {
 
             this.PortNum = mPortNum;
             this.listener = new Listener(this.PortNum);
-            this.baseStation = new BaseStation(this.PortNum);
+            this.baseStation = new BaseStation(this.PortNum, mForwardAll);
 
             //this.serializer
 

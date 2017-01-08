@@ -42,7 +42,6 @@
     <Compile Include="TransportLayer\Exceptions.cs" />
     <Compile Include="TransportLayer\Listener.cs" />
     <Compile Include="TransportLayer\EventArgs\MsgReceivedEventArgs.cs" />
-    <Compile Include="TransportLayer\ObjectMessage.cs" />
     <Compile Include="TransportLayer\Peer.cs" />
     <Compile Include="TransportLayer\PeerManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

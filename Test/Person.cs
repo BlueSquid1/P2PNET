@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Test.messages
+namespace Test
 {
     public class Person
     {
@@ -12,11 +12,12 @@ namespace Test.messages
         public string lastName;
         public int age;
 
-        public Person(string mFirst = "Phillip", string mLast = "King", int mAge = 20)
+        //constructor
+        public Person(string firstName, string lastName, int age)
         {
-            this.firstName = mFirst;
-            this.lastName = mLast;
-            this.age = mAge;
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.age = age;
         }
     }
 }

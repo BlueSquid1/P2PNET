@@ -7,6 +7,7 @@ using P2PNET.TransportLayer;
 using P2PNET.TransportLayer.EventArgs;
 using P2PNET.ApplicationLayer.EventArgs;
 using P2PNET.ApplicationLayer.MsgMetadata;
+using System.IO;
 
 namespace P2PNET.ApplicationLayer
 {
@@ -21,27 +22,68 @@ namespace P2PNET.ApplicationLayer
         //constructor
         public ObjectManager(int portNum = 8080)
         {
-            peerManager = new PeerManager(portNum);
+            peerManager = new PeerManager(portNum, true);
             serializer = new Serializer();
 
             peerManager.msgReceived += PeerManager_msgReceived;
             peerManager.PeerChange += PeerManager_PeerChange;
         }
 
-        /*
+        public async Task StartAsync()
+        {
+            await peerManager.StartAsync();
+        }
+        
         public async void SendObjBroadcastUDP<T>(T obj)
         {
-            await GenerateSendMetadata(obj);
-            byte[] objBin = serializer.SerializeObjectBSON(obj);
-            await peerManager.SendBroadcastAsyncUDP(objBin);
+            //generate metadata
+            Metadata metadata = await CreateMetadataObj(obj);
+            
+            //seralize object
+            byte[] objMsg = serializer.SerializeObjectBSON(obj);
+
+            //seralize metadata
+            metadata.TotalMsgSizeBytes = objMsg.Length;
+            byte[] metadataMsg = serializer.SerializeObjectBSON(metadata);
+
+            //seralize size of metadata section by boxing the length
+            byte[] metadataSizeMsg = serializer.WriteInt32(metadataMsg.Length);
+
+            //msg = metadataSizeMsg + metadataMsg + objMsg
+            byte[] msg = new byte[metadataSizeMsg.Length + metadataMsg.Length + objMsg.Length];
+            
+            Array.Copy(metadataSizeMsg, msg, metadataSizeMsg.Length);
+            Array.Copy(metadataMsg, 0, msg, metadataSizeMsg.Length, metadataMsg.Length);
+            Array.Copy(objMsg, 0, msg, metadataSizeMsg.Length + metadataMsg.Length, objMsg.Length);
+            
+            //send msg
+            await peerManager.SendBroadcastAsyncUDP(msg);
         }
 
-        private async Task<Metadata> GenerateSendMetadata<T>(T obj, bool twoWayHndShke = false)
+        private async Task<Metadata> CreateMetadataObj<T>(T obj, bool forceTwoWayHandShake = false)
         {
             string sourceIp = await peerManager.GetIpAddress();
-            //Metadata metaInfo = new Metadata()
+            //TODO: check for if type is a file
+            MessageType msgType = MessageType.Object;
+            bool isTwoWay = false;
+            if (obj.GetType().Name == "File")
+            {
+                msgType = MessageType.File;
+                isTwoWay = true;
+            }
+
+            if(forceTwoWayHandShake)
+            {
+                isTwoWay = true;
+            }
+
+            Metadata metaData = new Metadata();
+            metaData.MsgType = msgType;
+            metaData.SourceIp = sourceIp;
+            metaData.IsTwoWay = isTwoWay;
+            
+            return metaData;
         }
-        */
 
         private void PeerManager_PeerChange(object sender, TransportLayer.EventArgs.PeerChangeEventArgs e)
         {
@@ -50,7 +92,7 @@ namespace P2PNET.ApplicationLayer
 
         private void PeerManager_msgReceived(object sender, TransportLayer.EventArgs.MsgReceivedEventArgs e)
         {
-            throw new NotImplementedException();
+            //e.Message
         }
     }
 }

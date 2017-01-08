@@ -4,6 +4,7 @@ using P2PNET.ApplicationLayer.MsgMetadata;
 using P2PNET.TransportLayer.EventArgs;
 using System;
 using System.IO;
+using System.Text;
 
 namespace P2PNET.ApplicationLayer
 {
@@ -43,6 +44,24 @@ namespace P2PNET.ApplicationLayer
         public T DeserializeObjectJSON<T>(string msg)
         {
             return JsonConvert.DeserializeObject<T>(msg);
+        }
+
+        public int ReadInt32(byte[] bytes)
+        {
+            byte[] bin = new byte[sizeof(int)];
+            Array.Copy(bytes, bin, sizeof(int));
+            if(BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(bin);
+            }
+            int value = BitConverter.ToInt32(bin, 0);
+            return value;
+        }
+
+        public byte[] WriteInt32(int value)
+        {
+            byte[] binary = BitConverter.GetBytes(value);
+            return binary;
         }
     }
 }

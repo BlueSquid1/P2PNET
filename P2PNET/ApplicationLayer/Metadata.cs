@@ -6,26 +6,26 @@ using System.Threading.Tasks;
 
 namespace P2PNET.ApplicationLayer.MsgMetadata
 {
+    public enum MessageType
+    {
+        Object = 0,
+        File = 1
+    }
     public class Metadata
     {
-        string MsgType { get; }
-        int MsgSizeBytes { get; }
+        //whether the message is an object or a file
+        public MessageType MsgType { get; set; }
+        //the number of bytes to be send across the network
+        //used so the receive knowns when the object ends and
+        //can also be used in two way handshake to reject the
+        //incoming message based on its size
+        public int TotalMsgSizeBytes { get; set; }
         //if true then the meta data is sent seperately to the message
         //this is needed to give the receiver a change to reject the
         //incoming message
-        bool IsTwoWay { get; }
+        public bool IsTwoWay { get; set; }
 
-        string SourceIp { get; }
-        string TargetIp { get; }
-
-        //constructor
-        public Metadata(string msgType, int msgSizeBytes, bool isTwoWay, string sourceIp, string TargetIp)
-        {
-            this.MsgType = msgType;
-            this.MsgSizeBytes = msgSizeBytes;
-            this.IsTwoWay = isTwoWay;
-            this.SourceIp = sourceIp;
-            this.TargetIp = TargetIp;
-        }
+        public string SourceIp { get; set; }
+        public string TargetIp { get; set; }
     }
 }
