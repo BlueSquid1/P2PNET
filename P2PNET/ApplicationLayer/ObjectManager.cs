@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using P2PNET.TransportLayer;
 using P2PNET.TransportLayer.EventArgs;
 using P2PNET.ApplicationLayer.EventArgs;
+using System.IO;
+using PCLStorage;
 
 namespace P2PNET.ApplicationLayer
 {
@@ -10,6 +12,7 @@ namespace P2PNET.ApplicationLayer
     {
         public event EventHandler<PeerChangeEventArgs> PeerChange;
         public event EventHandler<ObjReceivedEventArgs> objReceived;
+        public event EventHandler<FileTransferEventArgs> fileTransferProgress;
 
         private Serializer serializer;
         private MessageManager peerManager;
@@ -64,6 +67,53 @@ namespace P2PNET.ApplicationLayer
             await peerManager.SendToAllPeersAsyncTCP(msg);
         }
 
+        public async Task SendFileToAllPeersTCP(string ipAddress, string filePath)
+        {
+            //get file content
+            IFile file = await FileSystem.Current.GetFileFromPathAsync(filePath);
+            Stream fileStream;
+            try
+            {
+                fileStream = await file.OpenAsync(FileAccess.Read);
+            }
+            catch
+            {
+                //can't find file
+                throw new FileNotFound("Can't access the file: " + filePath);
+            }
+
+            //get file details
+            long fileLength = fileStream.Length;
+
+            //send metadata to peers
+            Metadata metadata = await CreateMetadataFile(file.Name);
+
+
+            //send file chunks at a time
+            int chuckSize = 32 * 1024; // 32k chunks
+            long totalWritten = 0;
+            byte[] buffer = new byte[chuckSize];
+            
+            //iterate through all chuncks but the last
+            while(totalWritten < fileLength - chuckSize)
+            {
+                //fill up the buffer
+                await fileStream.ReadAsync(buffer, 0, buffer.Length);
+
+                //send buffer
+                await peerManager.SendAsyncTCP(ipAddress, buffer);
+
+                totalWritten += chuckSize;
+                fileTransferProgress?.Invoke(this, new FileTransferEventArgs(totalWritten / fileLength));
+            }
+
+            //send remain
+            int remaining = (int)(fileLength - totalWritten);
+            await fileStream.ReadAsync(buffer, 0, remaining);
+            await peerManager.SendAsyncTCP(ipAddress, buffer);
+            fileStream.Dispose();
+        }
+
         private async Task<byte[]> PackObjectIntoMsg<T>(T obj)
         {
             //generate metadata
@@ -111,7 +161,22 @@ namespace P2PNET.ApplicationLayer
             metaData.MsgType = msgType;
             metaData.SourceIp = sourceIp;
             metaData.IsTwoWay = isTwoWay;
-            metaData.ObjType = objType;
+            metaData.Name = objType;
+
+            return metaData;
+        }
+
+        private async Task<Metadata> CreateMetadataFile(string fileName)
+        {
+            string sourceIp = await peerManager.GetIpAddress();
+            MessageType msgType = MessageType.Object;
+            bool isTwoWay = true;
+
+            Metadata metaData = new Metadata();
+            metaData.MsgType = msgType;
+            metaData.SourceIp = sourceIp;
+            metaData.IsTwoWay = isTwoWay;
+            metaData.Name = fileName;
 
             return metaData;
         }

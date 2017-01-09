@@ -14,7 +14,7 @@ namespace P2PNET.ApplicationLayer
     public class Metadata
     {
         //the type of the object
-        public string ObjType { get; set; }
+        public string Name { get; set; }
 
         //whether the message is an object or a file
         public MessageType MsgType { get; set; }

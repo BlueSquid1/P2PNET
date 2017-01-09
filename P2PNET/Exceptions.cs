@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace P2PNET.TransportLayer
+namespace P2PNET
 {
     public class PeerNotKnown : Exception
     {
@@ -23,6 +19,14 @@ namespace P2PNET.TransportLayer
     public class NoNetworkInterface : Exception
     {
         public NoNetworkInterface(string message) : base(message)
+        {
+
+        }
+    }
+
+    public class FileNotFound: Exception
+    {
+        public FileNotFound(string message) : base(message)
         {
 
         }

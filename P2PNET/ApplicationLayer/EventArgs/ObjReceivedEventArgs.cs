@@ -8,6 +8,7 @@ namespace P2PNET.ApplicationLayer.EventArgs
         public BObject Obj { get; }
         public Metadata Metadata { get; }
 
+        //constructor
         public ObjReceivedEventArgs(BObject mObj, Metadata mMetadata)
         {
             this.Obj = mObj;

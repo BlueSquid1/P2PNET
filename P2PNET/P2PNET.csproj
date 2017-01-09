@@ -35,12 +35,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ApplicationLayer\BObject.cs" />
+    <Compile Include="ApplicationLayer\EventArgs\FileTransferEventArgs.cs" />
     <Compile Include="ApplicationLayer\Metadata.cs" />
     <Compile Include="ApplicationLayer\ObjectManager.cs" />
     <Compile Include="TransportLayer\BaseStation.cs" />
     <Compile Include="ApplicationLayer\EventArgs\ObjReceivedEventArgs.cs" />
     <Compile Include="TransportLayer\EventArgs\PeerChangeEventArgs.cs" />
-    <Compile Include="TransportLayer\Exceptions.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="TransportLayer\Listener.cs" />
     <Compile Include="TransportLayer\EventArgs\MsgReceivedEventArgs.cs" />
     <Compile Include="TransportLayer\Peer.cs" />
@@ -52,6 +53,14 @@
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\portable-net45+wp80+win8+wpa81\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PCLStorage, Version=1.0.2.0, Culture=neutral, PublicKeyToken=286fe515a2c35b64, processorArchitecture=MSIL">
+      <HintPath>..\packages\PCLStorage.1.0.2\lib\portable-net45+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PCLStorage.Abstractions, Version=1.0.2.0, Culture=neutral, PublicKeyToken=286fe515a2c35b64, processorArchitecture=MSIL">
+      <HintPath>..\packages\PCLStorage.1.0.2\lib\portable-net45+wp8+wpa81+win8+monoandroid+monotouch+Xamarin.iOS+Xamarin.Mac\PCLStorage.Abstractions.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Sockets.Plugin, Version=2.0.2.0, Culture=neutral, processorArchitecture=MSIL">

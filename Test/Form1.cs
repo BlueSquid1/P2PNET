@@ -16,7 +16,7 @@ namespace Test
 
         private void ObjectManager_objReceived(object sender, P2PNET.ApplicationLayer.EventArgs.ObjReceivedEventArgs e)
         {
-            switch(e.Metadata.ObjType)
+            switch(e.Metadata.Name)
             {
                 case "Person":
                     Person person = e.Obj.GetObject<Person>();
@@ -36,11 +36,9 @@ namespace Test
             await objectManager.StartAsync();
         }
 
-        private void SendObj_Click(object sender, EventArgs e)
+        private async void SendObj_Click(object sender, EventArgs e)
         {
-            Person person = new Person("Phillip", "King", 20);
-            HardClass test = new HardClass();
-            objectManager.SendObjBroadcastUDP(test);
+            await objectManager.SendFileTCP("C:\\Users\\Squid\\Desktop\\helloWorld.txt");
         }
     }
 }
