@@ -9,7 +9,7 @@ namespace P2PNET.TransportLayer
     public class MessageManager
     {
         public event EventHandler<PeerChangeEventArgs> PeerChange;
-        public event EventHandler<MsgReceivedEventArgs> msgReceived;
+        public event EventHandler<MsgReceivedEventArgs> MsgReceived;
 
         private Listener listener;
         private BaseStation baseStation;
@@ -97,7 +97,7 @@ namespace P2PNET.TransportLayer
         private void IncomingMsg(object sender, MsgReceivedEventArgs e)
         {
             //send message out
-            msgReceived?.Invoke(this, e);
+            MsgReceived?.Invoke(this, e);
         }
 
         private void BaseStation_PeerChange(object sender, PeerChangeEventArgs e)

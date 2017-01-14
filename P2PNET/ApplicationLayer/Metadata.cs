@@ -6,18 +6,11 @@ using System.Threading.Tasks;
 
 namespace P2PNET.ApplicationLayer
 {
-    public enum MessageType
-    {
-        Object = 0,
-        File = 1
-    }
     public class Metadata
     {
         //the type of the object
-        public string Name { get; set; }
+        public string objectType { get; set; }
 
-        //whether the message is an object or a file
-        public MessageType MsgType { get; set; }
         //the number of bytes to be send across the network
         //used so the receive knowns when the object ends and
         //can also be used in two way handshake to reject the

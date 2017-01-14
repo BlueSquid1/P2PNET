@@ -10,13 +10,13 @@ namespace Test
         public Form1()
         {
             objectManager = new ObjectManager();
-            objectManager.objReceived += ObjectManager_objReceived;
+            objectManager.ObjReceived += ObjectManager_objReceived;
             InitializeComponent();
         }
 
         private void ObjectManager_objReceived(object sender, P2PNET.ApplicationLayer.EventArgs.ObjReceivedEventArgs e)
         {
-            switch(e.Metadata.Name)
+            switch(e.Metadata.objectType)
             {
                 case "Person":
                     Person person = e.Obj.GetObject<Person>();
@@ -38,7 +38,8 @@ namespace Test
 
         private async void SendObj_Click(object sender, EventArgs e)
         {
-            await objectManager.SendFileTCP("C:\\Users\\Squid\\Desktop\\helloWorld.txt");
+            Person x = new Person("Harry", "Potter", 25);
+            await objectManager.SendBroadcastAsyncUDP(x);
         }
     }
 }

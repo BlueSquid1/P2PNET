@@ -11,8 +11,7 @@ namespace P2PNET.ApplicationLayer
     public class ObjectManager
     {
         public event EventHandler<PeerChangeEventArgs> PeerChange;
-        public event EventHandler<ObjReceivedEventArgs> objReceived;
-        public event EventHandler<FileTransferEventArgs> fileTransferProgress;
+        public event EventHandler<ObjReceivedEventArgs> ObjReceived;
 
         private Serializer serializer;
         private MessageManager peerManager;
@@ -23,7 +22,7 @@ namespace P2PNET.ApplicationLayer
             peerManager = new MessageManager(portNum, true);
             serializer = new Serializer();
 
-            peerManager.msgReceived += PeerManager_msgReceived;
+            peerManager.MsgReceived += PeerManager_msgReceived;
             peerManager.PeerChange += PeerManager_PeerChange;
         }
 
@@ -94,22 +93,14 @@ namespace P2PNET.ApplicationLayer
         private async Task<Metadata> CreateMetadataObj<T>(T obj)
         {
             string sourceIp = await peerManager.GetIpAddress();
-            MessageType msgType = MessageType.Object;
             bool isTwoWay = false;
 
             string objType = obj.GetType().Name;
 
-            if (objType == "File")
-            {
-                msgType = MessageType.File;
-                isTwoWay = true;
-            }
-
             Metadata metaData = new Metadata();
-            metaData.MsgType = msgType;
             metaData.SourceIp = sourceIp;
             metaData.IsTwoWay = isTwoWay;
-            metaData.Name = objType;
+            metaData.objectType = objType;
 
             return metaData;
         }
@@ -140,7 +131,7 @@ namespace P2PNET.ApplicationLayer
                 //message attached to this request
                 Array.Copy(msg, sizeof(int) + metadataSize, objectMsg, 0, metadata.TotalMsgSizeBytes);
                 BObject bObject = new BObject(objectMsg, serializer);
-                objReceived?.Invoke(this, new ObjReceivedEventArgs(bObject, metadata));
+                ObjReceived?.Invoke(this, new ObjReceivedEventArgs(bObject, metadata));
             }
             else
             {

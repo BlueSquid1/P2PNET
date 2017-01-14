@@ -36,6 +36,9 @@
   <ItemGroup>
     <Compile Include="ApplicationLayer\BObject.cs" />
     <Compile Include="ApplicationLayer\EventArgs\FileTransferEventArgs.cs" />
+    <Compile Include="ApplicationLayer\FileManager.cs" />
+    <Compile Include="ApplicationLayer\FilePartObj.cs" />
+    <Compile Include="ApplicationLayer\FileReceived.cs" />
     <Compile Include="ApplicationLayer\Metadata.cs" />
     <Compile Include="ApplicationLayer\ObjectManager.cs" />
     <Compile Include="TransportLayer\BaseStation.cs" />
