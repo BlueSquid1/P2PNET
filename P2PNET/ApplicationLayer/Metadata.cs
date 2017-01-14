@@ -23,9 +23,9 @@ namespace P2PNET.ApplicationLayer
         //can also be used in two way handshake to reject the
         //incoming message based on its size
         public int TotalMsgSizeBytes { get; set; }
-        //if true then the meta data is sent seperately to the message
-        //this is needed to give the receiver a change to reject the
-        //incoming message
+        //for big objects that are send over multiple smaller messages
+        //the first message is sent with a IsTwoWay = true. This gives
+        //the recieve to reject the remaining message
         public bool IsTwoWay { get; set; }
 
         public string SourceIp { get; set; }
