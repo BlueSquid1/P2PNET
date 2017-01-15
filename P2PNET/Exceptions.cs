@@ -39,4 +39,12 @@ namespace P2PNET
 
         }
     }
+
+    public class FileBoundaryException : Exception
+    {
+        public FileBoundaryException(string message) : base(message)
+        {
+
+        }
+    }
 }

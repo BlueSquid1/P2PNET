@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace P2PNET.ApplicationLayer
 {
-    class FilePartObj
+    public class FilePartObj
     {
         public byte[] FileData { get; set; }
         public int FilePartNum { get; set; }
