@@ -40,10 +40,10 @@ namespace P2PNET.TransportLayer
 
         public async Task<bool> SendUDPMsgAsync(string ipAddress, byte[] msg)
         {
-            int peerIndex;
-            bool isPeerKnown = IsPeerKnown(ipAddress, out peerIndex);
-            if(isPeerKnown && peerIndex >= 0)
+            bool isPeerKnown = DoesPeerExistByIp(ipAddress);
+            if(isPeerKnown && this.LocalIpAddress != ipAddress)
             {
+                int peerIndex = FindPeerByIp(ipAddress);
                 bool isPeerActive = knownPeers[peerIndex].IsPeerActive;
                 if(!isPeerActive)
                 {
@@ -86,8 +86,7 @@ namespace P2PNET.TransportLayer
             }
 
             //check if from unknown peer
-            int indexNum;
-            bool peerKnown = IsPeerKnown(ipAddress, out indexNum);
+            bool peerKnown = DoesPeerExistByIp(ipAddress);
             if (!peerKnown)
             {
                 //ipaddress is unknown
@@ -102,8 +101,9 @@ namespace P2PNET.TransportLayer
                 }
             }
 
+            int indexNum = FindPeerByIp(ipAddress);
             //make sure peer is active
-            if(!this.KnownPeers[indexNum].IsPeerActive)
+            if (!this.KnownPeers[indexNum].IsPeerActive)
             {
                 //peer not active
                 return false;
@@ -142,8 +142,7 @@ namespace P2PNET.TransportLayer
             if(e.BindingType == TransportType.UDP)
             {
                 string remotePeeripAddress = e.RemoteIp;
-                int indexNum;
-                bool peerKnown = IsPeerKnown(remotePeeripAddress, out indexNum);
+                bool peerKnown = DoesPeerExistByIp(remotePeeripAddress);
                 if (!peerKnown)
                 {
                     //not a known peer
@@ -198,8 +197,7 @@ namespace P2PNET.TransportLayer
         private void NewPeer_peerStatusChange(object sender, System.EventArgs e)
         {
             Peer changedPeer = (Peer)sender;
-            int indexNum;
-            IsPeerKnown(changedPeer.IpAddress, out indexNum);
+            int indexNum = FindPeerByIp(changedPeer.IpAddress);
             if(indexNum < 0)
             {
                 throw (new PeerNotKnown("This error message is imposible to reach. Changed peer is not known"));
@@ -220,26 +218,35 @@ namespace P2PNET.TransportLayer
         }
 
         //returns true if the ip address corresponds to known peer. If the ip address is equal to this peer's
-        //local ip address then returns true and indexNum = -1
-        private bool IsPeerKnown(string ipAddress, out int indexNum)
+        //local ip address then also returns true
+        private bool DoesPeerExistByIp(string ipAddress)
         {
             if(this.LocalIpAddress == ipAddress)
             {
-                //msg from this peer
-                indexNum = -1;
+                //From local peer
                 return true;
             }
-
-            for(indexNum = 0; indexNum < this.knownPeers.Count; ++indexNum)
+            for(int i = 0; i < this.knownPeers.Count; ++i)
             {
-                if(this.knownPeers[indexNum].IpAddress == ipAddress)
+                if(this.knownPeers[i].IpAddress == ipAddress)
                 {
                     return true;
                 }
             }
-
-            indexNum = -1;
             return false;
+        }
+
+        //returns -1 if can't find peer
+        private int FindPeerByIp(string ipAddress)
+        {
+            for (int i = 0; i < this.knownPeers.Count; ++i)
+            {
+                if (this.knownPeers[i].IpAddress == ipAddress)
+                {
+                    return i;
+                }
+            }
+            return -1;
         }
     }
 }

@@ -6,11 +6,14 @@ namespace Test
 {
     public partial class Form1 : Form
     {
-        private ObjectManager objectManager;
+        //private ObjectManager objectManager;
+        private FileManager fileManager;
         public Form1()
         {
-            objectManager = new ObjectManager();
-            objectManager.ObjReceived += ObjectManager_objReceived;
+            //objectManager = new ObjectManager();
+            //objectManager.ObjReceived += ObjectManager_objReceived;
+
+            fileManager = new FileManager();
             InitializeComponent();
         }
 
@@ -33,13 +36,19 @@ namespace Test
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            await objectManager.StartAsync();
+            await fileManager.StartAsync();
         }
 
         private async void SendObj_Click(object sender, EventArgs e)
         {
             Person x = new Person("Harry", "Potter", 25);
-            await objectManager.SendBroadcastAsyncUDP(x);
+            //await objectManager.SendBroadcastAsyncUDP(x);
+        }
+
+        private async void SendFile_Click(object sender, EventArgs e)
+        {
+            string filePath = "06-train-cat-shake-hands.jpg";
+            await fileManager.SendFileAsyncTCP("127.0.0.1", filePath);
         }
     }
 }

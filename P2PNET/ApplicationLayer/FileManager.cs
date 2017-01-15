@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace P2PNET.ApplicationLayer
 {
-    class FileManager
+    public class FileManager
     {
         public event EventHandler<FileTransferEventArgs> FileProgUpdate;
         public event EventHandler<ObjReceivedEventArgs> ObjReceived;
@@ -17,22 +17,30 @@ namespace P2PNET.ApplicationLayer
         private ObjectManager objManager;
         private IFileSystem fileSystem;
         private List<FileReceived> receivedFiles;
+        private TaskCompletionSource<bool> stillProcPrevMsg;
 
         //constructor
-        FileManager()
+        public FileManager()
         {
+            this.receivedFiles = new List<FileReceived>();
+            this.stillProcPrevMsg = new TaskCompletionSource<bool>();
             this.objManager = new ObjectManager();
             this.fileSystem = FileSystem.Current;
             this.objManager.ObjReceived += ObjManager_objReceived;
         }
 
-        private void ObjManager_objReceived(object sender, ObjReceivedEventArgs e)
+        public async Task StartAsync()
+        {
+            await objManager.StartAsync();
+        }
+
+        private async void ObjManager_objReceived(object sender, ObjReceivedEventArgs e)
         {
             switch (e.Metadata.objectType)
             {
                 case "FilePartObj":
                     FilePartObj filePart = e.Obj.GetObject<FilePartObj>();
-                    ProcessFilePart(filePart);
+                    await ProcessFilePart(filePart);
                     break;
                 default:
                     ObjReceived?.Invoke(this, e);
@@ -41,7 +49,7 @@ namespace P2PNET.ApplicationLayer
         }
 
         //bufferSize = 32Kb chunks
-        public async Task SendFileToAllPeersTCP(string ipAddress, string filePath, long bufferSize = 32 * 1024)
+        public async Task SendFileAsyncTCP(string ipAddress, string filePath, long bufferSize = 32 * 1024)
         {
             //get file details
             IFile file = await fileSystem.GetFileFromPathAsync(filePath);
@@ -64,13 +72,16 @@ namespace P2PNET.ApplicationLayer
             //for logging purposes
             long totalWritten = 0;
 
-            byte[] buffer = new byte[bufferSize];
-
             //for each file part
             for (int i = 1; i < totalPartNum; i++)
             {
+                byte[] buffer = new byte[bufferSize];
                 await fileStream.ReadAsync(buffer, 0, buffer.Length);
-                filePart.AppendFileData(buffer, i);
+                bool isFilePartReady = filePart.AppendFileData(buffer, i);
+                if(!isFilePartReady)
+                {
+                    throw new FileTransitionError("failed to send the file. Make sure the file is in a valid format");
+                }
                 await objManager.SendAsyncTCP(ipAddress, filePart);
                 totalWritten += bufferSize;
                 FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileLength, totalWritten));
@@ -78,7 +89,13 @@ namespace P2PNET.ApplicationLayer
 
             //send remain
             int remaining = (int)(fileLength - totalWritten);
-            await fileStream.ReadAsync(buffer, 0, remaining);
+            byte[] remainBuffer = new byte[remaining];
+            await fileStream.ReadAsync(remainBuffer, 0, remaining);
+            bool isFinFilePartReady = filePart.AppendFileData(remainBuffer, totalPartNum);
+            if (!isFinFilePartReady)
+            {
+                throw new FileTransitionError("failed to send the file. Make sure the file is in a valid format");
+            }
             await objManager.SendAsyncTCP(ipAddress, filePart);
             totalWritten += remaining;
             FileProgUpdate?.Invoke(this, new FileTransferEventArgs(totalWritten, totalWritten));
@@ -98,6 +115,11 @@ namespace P2PNET.ApplicationLayer
 
             //find correct file to write to
             FileReceived file = GetCorrectFile(filePart.FileName);
+            if(file == null)
+            {
+                //can't find file
+                throw new FileNotFound("received message mentions a file not known to this peer.");
+            }
             Stream fileStream = file.FileStream;
 
             byte[] buffer = filePart.FileData;

@@ -31,4 +31,12 @@ namespace P2PNET
 
         }
     }
+
+    public class FileTransitionError : Exception
+    {
+        public FileTransitionError(string message) : base(message)
+        {
+
+        }
+    }
 }

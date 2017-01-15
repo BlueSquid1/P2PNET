@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.SendObj = new System.Windows.Forms.Button();
+            this.SendFile = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // SendObj
@@ -41,11 +42,22 @@
             this.SendObj.UseVisualStyleBackColor = true;
             this.SendObj.Click += new System.EventHandler(this.SendObj_Click);
             // 
+            // SendFile
+            // 
+            this.SendFile.Location = new System.Drawing.Point(101, 153);
+            this.SendFile.Name = "SendFile";
+            this.SendFile.Size = new System.Drawing.Size(75, 23);
+            this.SendFile.TabIndex = 1;
+            this.SendFile.Text = "SendFile";
+            this.SendFile.UseVisualStyleBackColor = true;
+            this.SendFile.Click += new System.EventHandler(this.SendFile_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 261);
+            this.Controls.Add(this.SendFile);
             this.Controls.Add(this.SendObj);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -57,6 +69,7 @@
         #endregion
 
         private System.Windows.Forms.Button SendObj;
+        private System.Windows.Forms.Button SendFile;
     }
 }
 
