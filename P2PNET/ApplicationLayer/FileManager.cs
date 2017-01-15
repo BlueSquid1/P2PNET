@@ -39,6 +39,7 @@ namespace P2PNET.ApplicationLayer
 
         private async void ObjManager_objReceived(object sender, ObjReceivedEventArgs e)
         {
+            ObjReceived?.Invoke(this, e);
             Metadata metadata = e.Metadata;
             switch (metadata.objectType)
             {
@@ -52,7 +53,6 @@ namespace P2PNET.ApplicationLayer
                     await ProcessAckMessage(ackMsg, metadata);
                     break;
                 default:
-                    ObjReceived?.Invoke(this, e);
                     break;
             }
         }
@@ -100,7 +100,10 @@ namespace P2PNET.ApplicationLayer
         //called when a new file part is received
         private async Task ProcessFilePart(FilePartObj filePart)
         {
-            
+            if(filePart == null)
+            {
+                throw new Exception("filePart has not been set.");
+            }
             if( filePart.FilePartNum == 1)
             {
                 //new file being received
@@ -145,7 +148,7 @@ namespace P2PNET.ApplicationLayer
                 }   
             }
             //can't find coresponding file
-            throw new FileNotFound("Received an Ack message for an unknown file");
+            throw new FileNotFound("Recieved an Ack but can't find corresponding SentFile.");
             return null;
         }
 

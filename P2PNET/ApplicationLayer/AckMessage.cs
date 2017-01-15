@@ -16,6 +16,11 @@ namespace P2PNET.ApplicationLayer
         public int FilePartNum { get; set; }
         public int TotalPartNum { get; set; }
 
+        public AckMessage()
+        {
+
+        }
+
         public AckMessage(FilePartObj filePart, bool acceptFutureParts = true)
         {
             this.AcceptedFile = acceptFutureParts;

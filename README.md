@@ -12,3 +12,6 @@ This is a portable peer to peer library with emphasis on being simple to use.
 
 ##How To Use
 ```Peer x = new Peer()```
+
+
+Important note: Object sent must have a blank constructor in their class type.

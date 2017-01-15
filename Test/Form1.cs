@@ -14,7 +14,13 @@ namespace Test
             //objectManager.ObjReceived += ObjectManager_objReceived;
 
             fileManager = new FileManager();
+            fileManager.ObjReceived += FileManager_ObjReceived;
             InitializeComponent();
+        }
+
+        private void FileManager_ObjReceived(object sender, P2PNET.ApplicationLayer.EventArgs.ObjReceivedEventArgs e)
+        {
+            Console.WriteLine("Got here");
         }
 
         private void ObjectManager_objReceived(object sender, P2PNET.ApplicationLayer.EventArgs.ObjReceivedEventArgs e)
@@ -47,8 +53,11 @@ namespace Test
 
         private async void SendFile_Click(object sender, EventArgs e)
         {
+            string targetIp = "192.168.1.114";
+            //string targetIp = "192.168.1.113"; //me
+            //string filePath = "test_file.txt";
             string filePath = "06-train-cat-shake-hands.jpg";
-            await fileManager.SendFileAsyncTCP("127.0.0.1", filePath);
+            await fileManager.SendFileAsyncTCP(targetIp, filePath);
         }
     }
 }

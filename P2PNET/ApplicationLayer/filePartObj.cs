@@ -17,6 +17,10 @@ namespace P2PNET.ApplicationLayer
         public string FileName { get; set; }
         public string FilePath { get; set; }
 
+        public FilePartObj()
+        {
+
+        }
 
         //constructor
         public FilePartObj(string fileName, string filePath, long fileSizeBytes, int totalPartNum)

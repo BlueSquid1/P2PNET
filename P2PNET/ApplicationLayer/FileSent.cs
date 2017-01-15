@@ -56,12 +56,12 @@ namespace P2PNET.ApplicationLayer
             byte[] buffer = new byte[bufferLen];
             await fileDataStream.ReadAsync(buffer, 0, buffer.Length);
 
+            curFilePartNum++;
             bool isFilePartReady = filePart.AppendFileData(buffer, curFilePartNum);
             if (!isFilePartReady)
             {
                 throw new FileTransitionError("failed to send the file. Make sure the file is in a valid format");
             }
-            curFilePartNum++;
             return filePart;
         }
     }

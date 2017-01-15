@@ -82,7 +82,10 @@ namespace P2PNET.TransportLayer
             //check if ipAddress is from this peer
             if(this.LocalIpAddress == ipAddress)
             {
-                throw (new PeerNotKnown("The ipAddress your have entered does not correspond to a valid Peer. Check the IP address"));
+                if(!forwardAll)
+                {
+                    throw (new PeerNotKnown("The ipAddress your have entered does not correspond to a valid Peer. Check the IP address"));
+                }
             }
 
             //check if from unknown peer
@@ -217,15 +220,16 @@ namespace P2PNET.TransportLayer
             MsgReceived?.Invoke(this, e);
         }
 
-        //returns true if the ip address corresponds to known peer. If the ip address is equal to this peer's
-        //local ip address then also returns true
+        //returns true if the ip address corresponds to known peer.
         private bool DoesPeerExistByIp(string ipAddress)
         {
+            /*
             if(this.LocalIpAddress == ipAddress)
             {
                 //From local peer
                 return true;
             }
+            */
             for(int i = 0; i < this.knownPeers.Count; ++i)
             {
                 if(this.knownPeers[i].IpAddress == ipAddress)
