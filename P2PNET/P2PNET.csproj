@@ -43,6 +43,7 @@
     <Compile Include="ApplicationLayer\FileSent.cs" />
     <Compile Include="ApplicationLayer\Metadata.cs" />
     <Compile Include="ApplicationLayer\ObjectManager.cs" />
+    <Compile Include="ApplicationLayer\FileTrans.cs" />
     <Compile Include="TransportLayer\BaseStation.cs" />
     <Compile Include="ApplicationLayer\EventArgs\ObjReceivedEventArgs.cs" />
     <Compile Include="TransportLayer\EventArgs\PeerChangeEventArgs.cs" />

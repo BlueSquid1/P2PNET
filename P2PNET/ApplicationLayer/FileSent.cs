@@ -8,45 +8,18 @@ using System.Threading.Tasks;
 
 namespace P2PNET.ApplicationLayer
 {
-    public class FileSent
+    public class FileSent : FileTrans
     {
-        private FilePartObj filePart;
-        private Stream fileDataStream;
-        private int curFilePartNum;
-        private int totalPartNum;
-        private int bufferSize;
-
-        //for identification
-        public IFile FileInfo { get; set; }
-        public string TargetIpAddress { get; set; }
 
         //constructor
-        public FileSent(IFile file, Stream mFileStream, int mBufferSize, string targtIp)
+        public FileSent(FilePartObj mFilePart, Stream mFileStream, string targetIp) : base (mFilePart, mFileStream, targetIp)
         {
-            this.fileDataStream = mFileStream;
-            this.FileInfo = file;
-            this.bufferSize = mBufferSize;
-            this.TargetIpAddress = targtIp;
 
-            long fileLength = mFileStream.Length;
-            this.totalPartNum = (int)Math.Ceiling((float)fileLength / mBufferSize);
-            filePart = new FilePartObj(file.Name, file.Path, fileLength, totalPartNum);
-            curFilePartNum = 0;
-        }
-
-        public int RemainingFileParts()
-        {
-            int partsRemainding = totalPartNum - curFilePartNum;
-            if(partsRemainding < 0 )
-            {
-                throw new FileBoundaryException("there are a negative number of file parts remaining.");
-            }
-            return partsRemainding;
         }
 
         public async Task<FilePartObj> GetNextFilePart()
         {
-            int bufferLen = (int)Math.Min(fileDataStream.Length, bufferSize);
+            int bufferLen = (int)Math.Min(fileDataStream.Length, base.FilePart.MaxBufferSize);
             if(bufferLen <= 0)
             {
                 //nothing more to be sent
@@ -54,15 +27,16 @@ namespace P2PNET.ApplicationLayer
             }
 
             byte[] buffer = new byte[bufferLen];
-            await fileDataStream.ReadAsync(buffer, 0, buffer.Length);
+            await base.fileDataStream.ReadAsync(buffer, 0, buffer.Length);
 
-            curFilePartNum++;
-            bool isFilePartReady = filePart.AppendFileData(buffer, curFilePartNum);
+            base.BytesProcessed += bufferLen;
+            base.curFilePartNum++;
+            bool isFilePartReady = base.FilePart.AppendFileData(buffer, curFilePartNum);
             if (!isFilePartReady)
             {
                 throw new FileTransitionError("failed to send the file. Make sure the file is in a valid format");
             }
-            return filePart;
+            return FilePart;
         }
     }
 }

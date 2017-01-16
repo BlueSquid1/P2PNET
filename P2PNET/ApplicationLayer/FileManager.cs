@@ -45,7 +45,7 @@ namespace P2PNET.ApplicationLayer
             {
                 case "FilePartObj":
                     FilePartObj filePart = e.Obj.GetObject<FilePartObj>();
-                    await ProcessFilePart(filePart);
+                    await ReceivedFilePart(filePart, metadata);
                     await SendAckBack(filePart, metadata);
                     break;
                 case "AckMessage":
@@ -74,8 +74,9 @@ namespace P2PNET.ApplicationLayer
                 //can't find file
                 throw new FileNotFound("Can't access the file: " + filePath);
             }
-
-            FileSent fileSend = new FileSent(file, fileStream, bufferSize, ipAddress);
+            //store away file details and the stream
+            FilePartObj filePart = new FilePartObj(file, fileStream.Length, bufferSize);
+            FileSent fileSend = new FileSent(filePart, fileStream, ipAddress);
             sentFiles.Add(fileSend);
 
             //send first file part
@@ -90,65 +91,66 @@ namespace P2PNET.ApplicationLayer
                 //no parts left to send
                 return;
             }
+            //send only the file part
             FilePartObj filePart = await fileSend.GetNextFilePart();
             string ipAddress = fileSend.TargetIpAddress;
             await objManager.SendAsyncTCP(ipAddress, filePart);
 
-            //TODO: update logging information
+            //update logging information
+            FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileSend));
         }
 
-        //called when a new file part is received
-        private async Task ProcessFilePart(FilePartObj filePart)
+        //called when a file part is received
+        private async Task ReceivedFilePart(FilePartObj filePart, Metadata metadata)
         {
+            //check if file part is valid
             if(filePart == null)
             {
                 throw new Exception("filePart has not been set.");
             }
+
+            //check if is for a new file
             if( filePart.FilePartNum == 1)
             {
                 //new file being received
-                FileReceived newFileReceived = await NewFileInit(filePart);
+                FileReceived newFileReceived = await NewFileInit(filePart, metadata);
                 receivedFiles.Add(newFileReceived);
             }
 
             //find correct file to write to
-            FileReceived file = GetCorrectFile(filePart.FileName);
-            if(file == null)
-            {
-                //can't find file
-                throw new FileNotFound("received message mentions a file not known to this peer.");
-            }
-            Stream fileStream = file.FileStream;
+            FileReceived fileReceived = GetFileReceivedFromFilePart(filePart, metadata);
 
-            byte[] buffer = filePart.FileData;
-            await fileStream.WriteAsync(buffer, 0, buffer.Length);
+            await fileReceived.WriteFilePartToFile(filePart);
+
+            //log incoming file
+            FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileReceived));
 
             //if last file part then close stream
-            if(filePart.FilePartNum == filePart.TotalPartNum)
+            if (filePart.FilePartNum == filePart.TotalPartNum)
             {
-                await file.CloseStream();
+                await fileReceived.CloseStream();
             }
         }
 
         private async Task ProcessAckMessage(AckMessage ackMsg, Metadata metadata)
         {
-            FileSent fileSent = GetFileSentFromIpAndAck(ackMsg, metadata.SourceIp);
+            FileSent fileSent = GetSendFileFromAck(ackMsg, metadata);
             await SendNextFilePart(fileSent);
         }
 
         //find a match based on remote ip, file name and file path
-        private FileSent GetFileSentFromIpAndAck(AckMessage ackMsg, string remoteIp)
+        private FileSent GetSendFileFromAck(AckMessage ackMsg, Metadata metadata)
         {
             //find corresponding sentFiles
             foreach (FileSent fileSent in sentFiles)
             {
-                if(fileSent.TargetIpAddress == remoteIp && fileSent.FileInfo.Name == ackMsg.FileName && fileSent.FileInfo.Path == ackMsg.FilePath)
+                if (fileSent.TargetIpAddress == metadata.SourceIp && fileSent.FilePart.FileName == ackMsg.FileName && fileSent.FilePart.FilePath == ackMsg.FilePath)
                 {
                     return fileSent;
                 }   
             }
             //can't find coresponding file
-            throw new FileNotFound("Recieved an Ack but can't find corresponding SentFile.");
+            throw new FileNotFound("Recieved an Ack but can't find file in sent storage.");
             return null;
         }
 
@@ -161,8 +163,9 @@ namespace P2PNET.ApplicationLayer
         }
 
         
-        private async Task<FileReceived> NewFileInit(FilePartObj filePart)
+        private async Task<FileReceived> NewFileInit(FilePartObj filePart, Metadata metadata)
         {
+            //create a folder to store the file
             IFolder root = await fileSystem.GetFolderFromPathAsync("./");
             if (await root.CheckExistsAsync("./temp/") == ExistenceCheckResult.NotFound)
             {
@@ -170,21 +173,28 @@ namespace P2PNET.ApplicationLayer
                 await root.CreateFolderAsync("temp", CreationCollisionOption.FailIfExists);
             }
             IFolder tempFolder = await fileSystem.GetFolderFromPathAsync("./temp");
+
+            //create the file
             IFile newFile = await tempFolder.CreateFileAsync(filePart.FileName, CreationCollisionOption.ReplaceExisting);
-            FileReceived fileReceived = new FileReceived(newFile);
-            await fileReceived.OpenStream();
+            Stream fileStream = await newFile.OpenAsync(FileAccess.ReadAndWrite);
+
+            //store as a received file
+            FileReceived fileReceived = new FileReceived(filePart, fileStream, metadata.SourceIp);
             return fileReceived;
         }
 
-        private FileReceived GetCorrectFile(string fileName)
+        private FileReceived GetFileReceivedFromFilePart(FilePartObj filePart, Metadata metadata)
         {
             foreach (FileReceived receivedFile in this.receivedFiles)
             {
-                if (receivedFile.FileObj.Name == fileName)
+                if (receivedFile.TargetIpAddress == metadata.SourceIp && receivedFile.FilePart.FileName == filePart.FileName && receivedFile.FilePart.FilePath == filePart.FilePath)
                 {
                     return receivedFile;
                 }
             }
+
+            //can't find coresponding file
+            throw new FileNotFound("Recieved an file part but can't find file in received storage.");
             return null;
         }
     }

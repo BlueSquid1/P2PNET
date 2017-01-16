@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PCLStorage;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace P2PNET.ApplicationLayer
 {
+    //file objects are sent between peers
+    //for that reason they must be seralizable
+    //contains enough information so that both sender and
+    //receiver's are stateless
     public class FilePartObj
     {
         public byte[] FileData { get; set; }
@@ -16,19 +21,22 @@ namespace P2PNET.ApplicationLayer
         public long TotalFileSizeBytes { get; set; }
         public string FileName { get; set; }
         public string FilePath { get; set; }
+        public int MaxBufferSize { get; set; }
 
+        //JSON.NET needs a blank constructor
         public FilePartObj()
         {
 
         }
 
         //constructor
-        public FilePartObj(string fileName, string filePath, long fileSizeBytes, int totalPartNum)
+        public FilePartObj(IFile file, long totalFileSize , int maxBufferSize)
         {
-            this.FileName = fileName;
-            this.FilePath = filePath;
-            this.TotalFileSizeBytes = fileSizeBytes;
-            this.TotalPartNum = totalPartNum;
+            this.FileName = file.Name;
+            this.FilePath = file.Path;
+            this.MaxBufferSize = maxBufferSize;
+            this.TotalFileSizeBytes = totalFileSize;
+            this.TotalPartNum = (int)Math.Ceiling((float)totalFileSize / maxBufferSize);
         }
 
         public bool AppendFileData(byte[] fileData, int filePart)

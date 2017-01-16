@@ -8,25 +8,24 @@ using System.Threading.Tasks;
 
 namespace P2PNET.ApplicationLayer
 {
-    class FileReceived
+    public class FileReceived : FileTrans
     {
-        public IFile FileObj { get; set; }
-        public Stream FileStream { get; set; }
-
         //constructor
-        public FileReceived(IFile file)
+        public FileReceived(FilePartObj filePart, Stream mFileStream, string senderIp) : base(filePart, mFileStream, senderIp)
         {
-            this.FileObj = file;
+
         }
 
-        public async Task OpenStream()
+        public async Task WriteFilePartToFile(FilePartObj receivedFilePart)
         {
-            this.FileStream = await FileObj.OpenAsync(FileAccess.ReadAndWrite);
+            byte[] buffer = receivedFilePart.FileData;
+            await base.fileDataStream.WriteAsync(buffer, 0, buffer.Length);
+
         }
 
         public async Task CloseStream()
         {
-            await this.FileStream.FlushAsync();
+            await base.fileDataStream.FlushAsync();
         }
     }
 }
