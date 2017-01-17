@@ -3,7 +3,7 @@ using Newtonsoft.Json.Bson;
 using System;
 using System.IO;
 
-namespace P2PNET.ApplicationLayer
+namespace P2PNET.ObjectLayer
 {
     public class Serializer
     {

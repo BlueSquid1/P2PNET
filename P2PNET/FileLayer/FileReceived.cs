@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace P2PNET.ApplicationLayer
+namespace P2PNET.FileLayer
 {
     public class FileReceived : FileTrans
     {

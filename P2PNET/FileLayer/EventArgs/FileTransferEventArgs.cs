@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace P2PNET.ApplicationLayer.EventArgs
+namespace P2PNET.FileLayer.EventArgs
 {
     public enum TransDirrection
     {

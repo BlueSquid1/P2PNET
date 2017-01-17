@@ -1,4 +1,5 @@
-﻿using P2PNET.ApplicationLayer;
+﻿using P2PNET.FileLayer;
+using P2PNET.ObjectLayer;
 using System;
 using System.Windows.Forms;
 
@@ -15,15 +16,21 @@ namespace Test
 
             fileManager = new FileManager();
             fileManager.ObjReceived += FileManager_ObjReceived;
+            fileManager.DebugInfo += FileManager_DebugInfo;
             InitializeComponent();
         }
 
-        private void FileManager_ObjReceived(object sender, P2PNET.ApplicationLayer.EventArgs.ObjReceivedEventArgs e)
+        private void FileManager_DebugInfo(object sender, P2PNET.FileLayer.EventArgs.DebugInfoEventArgs e)
         {
-            Console.WriteLine("Got here");
+            Console.WriteLine(e.Msg);
         }
 
-        private void ObjectManager_objReceived(object sender, P2PNET.ApplicationLayer.EventArgs.ObjReceivedEventArgs e)
+        private void FileManager_ObjReceived(object sender, P2PNET.ObjectLayer.EventArgs.ObjReceivedEventArgs e)
+        {
+            //Console.WriteLine("Got here");
+        }
+
+        private void ObjectManager_objReceived(object sender, P2PNET.ObjectLayer.EventArgs.ObjReceivedEventArgs e)
         {
             switch(e.Metadata.objectType)
             {
@@ -53,8 +60,8 @@ namespace Test
 
         private async void SendFile_Click(object sender, EventArgs e)
         {
-            string targetIp = "192.168.1.114";
-            //string targetIp = "192.168.1.113"; //me
+            //string targetIp = "192.168.1.114";
+            string targetIp = "192.168.1.113"; //me
             //string filePath = "test_file.txt";
             string filePath = "06-train-cat-shake-hands.jpg";
             await fileManager.SendFileAsyncTCP(targetIp, filePath);

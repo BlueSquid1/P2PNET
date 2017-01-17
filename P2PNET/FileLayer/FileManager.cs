@@ -1,5 +1,6 @@
-﻿using P2PNET.ApplicationLayer;
-using P2PNET.ApplicationLayer.EventArgs;
+﻿using P2PNET.FileLayer.EventArgs;
+using P2PNET.ObjectLayer;
+using P2PNET.ObjectLayer.EventArgs;
 using PCLStorage;
 using System;
 using System.Collections.Generic;
@@ -8,12 +9,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace P2PNET.ApplicationLayer
+namespace P2PNET.FileLayer
 {
     public class FileManager
     {
         public event EventHandler<FileTransferEventArgs> FileProgUpdate;
         public event EventHandler<ObjReceivedEventArgs> ObjReceived;
+        public event EventHandler<DebugInfoEventArgs> DebugInfo;
 
         private ObjectManager objManager;
         private IFileSystem fileSystem;
@@ -83,6 +85,11 @@ namespace P2PNET.ApplicationLayer
             await SendNextFilePart(fileSend);
         }
 
+        private void Print(string msg)
+        {
+            DebugInfo?.Invoke(this, new DebugInfoEventArgs(msg));
+        }
+
         private async Task SendNextFilePart(FileSent fileSend)
         {
             int remainingParts = fileSend.RemainingFileParts();
@@ -97,14 +104,16 @@ namespace P2PNET.ApplicationLayer
             await objManager.SendAsyncTCP(ipAddress, filePart);
 
             //update logging information
+            Print("Sending file part: " + filePart.FilePartNum);
             FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileSend));
         }
 
         //called when a file part is received
         private async Task ReceivedFilePart(FilePartObj filePart, Metadata metadata)
         {
+            Print("recieved file part: " + filePart.FilePartNum);
             //check if file part is valid
-            if(filePart == null)
+            if (filePart == null)
             {
                 throw new Exception("filePart has not been set.");
             }
@@ -134,6 +143,7 @@ namespace P2PNET.ApplicationLayer
 
         private async Task ProcessAckMessage(AckMessage ackMsg, Metadata metadata)
         {
+            Print("recieved Ack: " + ackMsg.FilePartNum);
             FileSent fileSent = GetSendFileFromAck(ackMsg, metadata);
             await SendNextFilePart(fileSent);
         }
@@ -159,6 +169,7 @@ namespace P2PNET.ApplicationLayer
             //send message back to sender
             string targetIp = metadata.SourceIp;
             AckMessage ackMsg = new AckMessage(filePart);
+            Print("sending ACK: " + ackMsg.FilePartNum);
             await objManager.SendAsyncTCP(targetIp, ackMsg);
         }
 

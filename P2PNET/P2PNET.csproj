@@ -34,18 +34,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ApplicationLayer\AckMessage.cs" />
-    <Compile Include="ApplicationLayer\BObject.cs" />
-    <Compile Include="ApplicationLayer\EventArgs\FileTransferEventArgs.cs" />
-    <Compile Include="ApplicationLayer\FileManager.cs" />
-    <Compile Include="ApplicationLayer\FilePartObj.cs" />
-    <Compile Include="ApplicationLayer\FileReceived.cs" />
-    <Compile Include="ApplicationLayer\FileSent.cs" />
-    <Compile Include="ApplicationLayer\Metadata.cs" />
-    <Compile Include="ApplicationLayer\ObjectManager.cs" />
-    <Compile Include="ApplicationLayer\FileTrans.cs" />
+    <Compile Include="FileLayer\AckMessage.cs" />
+    <Compile Include="FileLayer\EventArgs\DebugInfoEventArgs.cs" />
+    <Compile Include="ObjectLayer\BObject.cs" />
+    <Compile Include="FileLayer\EventArgs\FileTransferEventArgs.cs" />
+    <Compile Include="FileLayer\FileManager.cs" />
+    <Compile Include="FileLayer\FilePartObj.cs" />
+    <Compile Include="FileLayer\FileReceived.cs" />
+    <Compile Include="FileLayer\FileSent.cs" />
+    <Compile Include="ObjectLayer\Metadata.cs" />
+    <Compile Include="ObjectLayer\ObjectManager.cs" />
+    <Compile Include="FileLayer\FileTrans.cs" />
     <Compile Include="TransportLayer\BaseStation.cs" />
-    <Compile Include="ApplicationLayer\EventArgs\ObjReceivedEventArgs.cs" />
+    <Compile Include="ObjectLayer\EventArgs\ObjReceivedEventArgs.cs" />
     <Compile Include="TransportLayer\EventArgs\PeerChangeEventArgs.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="TransportLayer\Listener.cs" />
@@ -53,7 +54,7 @@
     <Compile Include="TransportLayer\Peer.cs" />
     <Compile Include="TransportLayer\MessageManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ApplicationLayer\Serializer.cs" />
+    <Compile Include="ObjectLayer\Serializer.cs" />
     <Compile Include="TransportLayer\TransportType.cs" />
   </ItemGroup>
   <ItemGroup>

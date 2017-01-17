@@ -6,14 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace P2PNET.ApplicationLayer
+namespace P2PNET.FileLayer
 {
     public class FileTrans
     {
         public long BytesProcessed { get; set; }
         protected Stream fileDataStream;
         protected int curFilePartNum;
-        protected int totalPartNum;
 
         //for identification
         public FilePartObj FilePart { get; set; }
@@ -24,13 +23,14 @@ namespace P2PNET.ApplicationLayer
         {
             this.TargetIpAddress = targetIp;
             this.FilePart = mFilePart;
+            this.fileDataStream = mFileStream;
             this.BytesProcessed = 0;
             this.curFilePartNum = 0;
         }
 
         public int RemainingFileParts()
         {
-            int partsRemainding = totalPartNum - curFilePartNum;
+            int partsRemainding = this.FilePart.TotalPartNum - curFilePartNum;
             if (partsRemainding < 0)
             {
                 throw new FileBoundaryException("there are a negative number of file parts remaining.");

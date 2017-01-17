@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace Test
 {
+    [Serializable]
     public class Person
     {
         public string firstName;

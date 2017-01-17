@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace P2PNET.ApplicationLayer
+namespace P2PNET.ObjectLayer
 {
+    [DataContract]
     public class Metadata
     {
         //the type of the object

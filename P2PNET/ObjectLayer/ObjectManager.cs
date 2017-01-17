@@ -2,11 +2,11 @@
 using System.Threading.Tasks;
 using P2PNET.TransportLayer;
 using P2PNET.TransportLayer.EventArgs;
-using P2PNET.ApplicationLayer.EventArgs;
+using P2PNET.ObjectLayer.EventArgs;
 using System.IO;
 using PCLStorage;
 
-namespace P2PNET.ApplicationLayer
+namespace P2PNET.ObjectLayer
 {
     public class ObjectManager
     {
@@ -73,7 +73,7 @@ namespace P2PNET.ApplicationLayer
 
             //seralize object
             byte[] objMsg = serializer.SerializeObjectBSON(obj);
-
+            Metadata temp = serializer.DeserializeObjectBSON<Metadata>(objMsg);
             //seralize metadata
             metadata.TotalMsgSizeBytes = objMsg.Length;
             byte[] metadataMsg = serializer.SerializeObjectBSON(metadata);
