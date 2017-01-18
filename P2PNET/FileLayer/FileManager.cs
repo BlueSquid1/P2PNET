@@ -24,12 +24,12 @@ namespace P2PNET.FileLayer
         private TaskCompletionSource<bool> stillProcPrevMsg;
 
         //constructor
-        public FileManager()
+        public FileManager(int portNum = 8080, bool mForwardAll = false)
         {
             this.receivedFiles = new List<FileReceived>();
             this.sentFiles = new List<FileSent>();
             this.stillProcPrevMsg = new TaskCompletionSource<bool>();
-            this.objManager = new ObjectManager();
+            this.objManager = new ObjectManager(portNum, mForwardAll);
             this.fileSystem = FileSystem.Current;
             this.objManager.ObjReceived += ObjManager_objReceived;
         }
@@ -41,9 +41,13 @@ namespace P2PNET.FileLayer
 
         private async void ObjManager_objReceived(object sender, ObjReceivedEventArgs e)
         {
+            
+            BObject bObj = e.Obj;
+            Metadata metadata = bObj.GetMetadata();
             ObjReceived?.Invoke(this, e);
-            Metadata metadata = e.Metadata;
-            switch (metadata.objectType)
+
+            string objType = bObj.GetType();
+            switch (objType)
             {
                 case "FilePartObj":
                     FilePartObj filePart = e.Obj.GetObject<FilePartObj>();
@@ -57,10 +61,12 @@ namespace P2PNET.FileLayer
                 default:
                     break;
             }
+            
+            
         }
 
-        //bufferSize = 32Kb chunks
-        public async Task SendFileAsyncTCP(string ipAddress, string filePath, int bufferSize = 32 * 1024)
+        //bufferSize = 10Kb chunks
+        public async Task SendFileAsyncTCP(string ipAddress, string filePath, int bufferSize = 10 * 1024)
         {
             //get file details
             IFile file = await fileSystem.GetFileFromPathAsync(filePath);

@@ -17,9 +17,9 @@ namespace P2PNET.ObjectLayer
         private MessageManager peerManager;
 
         //constructor
-        public ObjectManager(int portNum = 8080)
+        public ObjectManager(int portNum = 8080, bool mForwardAll = false)
         {
-            peerManager = new MessageManager(portNum, true);
+            peerManager = new MessageManager(portNum, mForwardAll);
             serializer = new Serializer();
 
             peerManager.MsgReceived += PeerManager_msgReceived;
@@ -66,42 +66,29 @@ namespace P2PNET.ObjectLayer
             await peerManager.SendToAllPeersAsyncTCP(msg);
         }
 
-        private async Task<byte[]> PackObjectIntoMsg<T>(T obj)
+        //TODO: make this private
+        public async Task<byte[]> PackObjectIntoMsg<T>(T obj)
         {
             //generate metadata
             Metadata metadata = await CreateMetadataObj(obj);
 
-            //seralize object
-            byte[] objMsg = serializer.SerializeObjectBSON(obj);
-            Metadata temp = serializer.DeserializeObjectBSON<Metadata>(objMsg);
-            //seralize metadata
-            metadata.TotalMsgSizeBytes = objMsg.Length;
-            byte[] metadataMsg = serializer.SerializeObjectBSON(metadata);
+            //place object into a package
+            ObjPackage<T> objPackage = new ObjPackage<T>( obj, metadata);
 
-            //seralize size of metadata section by boxing the length
-            byte[] metadataSizeMsg = serializer.WriteInt32(metadataMsg.Length);
+            //seralize package
+            byte[] objMsg = serializer.SerializeObject(objPackage);
+            ObjPackage<T> temp = serializer.DeserializeObject<ObjPackage<T>>(objMsg);
 
-            //msg = metadataSizeMsg + metadataMsg + objMsg
-            byte[] msg = new byte[metadataSizeMsg.Length + metadataMsg.Length + objMsg.Length];
-
-            Array.Copy(metadataSizeMsg, msg, metadataSizeMsg.Length);
-            Array.Copy(metadataMsg, 0, msg, metadataSizeMsg.Length, metadataMsg.Length);
-            Array.Copy(objMsg, 0, msg, metadataSizeMsg.Length + metadataMsg.Length, objMsg.Length);
-            return msg;
+            return objMsg;
         }
 
         private async Task<Metadata> CreateMetadataObj<T>(T obj)
         {
             string sourceIp = await peerManager.GetIpAddress();
-            bool isTwoWay = false;
-
             string objType = obj.GetType().Name;
-
             Metadata metaData = new Metadata();
             metaData.SourceIp = sourceIp;
-            metaData.IsTwoWay = isTwoWay;
-            metaData.objectType = objType;
-
+            metaData.ObjectType = objType;
             return metaData;
         }
 
@@ -113,31 +100,15 @@ namespace P2PNET.ObjectLayer
         private void PeerManager_msgReceived(object sender, TransportLayer.EventArgs.MsgReceivedEventArgs e)
         {
             byte[] msg = e.Message;
+            BObject obj = ProcessReceivedMsg(msg);
+            ObjReceived?.Invoke(this, new ObjReceivedEventArgs(obj));
+        }
 
-            //get metadata size
-            byte[] metadataSizeMsg = new byte[sizeof(int)];
-            Array.Copy(msg, metadataSizeMsg, sizeof(int));
-            int metadataSize = serializer.ReadInt32(metadataSizeMsg);
-
-            //get metadata
-            byte[] metadataMsg = new byte[metadataSize];
-            Array.Copy(msg, sizeof(int), metadataMsg, 0, metadataSize);
-            Metadata metadata = serializer.DeserializeObjectBSON<Metadata>(metadataMsg);
-
-            //get message
-            byte[] objectMsg = new byte[metadata.TotalMsgSizeBytes];
-            if (metadata.IsTwoWay == false)
-            {
-                //message attached to this request
-                Array.Copy(msg, sizeof(int) + metadataSize, objectMsg, 0, metadata.TotalMsgSizeBytes);
-                BObject bObject = new BObject(objectMsg, serializer);
-                ObjReceived?.Invoke(this, new ObjReceivedEventArgs(bObject, metadata));
-            }
-            else
-            {
-                //message sent seperately
-                //TODO
-            }
+        //TODO: make private
+        public BObject ProcessReceivedMsg(byte[] msg )
+        {
+            BObject bObject = new BObject(msg, serializer);
+            return bObject;
         }
     }
 }

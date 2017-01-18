@@ -2,15 +2,33 @@
 using Newtonsoft.Json.Bson;
 using System;
 using System.IO;
+using System.Text;
 
 namespace P2PNET.ObjectLayer
 {
     public class Serializer
     {
+        public byte[] SerializeObject<T>(T keyMsg)
+        {
+            string msgString = SerializeObjectJSON(keyMsg);
+            byte[] msgBin = Encoding.UTF8.GetBytes(msgString);
+            
+            //byte[] msgBin = SerializeObjectBSON(keyMsg);
+            return msgBin;
+        }
+
+        public T DeserializeObject<T>(byte[] msg)
+        {
+            string msgString = Encoding.UTF8.GetString(msg, 0, msg.Length);
+            T obj  = DeserializeObjectJSON<T>(msgString);
+            //T obj = DeserializeObjectBSON<T>(msg);
+            return obj;
+        }
+
         //seralizes the object to Binary JSON
         //this has better output size when sending binary files (which typically
         //make up the majority of file sizes)
-        public byte[] SerializeObjectBSON<T>(T keyMsg)
+        private byte[] SerializeObjectBSON<T>(T keyMsg)
         {
             //generate metadata
             //ObjectMetadata x;
@@ -22,7 +40,7 @@ namespace P2PNET.ObjectLayer
             return ms.ToArray();
         }
 
-        public T DeserializeObjectBSON<T>(byte[] msg)
+        private T DeserializeObjectBSON<T>(byte[] msg)
         {
             MemoryStream ms = new MemoryStream(msg);
             using (BsonReader reader = new BsonReader(ms))
@@ -33,12 +51,12 @@ namespace P2PNET.ObjectLayer
             }
         }
 
-        public string SerializeObjectJSON<T>(T keyMsg)
+        private string SerializeObjectJSON<T>(T keyMsg)
         {
             return JsonConvert.SerializeObject(keyMsg);
         }
 
-        public T DeserializeObjectJSON<T>(string msg)
+        private T DeserializeObjectJSON<T>(string msg)
         {
             return JsonConvert.DeserializeObject<T>(msg);
         }

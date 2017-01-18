@@ -45,6 +45,7 @@
     <Compile Include="ObjectLayer\Metadata.cs" />
     <Compile Include="ObjectLayer\ObjectManager.cs" />
     <Compile Include="FileLayer\FileTrans.cs" />
+    <Compile Include="ObjectLayer\ObjPackage.cs" />
     <Compile Include="TransportLayer\BaseStation.cs" />
     <Compile Include="ObjectLayer\EventArgs\ObjReceivedEventArgs.cs" />
     <Compile Include="TransportLayer\EventArgs\PeerChangeEventArgs.cs" />

@@ -12,7 +12,6 @@ namespace P2PNET.FileLayer
     //for that reason they must be seralizable
     //contains enough information so that both sender and
     //receiver's are stateless
-    [DataContract]
     public class FilePartObj
     {
         public byte[] FileData { get; set; }
