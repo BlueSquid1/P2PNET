@@ -76,7 +76,6 @@ namespace P2PNET.TransportLayer
         }
 
         //returns false if was unsuccessful
-        //thinking about throwing an exception instead
         public async Task<bool> SendTCPMsgAsync(string ipAddress, byte[] msg)
         {
             //check if ipAddress is from this peer
@@ -223,13 +222,6 @@ namespace P2PNET.TransportLayer
         //returns true if the ip address corresponds to known peer.
         private bool DoesPeerExistByIp(string ipAddress)
         {
-            /*
-            if(this.LocalIpAddress == ipAddress)
-            {
-                //From local peer
-                return true;
-            }
-            */
             for(int i = 0; i < this.knownPeers.Count; ++i)
             {
                 if(this.knownPeers[i].IpAddress == ipAddress)

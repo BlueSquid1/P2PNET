@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace P2PNET.TransportLayer
 {
+    /// <summary>
+    /// The protocal used to transport the message
+    /// </summary>
     public enum TransportType
     {
         TCP,

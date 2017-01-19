@@ -6,11 +6,13 @@ namespace P2PNET.ObjectLayer.EventArgs
     public class ObjReceivedEventArgs : System.EventArgs
     {
         public BObject Obj { get; }
+        public Metadata Metadata { get; }
 
         //constructor
-        public ObjReceivedEventArgs(BObject mObj)
+        public ObjReceivedEventArgs(BObject mObj, Metadata metadata)
         {
             this.Obj = mObj;
+            this.Metadata = metadata;
         }
     }
 }
