@@ -30,8 +30,8 @@ namespace P2PNET.ObjectLayer
         /// <summary>
         /// Constructor that instantiates a object manager. To commence listening call the method <C>StartAsync</C>.
         /// </summary>
-        /// <param name="portNum"></param>
-        /// <param name="mForwardAll"></param>
+        /// <param name="mPortNum"> The port number which this peer will listen on and send messages with </param>
+        /// <param name="mForwardAll"> When true, all messages received trigger a MsgReceived event. This includes UDB broadcasts that are reflected back to the local peer.</param>
         public ObjectManager(int portNum = 8080, bool mForwardAll = false)
         {
             peerManager = new TransportManager(portNum, mForwardAll);

@@ -8,6 +8,14 @@ namespace P2PNET
         {
         }
     }
+
+    public class PeerRejection : Exception
+    {
+        public PeerRejection(string message) : base(message)
+        {
+        }
+    }
+
     public class StreamCannotWrite : Exception
     {
         public StreamCannotWrite(string message) : base(message)
@@ -43,6 +51,22 @@ namespace P2PNET
     public class FileBoundaryException : Exception
     {
         public FileBoundaryException(string message) : base(message)
+        {
+
+        }
+    }
+
+    public class NullException : Exception
+    {
+        public NullException(string message) : base(message)
+        {
+
+        }
+    }
+
+    public class MessageTransmissionFail : Exception
+    {
+        public MessageTransmissionFail(string message) : base(message)
         {
 
         }

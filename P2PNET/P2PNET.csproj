@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FileLayer\AckMessage.cs" />
-    <Compile Include="FileLayer\EventArgs\DebugInfoEventArgs.cs" />
+    <Compile Include="FileLayer\EventArgs\FileReceivedEventArgs.cs" />
     <Compile Include="ObjectLayer\BObject.cs" />
     <Compile Include="FileLayer\EventArgs\FileTransferEventArgs.cs" />
     <Compile Include="FileLayer\FileManager.cs" />

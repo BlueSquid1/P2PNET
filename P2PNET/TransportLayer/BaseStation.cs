@@ -38,21 +38,19 @@ namespace P2PNET.TransportLayer
             this.portNum = mPortNum;
         }
 
+        //returns false if failed to send
         public async Task<bool> SendUDPMsgAsync(string ipAddress, byte[] msg)
         {
             bool isPeerKnown = DoesPeerExistByIp(ipAddress);
-            if(isPeerKnown && this.LocalIpAddress != ipAddress)
+            try
             {
-                int peerIndex = FindPeerByIp(ipAddress);
-                bool isPeerActive = knownPeers[peerIndex].IsPeerActive;
-                if(!isPeerActive)
-                {
-                    //peer not active. therefore can't received messages
-                    return false;
-                }
+                await senderUDP.SendToAsync(msg, ipAddress, this.portNum);
             }
-
-            await senderUDP.SendToAsync(msg, ipAddress, this.portNum);
+            catch
+            {
+                //failed to send message
+                return false;
+            }
             return true;
         }
 
@@ -132,7 +130,7 @@ namespace P2PNET.TransportLayer
             //check if message is from this peer
             if(e.RemoteIp == this.LocalIpAddress)
             {
-                //from this peer.
+                //from this peer
                 //no futher proccessing needed
                 if(forwardAll == false)
                 {
@@ -173,15 +171,15 @@ namespace P2PNET.TransportLayer
             //send connection request
             TcpSocketClient senderTCP = new TcpSocketClient();
 
-            //if you get an error on the line below then the person you trying to connect to
-            //hasn't accepted in the incoming connection
             try
             {
                 await senderTCP.ConnectAsync(ipAddress, this.portNum);
             }
-            catch( Exception e1)
+            catch
             {
-                throw e1;
+                //if you get an error on the line below then the person you trying to connect to
+                //hasn't accepted in the incoming connection
+                throw new PeerRejection("The peer with ip=" + ipAddress + " hasn't accepted the incoming connection.");
             }
             ITcpSocketClient socketClient = senderTCP;
             StoreConnectedPeerTCP(socketClient);
