@@ -35,7 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FileLayer\AckMessage.cs" />
-    <Compile Include="FileLayer\EventArgs\FileReceivedEventArgs.cs" />
+    <Compile Include="FileLayer\EventArgs\DebugInfoEventArgs.cs" />
     <Compile Include="ObjectLayer\BObject.cs" />
     <Compile Include="FileLayer\EventArgs\FileTransferEventArgs.cs" />
     <Compile Include="FileLayer\FileManager.cs" />
@@ -53,7 +53,7 @@
     <Compile Include="TransportLayer\Listener.cs" />
     <Compile Include="TransportLayer\EventArgs\MsgReceivedEventArgs.cs" />
     <Compile Include="TransportLayer\Peer.cs" />
-    <Compile Include="TransportLayer\TransportManager.cs" />
+    <Compile Include="TransportLayer\MessageManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ObjectLayer\Serializer.cs" />
     <Compile Include="TransportLayer\TransportType.cs" />

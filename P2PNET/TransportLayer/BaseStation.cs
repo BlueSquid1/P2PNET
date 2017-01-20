@@ -38,19 +38,21 @@ namespace P2PNET.TransportLayer
             this.portNum = mPortNum;
         }
 
-        //returns false if failed to send
         public async Task<bool> SendUDPMsgAsync(string ipAddress, byte[] msg)
         {
             bool isPeerKnown = DoesPeerExistByIp(ipAddress);
-            try
+            if(isPeerKnown && this.LocalIpAddress != ipAddress)
             {
-                await senderUDP.SendToAsync(msg, ipAddress, this.portNum);
+                int peerIndex = FindPeerByIp(ipAddress);
+                bool isPeerActive = knownPeers[peerIndex].IsPeerActive;
+                if(!isPeerActive)
+                {
+                    //peer not active. therefore can't received messages
+                    return false;
+                }
             }
-            catch
-            {
-                //failed to send message
-                return false;
-            }
+
+            await senderUDP.SendToAsync(msg, ipAddress, this.portNum);
             return true;
         }
 
@@ -74,6 +76,7 @@ namespace P2PNET.TransportLayer
         }
 
         //returns false if was unsuccessful
+        //thinking about throwing an exception instead
         public async Task<bool> SendTCPMsgAsync(string ipAddress, byte[] msg)
         {
             //check if ipAddress is from this peer
@@ -130,7 +133,7 @@ namespace P2PNET.TransportLayer
             //check if message is from this peer
             if(e.RemoteIp == this.LocalIpAddress)
             {
-                //from this peer
+                //from this peer.
                 //no futher proccessing needed
                 if(forwardAll == false)
                 {
@@ -171,15 +174,15 @@ namespace P2PNET.TransportLayer
             //send connection request
             TcpSocketClient senderTCP = new TcpSocketClient();
 
+            //if you get an error on the line below then the person you trying to connect to
+            //hasn't accepted in the incoming connection
             try
             {
                 await senderTCP.ConnectAsync(ipAddress, this.portNum);
             }
-            catch
+            catch( Exception e1)
             {
-                //if you get an error on the line below then the person you trying to connect to
-                //hasn't accepted in the incoming connection
-                throw new PeerRejection("The peer with ip=" + ipAddress + " hasn't accepted the incoming connection.");
+                throw e1;
             }
             ITcpSocketClient socketClient = senderTCP;
             StoreConnectedPeerTCP(socketClient);
@@ -220,6 +223,13 @@ namespace P2PNET.TransportLayer
         //returns true if the ip address corresponds to known peer.
         private bool DoesPeerExistByIp(string ipAddress)
         {
+            /*
+            if(this.LocalIpAddress == ipAddress)
+            {
+                //From local peer
+                return true;
+            }
+            */
             for(int i = 0; i < this.knownPeers.Count; ++i)
             {
                 if(this.knownPeers[i].IpAddress == ipAddress)
