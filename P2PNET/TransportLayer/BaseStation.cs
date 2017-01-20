@@ -41,15 +41,9 @@ namespace P2PNET.TransportLayer
         public async Task<bool> SendUDPMsgAsync(string ipAddress, byte[] msg)
         {
             bool isPeerKnown = DoesPeerExistByIp(ipAddress);
-            if(isPeerKnown && this.LocalIpAddress != ipAddress)
+            if(!isPeerKnown)
             {
-                int peerIndex = FindPeerByIp(ipAddress);
-                bool isPeerActive = knownPeers[peerIndex].IsPeerActive;
-                if(!isPeerActive)
-                {
-                    //peer not active. therefore can't received messages
-                    return false;
-                }
+                return false;
             }
 
             await senderUDP.SendToAsync(msg, ipAddress, this.portNum);

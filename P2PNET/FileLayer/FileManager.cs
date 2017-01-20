@@ -11,10 +11,24 @@ using System.Threading.Tasks;
 
 namespace P2PNET.FileLayer
 {
+    /// <summary>
+    /// Class for sending and receiving files between peers.
+    /// Built on top of <C>ObjectManager</C>
+    /// </summary>
     public class FileManager
     {
+        /// <summary>
+        /// triggered when a file part has been sent or received sucessfully.
+        /// </summary>
         public event EventHandler<FileTransferEventArgs> FileProgUpdate;
+
+        /// <summary>
+        /// Triggered when a message containing an object has been received
+        /// </summary>
         public event EventHandler<ObjReceivedEventArgs> ObjReceived;
+
+        public event EventHandler<FileReceivedEventArgs> FileReceived;
+
         public event EventHandler<DebugInfoEventArgs> DebugInfo;
 
         private ObjectManager objManager;
@@ -23,7 +37,11 @@ namespace P2PNET.FileLayer
         private List<FileSent> sentFiles;
         private TaskCompletionSource<bool> stillProcPrevMsg;
 
-        //constructor
+        /// <summary>
+        /// Constructor that instantiates a file manager. To commence listening call the method <C>StartAsync</C>.
+        /// </summary>
+        /// <param name="mPortNum"> The port number which this peer will listen on and send messages with </param>
+        /// <param name="mForwardAll"> When true, all messages received trigger a MsgReceived event. This includes UDB broadcasts that are reflected back to the local peer.</param>
         public FileManager(int portNum = 8080, bool mForwardAll = false)
         {
             this.receivedFiles = new List<FileReceived>();
@@ -31,38 +49,17 @@ namespace P2PNET.FileLayer
             this.stillProcPrevMsg = new TaskCompletionSource<bool>();
             this.objManager = new ObjectManager(portNum, mForwardAll);
             this.fileSystem = FileSystem.Current;
+
             this.objManager.ObjReceived += ObjManager_objReceived;
         }
 
+        /// <summary>
+        /// Peer will start actively listening on the specified port number.
+        /// </summary>
+        /// <returns></returns>
         public async Task StartAsync()
         {
             await objManager.StartAsync();
-        }
-
-        private async void ObjManager_objReceived(object sender, ObjReceivedEventArgs e)
-        {
-            
-            BObject bObj = e.Obj;
-            Metadata metadata = bObj.GetMetadata();
-            ObjReceived?.Invoke(this, e);
-
-            string objType = bObj.GetType();
-            switch (objType)
-            {
-                case "FilePartObj":
-                    FilePartObj filePart = e.Obj.GetObject<FilePartObj>();
-                    await ReceivedFilePart(filePart, metadata);
-                    await SendAckBack(filePart, metadata);
-                    break;
-                case "AckMessage":
-                    AckMessage ackMsg = e.Obj.GetObject<AckMessage>();
-                    await ProcessAckMessage(ackMsg, metadata);
-                    break;
-                default:
-                    break;
-            }
-            
-            
         }
 
         //bufferSize = 10Kb chunks
@@ -89,6 +86,30 @@ namespace P2PNET.FileLayer
 
             //send first file part
             await SendNextFilePart(fileSend);
+        }
+
+        private async void ObjManager_objReceived(object sender, ObjReceivedEventArgs e)
+        {
+            
+            BObject bObj = e.Obj;
+            Metadata metadata = bObj.GetMetadata();
+            ObjReceived?.Invoke(this, e);
+
+            string objType = bObj.GetType();
+            switch (objType)
+            {
+                case "FilePartObj":
+                    FilePartObj filePart = e.Obj.GetObject<FilePartObj>();
+                    await ReceivedFilePart(filePart, metadata);
+                    await SendAckBack(filePart, metadata);
+                    break;
+                case "AckMessage":
+                    AckMessage ackMsg = e.Obj.GetObject<AckMessage>();
+                    await ProcessAckMessage(ackMsg, metadata);
+                    break;
+                default:
+                    break;
+            } 
         }
 
         private void Print(string msg)
@@ -130,6 +151,7 @@ namespace P2PNET.FileLayer
                 //new file being received
                 FileReceived newFileReceived = await NewFileInit(filePart, metadata);
                 receivedFiles.Add(newFileReceived);
+                FileReceived?.Invoke(this, new FileReceivedEventArgs());
             }
 
             //find correct file to write to
