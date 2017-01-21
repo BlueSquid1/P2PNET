@@ -19,7 +19,7 @@ namespace P2PNET.FileLayer
 
         public async Task<FilePartObj> GetNextFilePart()
         {
-            int bufferLen = (int)Math.Min(fileDataStream.Length, base.FilePart.MaxBufferSize);
+            int bufferLen = (int)Math.Min(fileDataStream.Length - base.BytesProcessed, base.FilePart.MaxBufferSize);
             if(bufferLen <= 0)
             {
                 //nothing more to be sent

@@ -23,7 +23,7 @@ namespace P2PNET.ObjectLayer
         //overwrite the GetType method
         public new string GetType()
         {
-            string jsonMsg = Encoding.UTF8.GetString(msgBin, 0, msgBin.Length);
+            string jsonMsg = Encoding.Unicode.GetString(msgBin, 0, msgBin.Length);
             JObject jObject = JObject.Parse(jsonMsg);
             JToken jToken = jObject["Metadata"];
             JToken jObjeType = jToken.SelectToken("ObjectType");

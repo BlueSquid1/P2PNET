@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Bson;
+using P2PNET.FileLayer.EventArgs;
 using System;
 using System.IO;
 using System.Text;
@@ -8,21 +9,43 @@ namespace P2PNET.ObjectLayer
 {
     public class Serializer
     {
-        public byte[] SerializeObject<T>(T keyMsg)
+        public event EventHandler<DebugInfoEventArgs> DebugInfo;
+
+        public byte[] SerializeObject<T>(T obj)
         {
-            string msgString = SerializeObjectJSON(keyMsg);
-            byte[] msgBin = Encoding.UTF8.GetBytes(msgString);
-            
+            string msgString = SerializeObjectJSON(obj);
+
+            byte[] msgBin = Encoding.Unicode.GetBytes(msgString);
+
+            DebugInfo?.Invoke(this, new DebugInfoEventArgs("**seralizing" + msgBin.Length + "***\n" + msgString + "\n****\n\n\n"));
+
             //byte[] msgBin = SerializeObjectBSON(keyMsg);
             return msgBin;
         }
 
         public T DeserializeObject<T>(byte[] msg)
         {
-            string msgString = Encoding.UTF8.GetString(msg, 0, msg.Length);
+            string msgString = Encoding.Unicode.GetString(msg, 0, msg.Length);
+            DebugInfo?.Invoke(this, new DebugInfoEventArgs("**deserialize " + msg.Length + "***" + msgString + "\n****\n\n\n"));
             T obj  = DeserializeObjectJSON<T>(msgString);
             //T obj = DeserializeObjectBSON<T>(msg);
             return obj;
+        }
+
+        private string PrintBinary(byte[] byteArray)
+        {
+            var sb = new StringBuilder("new byte[] { ");
+            for (var i = 0; i < byteArray.Length; i++)
+            {
+                var b = byteArray[i];
+                sb.Append(b);
+                if (i < byteArray.Length - 1)
+                {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append(" }");
+            return sb.ToString();
         }
 
         //seralizes the object to Binary JSON

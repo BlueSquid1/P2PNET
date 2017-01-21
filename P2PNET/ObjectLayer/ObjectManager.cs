@@ -5,6 +5,7 @@ using P2PNET.TransportLayer.EventArgs;
 using P2PNET.ObjectLayer.EventArgs;
 using System.IO;
 using PCLStorage;
+using P2PNET.FileLayer.EventArgs;
 
 namespace P2PNET.ObjectLayer
 {
@@ -14,6 +15,8 @@ namespace P2PNET.ObjectLayer
     /// </summary>
     public class ObjectManager
     {
+        public event EventHandler<DebugInfoEventArgs> DebugInfo;
+
         /// <summary>
         /// Triggered when a new peer is detected or an existing peer becomes inactive
         /// </summary>
@@ -36,9 +39,15 @@ namespace P2PNET.ObjectLayer
         {
             peerManager = new TransportManager(mPortNum, mForwardAll);
             serializer = new Serializer();
+            serializer.DebugInfo += Serializer_DebugInfo;
 
             peerManager.MsgReceived += PeerManager_msgReceived;
             peerManager.PeerChange += PeerManager_PeerChange;
+        }
+
+        private void Serializer_DebugInfo(object sender, FileLayer.EventArgs.DebugInfoEventArgs e)
+        {
+            DebugInfo?.Invoke(this, e);
         }
 
         /// <summary>
@@ -125,7 +134,6 @@ namespace P2PNET.ObjectLayer
 
             //seralize package
             byte[] objMsg = serializer.SerializeObject(objPackage);
-            ObjPackage<T> temp = serializer.DeserializeObject<ObjPackage<T>>(objMsg);
 
             return objMsg;
         }

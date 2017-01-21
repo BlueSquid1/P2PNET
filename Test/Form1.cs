@@ -67,9 +67,12 @@ namespace Test
         private async void SendFile_Click(object sender, EventArgs e)
         {
             //string targetIp = "192.168.1.114";
-            string targetIp = "192.168.1.112"; //me
+            //string targetIp = "192.168.1.112"; //me
+            string targetIp = txtIpAddress.Text;
+
             //string filePath = "test_file.txt";
-            string filePath = "06-train-cat-shake-hands.jpg";
+            //string filePath = "06-train-cat-shake-hands.jpg";
+            string filePath = txtFilePath.Text;
             await fileManager.SendFileAsyncTCP(targetIp, filePath);
         }
     }

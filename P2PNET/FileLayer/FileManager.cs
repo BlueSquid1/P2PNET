@@ -51,6 +51,12 @@ namespace P2PNET.FileLayer
             this.fileSystem = FileSystem.Current;
 
             this.objManager.ObjReceived += ObjManager_objReceived;
+            this.objManager.DebugInfo += ObjManager_DebugInfo;
+        }
+
+        private void ObjManager_DebugInfo(object sender, DebugInfoEventArgs e)
+        {
+            DebugInfo?.Invoke(this, e);
         }
 
         /// <summary>
@@ -62,8 +68,8 @@ namespace P2PNET.FileLayer
             await objManager.StartAsync();
         }
 
-        //bufferSize = 10Kb chunks
-        public async Task SendFileAsyncTCP(string ipAddress, string filePath, int bufferSize = 10 * 1024)
+        //bufferSize = 100Kb chunks
+        public async Task SendFileAsyncTCP(string ipAddress, string filePath, int bufferSize = 100 * 1024)
         {
             //get file details
             IFile file = await fileSystem.GetFileFromPathAsync(filePath);
