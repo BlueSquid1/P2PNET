@@ -1,4 +1,5 @@
-﻿using PCLStorage;
+﻿using P2PNET.FileLayer.SendableObjects;
+using PCLStorage;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,12 +9,19 @@ using System.Threading.Tasks;
 
 namespace P2PNET.FileLayer
 {
-    public class FileReceiveReq : FileTransReq
+    public class FileReceiveReq
     {
-        //constructor
-        public FileReceiveReq(FilePartObj filePart, Stream mFileStream, string senderIp) : base(filePart, mFileStream, senderIp)
-        {
+        //for identification FileSentReq
+        public string SenderIpAddress { get; }
 
+        private List<FileTransReq> fileTransReqs;
+
+
+        //constructor
+        public FileReceiveReq(List<FileTransReq> mFileTransReqs, string mIpAddress)
+        {
+            this.fileTransReqs = mFileTransReqs;
+            this.SenderIpAddress = mIpAddress;
         }
 
         public async Task WriteFilePartToFile(FilePartObj receivedFilePart)

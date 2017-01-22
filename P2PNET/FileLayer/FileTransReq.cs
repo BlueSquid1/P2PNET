@@ -1,4 +1,5 @@
-﻿using PCLStorage;
+﻿using P2PNET.FileLayer.SendableObjects;
+using PCLStorage;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,32 +11,56 @@ namespace P2PNET.FileLayer
 {
     public class FileTransReq
     {
-        public long BytesProcessed { get; set; }
-        protected Stream fileDataStream;
-        protected int curFilePartNum;
+        //file details
+        public FileMetadata FileDetails { get; }
 
-        //for identification
-        public FilePartObj FilePart { get; set; }
-        public string TargetIpAddress { get; set; }
-
-        //constructor
-        public FileTransReq(FilePartObj mFilePart, Stream mFileStream, string targetIp)
+        public int curFilePartNum
         {
-            this.TargetIpAddress = targetIp;
-            this.FilePart = mFilePart;
-            this.fileDataStream = mFileStream;
-            this.BytesProcessed = 0;
-            this.curFilePartNum = 0;
+            get
+            {
+                return (int)Math.Ceiling((float)BytesProcessed / bufferSize);
+            }
+        }
+        public int TotalPartNum
+        {
+            get
+            {
+                return (int)Math.Ceiling((float)FileDetails.FileSize / bufferSize);
+            }
         }
 
-        public int RemainingFileParts()
+        //transmittion details
+        public long BytesProcessed
         {
-            int partsRemainding = this.FilePart.TotalPartNum - curFilePartNum;
-            if (partsRemainding < 0)
+            get
             {
-                throw new FileBoundaryException("there are a negative number of file parts remaining.");
+                return bytesProccessed;
             }
-            return partsRemainding;
+        }
+        private long bytesProccessed;
+
+        //buffer size is only for file parts calculations 
+        private int bufferSize;
+
+        private Stream fileDataStream;
+
+        //constructor
+        public FileTransReq(IFile mFileDetails, Stream mFileStream, int mBufferSize)
+        {
+            this.FileDetails = new FileMetadata(mFileDetails.Name, mFileDetails.Path, mFileStream.Length);
+            this.bytesProccessed = 0;
+            this.fileDataStream = mFileStream;
+        }
+
+        public async Task<byte[]> ReadBytes(int numOfBytes)
+        {
+            byte[] fileData = new byte[numOfBytes];
+
+            await this.fileDataStream.ReadAsync(fileData, 0, numOfBytes);
+
+            this.bytesProccessed += numOfBytes;
+
+            return fileData;
         }
     }
 }

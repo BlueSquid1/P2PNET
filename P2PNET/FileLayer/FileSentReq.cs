@@ -1,4 +1,7 @@
-﻿using PCLStorage;
+﻿using P2PNET.FileLayer.EventArgs;
+using P2PNET.FileLayer.SendableObjects;
+using P2PNET.ObjectLayer;
+using PCLStorage;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,35 +11,64 @@ using System.Threading.Tasks;
 
 namespace P2PNET.FileLayer
 {
-    public class FileSentReq : FileTransReq
+    public class FileSentReq
     {
+        //for identification FileSentReq
+        public string targetIpAddress { get; }
+
+        public List<FileTransReq> FileTransReqs { get; }
+        private int bufferSize;
 
         //constructor
-        public FileSentReq(FilePartObj mFilePart, Stream mFileStream, string targetIp) : base (mFilePart, mFileStream, targetIp)
+        public FileSentReq(List<FileTransReq> mFileTransReqs, int mBufferSize, string mIpAddress)
         {
+            this.bufferSize = mBufferSize;
+            this.FileTransReqs = mFileTransReqs;
+            this.targetIpAddress = mIpAddress;
+        }
+        
 
+        public FileSendMetadata GenerateMetadataRequest()
+        {
+            //collect details from all fileTransRequests
+            List<FileMetadata> fileDetails = new List<FileMetadata>();
+            foreach(FileTransReq fileTransReq in FileTransReqs)
+            {
+                fileDetails.Add(fileTransReq.FileDetails);
+            }
+            FileSendMetadata fileSendMetadata = new FileSendMetadata(fileDetails, bufferSize, targetIpAddress);
+            return fileSendMetadata;
         }
 
-        public async Task<FilePartObj> GetNextFilePart()
+        public bool FileHasMoreParts(FileTransReq fileTrans)
         {
-            int bufferLen = (int)Math.Min(fileDataStream.Length - base.BytesProcessed, base.FilePart.MaxBufferSize);
+            if(fileTrans.curFilePartNum < fileTrans.TotalPartNum)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<FilePartObj> GetNextFilePart(FileTransReq mCurFileTrans)
+        {
+            //set buffer lengths
+            int bufferLen = (int)Math.Min(mCurFileTrans.FileDetails.FileSize - mCurFileTrans.BytesProcessed, this.bufferSize);
             if(bufferLen <= 0)
             {
                 //nothing more to be sent
                 return null;
             }
+            FileMetadata fileMetadata = mCurFileTrans.FileDetails;
+            byte[] fileData = await mCurFileTrans.ReadBytes(bufferLen);
 
-            byte[] buffer = new byte[bufferLen];
-            await base.fileDataStream.ReadAsync(buffer, 0, buffer.Length);
 
-            base.BytesProcessed += bufferLen;
-            base.curFilePartNum++;
-            bool isFilePartReady = base.FilePart.AppendFileData(buffer, curFilePartNum);
-            if (!isFilePartReady)
-            {
-                throw new FileTransitionError("failed to send the file. Make sure the file is in a valid format");
-            }
-            return FilePart;
+            //populate File part object
+            FilePartObj filePart = new FilePartObj(fileMetadata, fileData, mCurFileTrans.curFilePartNum, mCurFileTrans.TotalPartNum);
+
+            return filePart;
         }
     }
 }
