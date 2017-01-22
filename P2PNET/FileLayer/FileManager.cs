@@ -1,6 +1,8 @@
 ﻿using P2PNET.FileLayer.EventArgs;
 using P2PNET.ObjectLayer;
 using P2PNET.ObjectLayer.EventArgs;
+using P2PNET.TransportLayer;
+using P2PNET.TransportLayer.EventArgs;
 using PCLStorage;
 using System;
 using System.Collections.Generic;
@@ -27,14 +29,28 @@ namespace P2PNET.FileLayer
         /// </summary>
         public event EventHandler<ObjReceivedEventArgs> ObjReceived;
 
+        /// <summary>
+        /// Triggered when a new peer is detected or an existing peer becomes inactive
+        /// </summary>
+        public event EventHandler<PeerChangeEventArgs> PeerChange;
+
+        /// <summary>
+        /// Triggered when a whole file have been received from another peer
+        /// </summary>
         public event EventHandler<FileReceivedEventArgs> FileReceived;
 
-        public event EventHandler<DebugInfoEventArgs> DebugInfo;
+        public List<Peer> KnownPeers
+        {
+            get
+            {
+                return objManager.KnownPeers;
+            }
+        }
 
         private ObjectManager objManager;
         private IFileSystem fileSystem;
-        private List<FileReceived> receivedFiles;
-        private List<FileSent> sentFiles;
+        private List<FileReceiveReq> receivedFiles;
+        private List<FileSentReq> sentFiles;
         private TaskCompletionSource<bool> stillProcPrevMsg;
 
         /// <summary>
@@ -44,19 +60,19 @@ namespace P2PNET.FileLayer
         /// <param name="mForwardAll"> When true, all messages received trigger a MsgReceived event. This includes UDB broadcasts that are reflected back to the local peer.</param>
         public FileManager(int portNum = 8080, bool mForwardAll = false)
         {
-            this.receivedFiles = new List<FileReceived>();
-            this.sentFiles = new List<FileSent>();
+            this.receivedFiles = new List<FileReceiveReq>();
+            this.sentFiles = new List<FileSentReq>();
             this.stillProcPrevMsg = new TaskCompletionSource<bool>();
             this.objManager = new ObjectManager(portNum, mForwardAll);
             this.fileSystem = FileSystem.Current;
 
             this.objManager.ObjReceived += ObjManager_objReceived;
-            this.objManager.DebugInfo += ObjManager_DebugInfo;
+            this.objManager.PeerChange += ObjManager_PeerChange;
         }
 
-        private void ObjManager_DebugInfo(object sender, DebugInfoEventArgs e)
+        private void ObjManager_PeerChange(object sender, PeerChangeEventArgs e)
         {
-            DebugInfo?.Invoke(this, e);
+            this.PeerChange?.Invoke(this, e);
         }
 
         /// <summary>
@@ -68,9 +84,47 @@ namespace P2PNET.FileLayer
             await objManager.StartAsync();
         }
 
-        //bufferSize = 100Kb chunks
-        public async Task SendFileAsyncTCP(string ipAddress, string filePath, int bufferSize = 100 * 1024)
+        /// <summary>
+        /// send file to the peer with the given IP address via a reliable TCP connection. 
+        /// Works by breaking down the file into blocks each of length <C>bufferSize</C>. Each block is
+        /// then compressed and sent one by one to the other peer. 
+        /// </summary>
+        /// <param name="ipAddress">The IP address of the peer to send the message to</param>
+        /// <param name="filePath">The path to the file you want to send</param>
+        /// <param name="bufferSize">
+        /// Using a small buffer size will trigger <c>FileProgUpdate</c>> more but
+        /// will also increase buffer overhead. Buffer size is also the max amount of memory
+        /// a file will occupy in RAM.
+        /// </param>
+        /// <returns></returns>
+        public async Task SendFileAsync(string ipAddress, string filePath, int bufferSize = 100 * 1024)
         {
+            //create a file send request
+            FileSentReq fileSent = await GetFileSendObj(ipAddress, filePath, bufferSize);
+
+            //send first file part
+            FilePartObj firstFilePart = await fileSent.GetNextFilePart();
+            await objManager.SendAsyncTCP(ipAddress, firstFilePart);
+
+            //update logging information
+            FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileSent));
+
+        }
+
+        public async Task SendFileToAllAsync(string filePath, int bufferSize = 100 * 1024)
+        {
+            foreach( Peer peer in KnownPeers)
+            {
+                string targetIp = peer.IpAddress;
+                await SendFileAsync(targetIp, filePath, bufferSize);
+            }
+        }
+
+
+        private async Task<FileSentReq> GetFileSendObj(string ipAddress, string filePath, int bufferSize = 100 * 1024)
+        {
+            //TODO: handle folders as well as files
+
             //get file details
             IFile file = await fileSystem.GetFileFromPathAsync(filePath);
 
@@ -87,11 +141,11 @@ namespace P2PNET.FileLayer
             }
             //store away file details and the stream
             FilePartObj filePart = new FilePartObj(file, fileStream.Length, bufferSize);
-            FileSent fileSend = new FileSent(filePart, fileStream, ipAddress);
+            FileSentReq fileSend = new FileSentReq(filePart, fileStream, ipAddress);
+            
+            //store the fileSend object
             sentFiles.Add(fileSend);
-
-            //send first file part
-            await SendNextFilePart(fileSend);
+            return fileSend;
         }
 
         private async void ObjManager_objReceived(object sender, ObjReceivedEventArgs e)
@@ -118,33 +172,9 @@ namespace P2PNET.FileLayer
             } 
         }
 
-        private void Print(string msg)
-        {
-            DebugInfo?.Invoke(this, new DebugInfoEventArgs(msg));
-        }
-
-        private async Task SendNextFilePart(FileSent fileSend)
-        {
-            int remainingParts = fileSend.RemainingFileParts();
-            if (remainingParts <= 0 )
-            {
-                //no parts left to send
-                return;
-            }
-            //send only the file part
-            FilePartObj filePart = await fileSend.GetNextFilePart();
-            string ipAddress = fileSend.TargetIpAddress;
-            await objManager.SendAsyncTCP(ipAddress, filePart);
-
-            //update logging information
-            Print("Sending file part: " + filePart.FilePartNum);
-            FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileSend));
-        }
-
         //called when a file part is received
         private async Task ReceivedFilePart(FilePartObj filePart, Metadata metadata)
         {
-            Print("recieved file part: " + filePart.FilePartNum);
             //check if file part is valid
             if (filePart == null)
             {
@@ -155,13 +185,13 @@ namespace P2PNET.FileLayer
             if( filePart.FilePartNum == 1)
             {
                 //new file being received
-                FileReceived newFileReceived = await NewFileInit(filePart, metadata);
+                FileReceiveReq newFileReceived = await NewFileInit(filePart, metadata);
                 receivedFiles.Add(newFileReceived);
                 FileReceived?.Invoke(this, new FileReceivedEventArgs());
             }
 
             //find correct file to write to
-            FileReceived fileReceived = GetFileReceivedFromFilePart(filePart, metadata);
+            FileReceiveReq fileReceived = GetFileReceivedFromFilePart(filePart, metadata);
 
             await fileReceived.WriteFilePartToFile(filePart);
 
@@ -175,18 +205,30 @@ namespace P2PNET.FileLayer
             }
         }
 
+        //received Ack from another peer
         private async Task ProcessAckMessage(AckMessage ackMsg, Metadata metadata)
         {
-            Print("recieved Ack: " + ackMsg.FilePartNum);
-            FileSent fileSent = GetSendFileFromAck(ackMsg, metadata);
-            await SendNextFilePart(fileSent);
+            //get file send request info
+            FileSentReq fileSent = GetSendFileFromAck(ackMsg, metadata);
+            string targetIp = fileSent.TargetIpAddress;
+
+            //send next file part
+            FilePartObj nextFilePart = await fileSent.GetNextFilePart();
+            if (nextFilePart == null)
+            {
+                return;
+            }
+            await objManager.SendAsyncTCP(targetIp, nextFilePart);
+
+            //update logging information
+            FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileSent));
         }
 
         //find a match based on remote ip, file name and file path
-        private FileSent GetSendFileFromAck(AckMessage ackMsg, Metadata metadata)
+        private FileSentReq GetSendFileFromAck(AckMessage ackMsg, Metadata metadata)
         {
             //find corresponding sentFiles
-            foreach (FileSent fileSent in sentFiles)
+            foreach (FileSentReq fileSent in sentFiles)
             {
                 if (fileSent.TargetIpAddress == metadata.SourceIp && fileSent.FilePart.FileName == ackMsg.FileName && fileSent.FilePart.FilePath == ackMsg.FilePath)
                 {
@@ -195,7 +237,6 @@ namespace P2PNET.FileLayer
             }
             //can't find coresponding file
             throw new FileNotFound("Recieved an Ack but can't find file in sent storage.");
-            return null;
         }
 
         private async Task SendAckBack(FilePartObj filePart, Metadata metadata)
@@ -203,12 +244,11 @@ namespace P2PNET.FileLayer
             //send message back to sender
             string targetIp = metadata.SourceIp;
             AckMessage ackMsg = new AckMessage(filePart);
-            Print("sending ACK: " + ackMsg.FilePartNum);
             await objManager.SendAsyncTCP(targetIp, ackMsg);
         }
 
         
-        private async Task<FileReceived> NewFileInit(FilePartObj filePart, Metadata metadata)
+        private async Task<FileReceiveReq> NewFileInit(FilePartObj filePart, Metadata metadata)
         {
             //create a folder to store the file
             IFolder root = await fileSystem.GetFolderFromPathAsync("./");
@@ -224,13 +264,13 @@ namespace P2PNET.FileLayer
             Stream fileStream = await newFile.OpenAsync(FileAccess.ReadAndWrite);
 
             //store as a received file
-            FileReceived fileReceived = new FileReceived(filePart, fileStream, metadata.SourceIp);
+            FileReceiveReq fileReceived = new FileReceiveReq(filePart, fileStream, metadata.SourceIp);
             return fileReceived;
         }
 
-        private FileReceived GetFileReceivedFromFilePart(FilePartObj filePart, Metadata metadata)
+        private FileReceiveReq GetFileReceivedFromFilePart(FilePartObj filePart, Metadata metadata)
         {
-            foreach (FileReceived receivedFile in this.receivedFiles)
+            foreach (FileReceiveReq receivedFile in this.receivedFiles)
             {
                 if (receivedFile.TargetIpAddress == metadata.SourceIp && receivedFile.FilePart.FileName == filePart.FileName && receivedFile.FilePart.FilePath == filePart.FilePath)
                 {
@@ -240,7 +280,6 @@ namespace P2PNET.FileLayer
 
             //can't find coresponding file
             throw new FileNotFound("Recieved an file part but can't find file in received storage.");
-            return null;
         }
     }
 }

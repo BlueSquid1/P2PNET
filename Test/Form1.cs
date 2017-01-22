@@ -1,5 +1,6 @@
 ﻿using P2PNET.FileLayer;
 using P2PNET.ObjectLayer;
+using P2PNET.TransportLayer;
 using System;
 using System.Windows.Forms;
 
@@ -18,20 +19,24 @@ namespace Test
 
             
             fileManager = new FileManager(8080, true);
-            fileManager.ObjReceived += FileManager_ObjReceived;
-            fileManager.DebugInfo += FileManager_DebugInfo;
-            
+            fileManager.FileProgUpdate += FileManager_FileProgUpdate;
+            fileManager.PeerChange += FileManager_PeerChange;         
             InitializeComponent();
         }
 
-        private void FileManager_DebugInfo(object sender, P2PNET.FileLayer.EventArgs.DebugInfoEventArgs e)
+        private void FileManager_PeerChange(object sender, P2PNET.TransportLayer.EventArgs.PeerChangeEventArgs e)
         {
-            Console.WriteLine(e.Msg);
+            Console.WriteLine("----peer change----");
+            foreach(Peer peer in e.Peers)
+            {
+                Console.WriteLine(peer.IpAddress);
+            }
+            Console.WriteLine("====peer change=====");
         }
 
-        private void FileManager_ObjReceived(object sender, P2PNET.ObjectLayer.EventArgs.ObjReceivedEventArgs e)
+        private void FileManager_FileProgUpdate(object sender, P2PNET.FileLayer.EventArgs.FileTransferEventArgs e)
         {
-            //Console.WriteLine("Got here");
+            Console.WriteLine("dir = " + e.Dirrection + ", percentage = " + e.Percent);
         }
 
         private void ObjectManager_objReceived(object sender, P2PNET.ObjectLayer.EventArgs.ObjReceivedEventArgs e)
@@ -73,7 +78,7 @@ namespace Test
             //string filePath = "test_file.txt";
             //string filePath = "06-train-cat-shake-hands.jpg";
             string filePath = txtFilePath.Text;
-            await fileManager.SendFileAsyncTCP(targetIp, filePath);
+            await fileManager.SendFileAsync(targetIp, filePath);
         }
     }
 }

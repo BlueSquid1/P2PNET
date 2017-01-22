@@ -21,12 +21,12 @@ namespace P2PNET.FileLayer.EventArgs
         {
             get
             {
-                return BytesProcessed / FileLength;
+                return (float)BytesProcessed / FileLength;
             }
         }
 
         //constructor
-        public FileTransferEventArgs(FileSent fileSend)
+        public FileTransferEventArgs(FileSentReq fileSend)
         {
             this.FileLength = fileSend.FilePart.TotalFileSizeBytes;
             this.BytesProcessed = fileSend.BytesProcessed;
@@ -35,7 +35,7 @@ namespace P2PNET.FileLayer.EventArgs
         }
 
         //constructor
-        public FileTransferEventArgs(FileReceived fileReceived)
+        public FileTransferEventArgs(FileReceiveReq fileReceived)
         {
             this.FileLength = fileReceived.FilePart.TotalFileSizeBytes;
             this.BytesProcessed = fileReceived.BytesProcessed;

@@ -41,14 +41,15 @@
     <Compile Include="FileLayer\EventArgs\FileTransferEventArgs.cs" />
     <Compile Include="FileLayer\FileManager.cs" />
     <Compile Include="FileLayer\FilePartObj.cs" />
-    <Compile Include="FileLayer\FileReceived.cs" />
-    <Compile Include="FileLayer\FileSent.cs" />
+    <Compile Include="FileLayer\FileReceivedReq.cs" />
+    <Compile Include="FileLayer\FileSentReq.cs" />
     <Compile Include="ObjectLayer\Metadata.cs" />
     <Compile Include="ObjectLayer\ObjectManager.cs" />
     <Compile Include="FileLayer\FileTrans.cs" />
     <Compile Include="ObjectLayer\ObjPackage.cs" />
     <Compile Include="TransportLayer\BaseStation.cs" />
     <Compile Include="ObjectLayer\EventArgs\ObjReceivedEventArgs.cs" />
+    <Compile Include="TransportLayer\EventArgs\PeerEventArgs.cs" />
     <Compile Include="TransportLayer\EventArgs\PeerChangeEventArgs.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="TransportLayer\Listener.cs" />

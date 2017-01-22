@@ -188,12 +188,14 @@ namespace P2PNET.TransportLayer
             newPeer.MsgReceived += NewPeer_MsgReceived;
             newPeer.peerStatusChange += NewPeer_peerStatusChange;
             knownPeers.Add(newPeer);
+
+            //tell others there is a new peer
             PeerChange?.Invoke(this, new PeerChangeEventArgs(knownPeers));
         }
 
-        private void NewPeer_peerStatusChange(object sender, System.EventArgs e)
+        private void NewPeer_peerStatusChange(object sender, PeerEventArgs e)
         {
-            Peer changedPeer = (Peer)sender;
+            Peer changedPeer = e.Peer;
             int indexNum = FindPeerByIp(changedPeer.IpAddress);
             if(indexNum < 0)
             {
@@ -201,12 +203,15 @@ namespace P2PNET.TransportLayer
             }
 
             //delete inactive peers
-            bool isPeerInactive = knownPeers[indexNum].IsPeerActive;
-            if(isPeerInactive)
+            bool isPeerActive = knownPeers[indexNum].IsPeerActive;
+            if(!isPeerActive)
             {
                 //delete from list
                 knownPeers.Remove(changedPeer);
             }
+
+            //tell others a peer has been deleted
+            PeerChange?.Invoke(this, new PeerChangeEventArgs(knownPeers));
         }
 
         private void NewPeer_MsgReceived(object sender, MsgReceivedEventArgs e)

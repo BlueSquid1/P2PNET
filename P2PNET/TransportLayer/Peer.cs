@@ -11,7 +11,7 @@ namespace P2PNET.TransportLayer
     public class Peer
     {
         public event EventHandler<MsgReceivedEventArgs> MsgReceived;
-        public event EventHandler peerStatusChange;
+        public event EventHandler<PeerEventArgs> peerStatusChange;
 
         public string IpAddress
         {
@@ -61,17 +61,26 @@ namespace P2PNET.TransportLayer
         private async void StartListening()
         {
             //set timeout for reading
-            while (true)
+            while (this.IsPeerActive)
             {
                 //read the first 4 bytes = sizeof(int)
                 const int intSize = sizeof(int);
-                Byte[] lengthBin = await ReadBytesAsync(intSize);
-                int msgSize = BinaryToInt(lengthBin);
+                try
+                {
+                    Byte[] lengthBin = await ReadBytesAsync(intSize);
+                    int msgSize = BinaryToInt(lengthBin);
 
-                //read message
-                byte[] messageBin = await ReadBytesAsync(msgSize);
+                    //read message
+                    byte[] messageBin = await ReadBytesAsync(msgSize);
 
-                MsgReceived?.Invoke(this, new MsgReceivedEventArgs(socketClient.RemoteAddress, messageBin, TransportType.TCP));
+                    MsgReceived?.Invoke(this, new MsgReceivedEventArgs(socketClient.RemoteAddress, messageBin, TransportType.TCP));
+                }
+                catch
+                {
+                    //lost connection with peer
+                    this.IsPeerActive = false;
+                    peerStatusChange?.Invoke(this, new PeerEventArgs(this));
+                }
             }
         }
 

@@ -9,15 +9,11 @@ namespace P2PNET.ObjectLayer
 {
     public class Serializer
     {
-        public event EventHandler<DebugInfoEventArgs> DebugInfo;
-
         public byte[] SerializeObject<T>(T obj)
         {
             string msgString = SerializeObjectJSON(obj);
 
             byte[] msgBin = Encoding.Unicode.GetBytes(msgString);
-
-            DebugInfo?.Invoke(this, new DebugInfoEventArgs("**seralizing" + msgBin.Length + "***\n" + msgString + "\n****\n\n\n"));
 
             //byte[] msgBin = SerializeObjectBSON(keyMsg);
             return msgBin;
@@ -26,7 +22,6 @@ namespace P2PNET.ObjectLayer
         public T DeserializeObject<T>(byte[] msg)
         {
             string msgString = Encoding.Unicode.GetString(msg, 0, msg.Length);
-            DebugInfo?.Invoke(this, new DebugInfoEventArgs("**deserialize " + msg.Length + "***" + msgString + "\n****\n\n\n"));
             T obj  = DeserializeObjectJSON<T>(msgString);
             //T obj = DeserializeObjectBSON<T>(msg);
             return obj;
