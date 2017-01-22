@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace P2PNET.FileLayer
 {
-    public class FileReceiveReq : FileTrans
+    public class FileReceiveReq : FileTransReq
     {
         //constructor
         public FileReceiveReq(FilePartObj filePart, Stream mFileStream, string senderIp) : base(filePart, mFileStream, senderIp)

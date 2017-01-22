@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace P2PNET.FileLayer
 {
-    public class FileTrans
+    public class FileTransReq
     {
         public long BytesProcessed { get; set; }
         protected Stream fileDataStream;
@@ -19,7 +19,7 @@ namespace P2PNET.FileLayer
         public string TargetIpAddress { get; set; }
 
         //constructor
-        public FileTrans(FilePartObj mFilePart, Stream mFileStream, string targetIp)
+        public FileTransReq(FilePartObj mFilePart, Stream mFileStream, string targetIp)
         {
             this.TargetIpAddress = targetIp;
             this.FilePart = mFilePart;
