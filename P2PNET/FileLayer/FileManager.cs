@@ -48,6 +48,8 @@ namespace P2PNET.FileLayer
             }
         }
 
+        public string DefaultFilePath { get; set; }
+
         private ObjectManager objManager;
         private IFileSystem fileSystem;
         private List<FileReceiveReq> receivedFileRequests;
@@ -59,13 +61,14 @@ namespace P2PNET.FileLayer
         /// </summary>
         /// <param name="mPortNum"> The port number which this peer will listen on and send messages with </param>
         /// <param name="mForwardAll"> When true, all messages received trigger a MsgReceived event. This includes UDB broadcasts that are reflected back to the local peer.</param>
-        public FileManager(int portNum = 8080, bool mForwardAll = false)
+        public FileManager(int portNum = 8080, bool mForwardAll = false, string defaultFilePath = "./temp/")
         {
             this.receivedFileRequests = new List<FileReceiveReq>();
             this.sendFileRequests = new List<FileSentReq>();
             this.stillProcPrevMsg = new TaskCompletionSource<bool>();
             this.objManager = new ObjectManager(portNum, mForwardAll);
             this.fileSystem = FileSystem.Current;
+            this.DefaultFilePath = defaultFilePath;
 
             this.objManager.ObjReceived += ObjManager_objReceived;
             this.objManager.PeerChange += ObjManager_PeerChange;
@@ -232,8 +235,7 @@ namespace P2PNET.FileLayer
             foreach(FileTransReq fileTrans in fileSendReq.FileTransReqs)
             {
                 //for each file
-                bool moreFileParts = fileSendReq.FileHasMoreParts(fileTrans);
-                while (moreFileParts)
+                while (fileSendReq.FileHasMoreParts(fileTrans))
                 {
                     //send all its parts
                     FilePartObj filePart = await fileSendReq.GetNextFilePart(fileTrans);
@@ -302,25 +304,24 @@ namespace P2PNET.FileLayer
             await objManager.SendAsyncTCP(targetIp, ackMsg);
         }
         */
-
         
         private async Task<FileTransReq> SetupTransmitionForNewFile(FileMetadata fileDetails, int bufferSize)
         {
             //create a folder to store the file
             IFolder root = await fileSystem.GetFolderFromPathAsync("./");
-            if (await root.CheckExistsAsync("./temp/") == ExistenceCheckResult.NotFound)
+            if (await root.CheckExistsAsync(DefaultFilePath) == ExistenceCheckResult.NotFound)
             {
                 //create folder
-                await root.CreateFolderAsync("temp", CreationCollisionOption.FailIfExists);
+                await root.CreateFolderAsync(DefaultFilePath, CreationCollisionOption.FailIfExists);
             }
-            IFolder tempFolder = await fileSystem.GetFolderFromPathAsync("./temp");
+            IFolder tempFolder = await fileSystem.GetFolderFromPathAsync(DefaultFilePath);
 
             //create empty file stream
             IFile newFile = await tempFolder.CreateFileAsync(fileDetails.FileName, CreationCollisionOption.ReplaceExisting);
             Stream fileStream = await newFile.OpenAsync(FileAccess.ReadAndWrite);
 
             //return file trans. object
-            FileTransReq fileTrans = new FileTransReq(newFile, fileStream, bufferSize);
+            FileTransReq fileTrans = new FileTransReq(fileDetails, fileStream, bufferSize);
             return fileTrans;
         }
 

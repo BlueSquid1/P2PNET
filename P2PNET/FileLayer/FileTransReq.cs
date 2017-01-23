@@ -53,6 +53,15 @@ namespace P2PNET.FileLayer
             this.fileDataStream = mFileStream;
         }
 
+        //constructor
+        public FileTransReq(FileMetadata fileDetails, Stream mFileStream, int mBufferSize)
+        {
+            this.FileDetails = new FileMetadata(fileDetails.FileName, fileDetails.FilePath, mFileStream.Length);
+            this.bufferSize = mBufferSize;
+            this.bytesProccessed = 0;
+            this.fileDataStream = mFileStream;
+        }
+
         //deconstructor
 
         public async Task<byte[]> ReadBytes(int numOfBytes)
