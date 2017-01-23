@@ -2,6 +2,7 @@
 using P2PNET.ObjectLayer;
 using P2PNET.TransportLayer;
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 
 namespace Test
@@ -78,7 +79,9 @@ namespace Test
             //string filePath = "test_file.txt";
             //string filePath = "06-train-cat-shake-hands.jpg";
             string filePath = txtFilePath.Text;
-            await fileManager.SendFileAsync(targetIp, filePath);
+            List<string> filePaths = new List<string>();
+            filePaths.Add(filePath);
+            await fileManager.SendFileAsync(targetIp, filePaths);
         }
     }
 }

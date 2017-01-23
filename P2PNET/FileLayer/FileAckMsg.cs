@@ -14,11 +14,16 @@ namespace P2PNET.FileLayer.SendableObjects
         public string FileName { get; set; }
         public string FilePath { get; set; }
 
+        public FileAckMsg()
+        {
+
+        }
+
         public FileAckMsg(FilePartObj filePart, bool acceptFutureParts = true)
         {
             this.AcceptedFile = acceptFutureParts;
-            this.FileName = filePart.FileMetadata.FileName;
-            this.FilePath = filePart.FileMetadata.FilePath;
+            this.FileName = filePart.FileName;
+            this.FilePath = filePart.FilePath;
         }
     }
 }

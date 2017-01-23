@@ -238,6 +238,9 @@ namespace P2PNET.FileLayer
                     //send all its parts
                     FilePartObj filePart = await fileSendReq.GetNextFilePart(fileTrans);
                     await objManager.SendAsyncTCP(fileSendReq.targetIpAddress, filePart);
+
+                    //send update event
+                    FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileTrans, TransDirrection.sending));
                 }
             }
         }
@@ -261,12 +264,13 @@ namespace P2PNET.FileLayer
 
             //find file recieve request
             FileReceiveReq fileReceived = GetReceivedFileReqFromMeta(metadata);
+            FileTransReq fileTrans = fileReceived.GetFileTransReqFromFileMeta(filePart.FileMetadata);
 
             //dump file data to disk
             await fileReceived.WriteFilePartToFile(filePart);
 
             //log incoming file
-            FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileReceived));
+            FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileTrans, TransDirrection.receiving));
         }
 
         /*

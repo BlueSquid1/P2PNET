@@ -11,7 +11,7 @@ namespace P2PNET.FileLayer
 {
     public class FileReceiveReq
     {
-        //for identification FileSentReq
+        //for identification FileReceiveReq
         public string SenderIpAddress { get; }
 
         private List<FileTransReq> fileTransReqs;
@@ -24,19 +24,58 @@ namespace P2PNET.FileLayer
             this.SenderIpAddress = mIpAddress;
         }
 
+
         public async Task WriteFilePartToFile(FilePartObj receivedFilePart)
         {
-            byte[] buffer = receivedFilePart.FileData;
-            await base.fileDataStream.WriteAsync(buffer, 0, buffer.Length);
+            FileTransReq fileTrans = GetFileTransReqFromFileMeta(receivedFilePart.FileMetadata);
 
-            base.BytesProcessed += receivedFilePart.FileData.Length;
-            base.curFilePartNum++;
+            //validate packet recieved
+            bool isValid = ValidFilePart(receivedFilePart);
+            if(!isValid)
+            {
+                throw new FileTransitionError("file part received is not valided for this peer.");
+            }
+
+            //valid file part
+            byte[] buffer = receivedFilePart.FileData;
+            await fileTrans.WriteBytes(buffer);
         }
 
-        public async Task CloseStream()
+        public FileTransReq GetFileTransReqFromFileMeta(FileMetadata mFileMeta)
         {
-            await base.fileDataStream.FlushAsync();
-            base.fileDataStream.Dispose();
+            //collect info to identify file transfer object
+            string fileName = mFileMeta.FileName;
+            string filePath = mFileMeta.FilePath;
+            foreach(FileTransReq fileTrans in fileTransReqs)
+            {
+                if(fileTrans.FileDetails.FileName == fileName && fileTrans.FileDetails.FilePath == filePath)
+                {
+                    return fileTrans;
+                }
+
+            }
+
+            //can't find file transfer object
+            return null;
+        }
+
+        private bool ValidFilePart(FilePartObj filePart)
+        {
+            if(filePart == null)
+            {
+                return false;
+            }
+
+            //TODO
+            return true;
+        }
+
+        public async Task CloseRequest()
+        {
+            foreach (FileTransReq fileTrans in fileTransReqs)
+            {
+                fileTrans.CloseFileStream();
+            }
         }
     }
 }

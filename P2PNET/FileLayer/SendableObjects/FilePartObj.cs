@@ -15,14 +15,14 @@ namespace P2PNET.FileLayer.SendableObjects
     public class FilePartObj
     {
         //identification
-        public FileMetadata FileMetadata { get; }
+        public FileMetadata FileMetadata { get; set; }
 
         //data
-        public byte[] FileData { get; }
+        public byte[] FileData { get; set; }
 
         
-        public int FilePartNum { get; }
-        public int TotalPartNum { get; }
+        public int FilePartNum { get; set; }
+        public int TotalPartNum { get; set; }
 
 
         public FilePartObj(FileMetadata mMetadata, byte[] mFileData, int mFilePartNum, int TotalPartNum)

@@ -8,9 +8,9 @@ namespace P2PNET.FileLayer.SendableObjects
 {
     public class FileMetadata
     {
-        public string FileName { get; set; }
-        public string FilePath { get; set; }
-        public long FileSize { get; set; }
+        public string FileName { get; }
+        public string FilePath { get; }
+        public long FileSize { get; }
 
         //constructor
         public FileMetadata(string mFileName, string mFilePath, long mFileSize)

@@ -71,7 +71,7 @@ namespace P2PNET.ObjectLayer
 
         private string SerializeObjectJSON<T>(T keyMsg)
         {
-            return JsonConvert.SerializeObject(keyMsg);
+            return JsonConvert.SerializeObject(keyMsg, Formatting.Indented);
         }
 
         private T DeserializeObjectJSON<T>(string msg)

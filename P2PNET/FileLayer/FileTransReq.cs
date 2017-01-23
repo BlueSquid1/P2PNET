@@ -48,9 +48,12 @@ namespace P2PNET.FileLayer
         public FileTransReq(IFile mFileDetails, Stream mFileStream, int mBufferSize)
         {
             this.FileDetails = new FileMetadata(mFileDetails.Name, mFileDetails.Path, mFileStream.Length);
+            this.bufferSize = mBufferSize;
             this.bytesProccessed = 0;
             this.fileDataStream = mFileStream;
         }
+
+        //deconstructor
 
         public async Task<byte[]> ReadBytes(int numOfBytes)
         {
@@ -61,6 +64,18 @@ namespace P2PNET.FileLayer
             this.bytesProccessed += numOfBytes;
 
             return fileData;
+        }
+
+        public async Task WriteBytes(byte[] data)
+        {
+            await this.fileDataStream.WriteAsync(data, 0, data.Length);
+            this.bytesProccessed += data.Length;
+        }
+
+        public async Task CloseFileStream()
+        {
+            await this.fileDataStream.FlushAsync();
+            this.fileDataStream.Dispose();
         }
     }
 }

@@ -26,21 +26,12 @@ namespace P2PNET.FileLayer.EventArgs
         }
 
         //constructor
-        public FileTransferEventArgs(FileSentReq fileSend)
+        public FileTransferEventArgs(FileTransReq fileTrans, TransDirrection mDir)
         {
-            this.FileLength = fileSend.FilePart.TotalFileSizeBytes;
-            this.BytesProcessed = fileSend.BytesProcessed;
-            this.FileName = fileSend.FilePart.FileName;
-            this.Dirrection = TransDirrection.sending;
-        }
-
-        //constructor
-        public FileTransferEventArgs(FileReceiveReq fileReceived)
-        {
-            this.FileLength = fileReceived.FilePart.TotalFileSizeBytes;
-            this.BytesProcessed = fileReceived.BytesProcessed;
-            this.FileName = fileReceived.FilePart.FileName;
-            this.Dirrection = TransDirrection.receiving;
+            this.FileLength = fileTrans.FileDetails.FileSize;
+            this.BytesProcessed = fileTrans.BytesProcessed;
+            this.FileName = fileTrans.FileDetails.FileName;
+            this.Dirrection = mDir;
         }
     }
 }

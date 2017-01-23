@@ -8,7 +8,7 @@ namespace P2PNET.FileLayer.SendableObjects
 {
     class FileReqAck
     {
-        public bool AcceptedFile { get; set; }
+        public bool AcceptedFile { get; }
 
         //constructor
         public FileReqAck(bool mAcceptedFile)
