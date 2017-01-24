@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace P2PNET.FileLayer.SendableObjects
 {
-    class FileReqAck
+    class ReqAck
     {
         public bool AcceptedFile { get; set; }
 
         //constructor
-        public FileReqAck(bool mAcceptedFile)
+        public ReqAck(bool mAcceptedFile)
         {
             this.AcceptedFile = mAcceptedFile;
         }

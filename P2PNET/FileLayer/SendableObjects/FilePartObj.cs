@@ -15,7 +15,7 @@ namespace P2PNET.FileLayer.SendableObjects
     public class FilePartObj
     {
         //identification
-        public FileMetadata FileMetadata { get; set; }
+        public FileMeta FileMetadata { get; set; }
 
         //data
         public byte[] FileData { get; set; }
@@ -25,7 +25,7 @@ namespace P2PNET.FileLayer.SendableObjects
         public int TotalPartNum { get; set; }
 
 
-        public FilePartObj(FileMetadata mMetadata, byte[] mFileData, int mFilePartNum, int TotalPartNum)
+        public FilePartObj(FileMeta mMetadata, byte[] mFileData, int mFilePartNum, int TotalPartNum)
         {
             this.FileMetadata = mMetadata;
             this.FileData = mFileData;

@@ -6,17 +6,16 @@ using System.Threading.Tasks;
 
 namespace P2PNET.FileLayer.SendableObjects
 {
-    public class FileSendMetadata
+    public class FileReqMeta
     {
         //data the receiver can use to decide whether or not to reject the request
-        public List<FileMetadata> Files { get; }
-        public int BufferSize { get; }
+        public List<FileMeta> Files { get; set; }
+        public int BufferSize { get; set; }
 
         //identification data
-        public string SenderIpAddress;
+        public string SenderIpAddress { get; set; }
 
-        //constructor
-        public FileSendMetadata(List<FileMetadata> mFiles, int mBufferSize, string mSenderIpAddress)
+        public FileReqMeta(List<FileMeta> mFiles, int mBufferSize, string mSenderIpAddress)
         {
             this.Files = mFiles;
             this.BufferSize = mBufferSize;

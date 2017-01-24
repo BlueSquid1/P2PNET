@@ -28,15 +28,15 @@ namespace P2PNET.FileLayer
         }
         
 
-        public FileSendMetadata GenerateMetadataRequest()
+        public FileReqMeta GenerateMetadataRequest()
         {
             //collect details from all fileTransRequests
-            List<FileMetadata> fileDetails = new List<FileMetadata>();
+            List<FileMeta> fileDetails = new List<FileMeta>();
             foreach(FileTransReq fileTransReq in FileTransReqs)
             {
                 fileDetails.Add(fileTransReq.FileDetails);
             }
-            FileSendMetadata fileSendMetadata = new FileSendMetadata(fileDetails, bufferSize, targetIpAddress);
+            FileReqMeta fileSendMetadata = new FileReqMeta(fileDetails, bufferSize, targetIpAddress);
             return fileSendMetadata;
         }
 
@@ -61,7 +61,7 @@ namespace P2PNET.FileLayer
                 //nothing more to be sent
                 return null;
             }
-            FileMetadata fileMetadata = mCurFileTrans.FileDetails;
+            FileMeta fileMetadata = mCurFileTrans.FileDetails;
             byte[] fileData = await mCurFileTrans.ReadBytes(bufferLen);
 
 

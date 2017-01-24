@@ -12,7 +12,7 @@ namespace P2PNET.FileLayer
     public class FileTransReq
     {
         //file details
-        public FileMetadata FileDetails { get; }
+        public FileMeta FileDetails { get; }
 
         public int curFilePartNum
         {
@@ -47,16 +47,16 @@ namespace P2PNET.FileLayer
         //constructor
         public FileTransReq(IFile mFileDetails, Stream mFileStream, int mBufferSize)
         {
-            this.FileDetails = new FileMetadata(mFileDetails.Name, mFileDetails.Path, mFileStream.Length);
+            this.FileDetails = new FileMeta(mFileDetails.Name, mFileDetails.Path, mFileStream.Length);
             this.bufferSize = mBufferSize;
             this.bytesProccessed = 0;
             this.fileDataStream = mFileStream;
         }
 
         //constructor
-        public FileTransReq(FileMetadata fileDetails, Stream mFileStream, int mBufferSize)
+        public FileTransReq(FileMeta fileDetails, Stream mFileStream, int mBufferSize)
         {
-            this.FileDetails = new FileMetadata(fileDetails.FileName, fileDetails.FilePath, mFileStream.Length);
+            this.FileDetails = new FileMeta(fileDetails.FileName, fileDetails.FilePath, fileDetails.FileSize);
             this.bufferSize = mBufferSize;
             this.bytesProccessed = 0;
             this.fileDataStream = mFileStream;

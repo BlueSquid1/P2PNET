@@ -40,17 +40,22 @@ namespace P2PNET.FileLayer
         /// </summary>
         public event EventHandler<FileReceivedEventArgs> FileReceived;
 
+        /// <summary>
+        /// list of peers discovered by detecting their network activities
+        /// </summary>
         public List<Peer> KnownPeers
         {
             get
             {
-                return objManager.KnownPeers;
+                return ObjectManager.KnownPeers;
             }
         }
 
         public string DefaultFilePath { get; set; }
 
-        private ObjectManager objManager;
+        public ObjectManager ObjectManager { get; set; }
+
+
         private IFileSystem fileSystem;
         private List<FileReceiveReq> receivedFileRequests;
         private List<FileSentReq> sendFileRequests;
@@ -61,17 +66,18 @@ namespace P2PNET.FileLayer
         /// </summary>
         /// <param name="mPortNum"> The port number which this peer will listen on and send messages with </param>
         /// <param name="mForwardAll"> When true, all messages received trigger a MsgReceived event. This includes UDB broadcasts that are reflected back to the local peer.</param>
+        /// <param name="defaultFilePath">the root path to store incoming files</param>
         public FileManager(int portNum = 8080, bool mForwardAll = false, string defaultFilePath = "./temp/")
         {
             this.receivedFileRequests = new List<FileReceiveReq>();
             this.sendFileRequests = new List<FileSentReq>();
             this.stillProcPrevMsg = new TaskCompletionSource<bool>();
-            this.objManager = new ObjectManager(portNum, mForwardAll);
+            this.ObjectManager = new ObjectManager(portNum, mForwardAll);
             this.fileSystem = FileSystem.Current;
             this.DefaultFilePath = defaultFilePath;
 
-            this.objManager.ObjReceived += ObjManager_objReceived;
-            this.objManager.PeerChange += ObjManager_PeerChange;
+            this.ObjectManager.ObjReceived += ObjManager_objReceived;
+            this.ObjectManager.PeerChange += ObjManager_PeerChange;
         }
 
         private void ObjManager_PeerChange(object sender, PeerChangeEventArgs e)
@@ -85,7 +91,7 @@ namespace P2PNET.FileLayer
         /// <returns></returns>
         public async Task StartAsync()
         {
-            await objManager.StartAsync();
+            await ObjectManager.StartAsync();
         }
 
         //TODO: update description
@@ -114,9 +120,9 @@ namespace P2PNET.FileLayer
             sendFileRequests.Add(fileSentRequest);
 
             //send file request metadata to receiver
-            FileSendMetadata fileMetadata = fileSentRequest.GenerateMetadataRequest();
+            FileReqMeta fileMetadata = fileSentRequest.GenerateMetadataRequest();
             
-            await objManager.SendAsyncTCP(ipAddress, fileMetadata);
+            await ObjectManager.SendAsyncTCP(ipAddress, fileMetadata);
 
             //receiver will then send back a acceptance message which is proccessed in ProcessAckMessage()
         }
@@ -166,18 +172,18 @@ namespace P2PNET.FileLayer
                     await ProcessFilePart(filePart, metadata);
                     break;
                     /*
-                case "FileAckMsg":
-                    FileAckMsg ackMsg = e.Obj.GetObject<FileAckMsg>();
+                case "FileAck":
+                    FileAck ackMsg = e.Obj.GetObject<FileAck>();
                     await ProcessAckMessage(ackMsg, metadata);
                     break;
                     */
-                case "FileSendMetadata":
-                    FileSendMetadata fileRequestMetadata = e.Obj.GetObject<FileSendMetadata>();
+                case "FileReqMeta":
+                    FileReqMeta fileRequestMetadata = e.Obj.GetObject<FileReqMeta>();
                     await ProcessIncomingFilesRequest(fileRequestMetadata, metadata);
                     break;
                     
-                case "FileReqAck":
-                    FileReqAck fileReqAck = e.Obj.GetObject<FileReqAck>();
+                case "ReqAck":
+                    ReqAck fileReqAck = e.Obj.GetObject<ReqAck>();
                     await ProcessFileReqAck(fileReqAck, metadata);
                     break;
                     
@@ -186,7 +192,7 @@ namespace P2PNET.FileLayer
             } 
         }
 
-        private async Task ProcessIncomingFilesRequest(FileSendMetadata fileRequest, Metadata mMetadata)
+        private async Task ProcessIncomingFilesRequest(FileReqMeta fileRequest, Metadata mMetadata)
         {
             //determine whether or not to accept the incoming file request
             bool validFileRequest = IsValidFileRequest(fileRequest, mMetadata);
@@ -200,15 +206,15 @@ namespace P2PNET.FileLayer
             }
 
             //send message back to sender
-            FileReqAck fileRequestResp = new FileReqAck(validFileRequest);
-            await objManager.SendAsyncTCP(mMetadata.SourceIp, fileRequestResp);
+            ReqAck fileRequestResp = new ReqAck(validFileRequest);
+            await ObjectManager.SendAsyncTCP(mMetadata.SourceIp, fileRequestResp);
         }
 
-        private async Task<FileReceiveReq> CreateFileReceiveReq(FileSendMetadata fileRequest, Metadata mMetadata)
+        private async Task<FileReceiveReq> CreateFileReceiveReq(FileReqMeta fileRequest, Metadata mMetadata)
         {
             //open stream for all files being received
             List<FileTransReq> fileTrans = new List<FileTransReq>();
-            foreach(FileMetadata file in fileRequest.Files)
+            foreach(FileMeta file in fileRequest.Files)
             {
                 FileTransReq fileTran = await SetupTransmitionForNewFile(file, fileRequest.BufferSize);
                 fileTrans.Add(fileTran);
@@ -219,7 +225,7 @@ namespace P2PNET.FileLayer
         }
 
         
-        private async Task ProcessFileReqAck(FileReqAck mFileReqAck, Metadata mMetadata)
+        private async Task ProcessFileReqAck(ReqAck mFileReqAck, Metadata mMetadata)
         {
             //see if received accepted the file transmition request
             bool acceptedReq = mFileReqAck.AcceptedFile;
@@ -239,7 +245,7 @@ namespace P2PNET.FileLayer
                 {
                     //send all its parts
                     FilePartObj filePart = await fileSendReq.GetNextFilePart(fileTrans);
-                    await objManager.SendAsyncTCP(fileSendReq.targetIpAddress, filePart);
+                    await ObjectManager.SendAsyncTCP(fileSendReq.targetIpAddress, filePart);
 
                     //send update event
                     FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileTrans, TransDirrection.sending));
@@ -248,7 +254,7 @@ namespace P2PNET.FileLayer
         }
         
 
-        private bool IsValidFileRequest(FileSendMetadata fileRequest, Metadata metadata)
+        private bool IsValidFileRequest(FileReqMeta fileRequest, Metadata metadata)
         {
             //TODO: check file metadata and then reject/Accept request
             //TODO: also reject request if there is already an activity request from the same peer
@@ -305,7 +311,7 @@ namespace P2PNET.FileLayer
         }
         */
         
-        private async Task<FileTransReq> SetupTransmitionForNewFile(FileMetadata fileDetails, int bufferSize)
+        private async Task<FileTransReq> SetupTransmitionForNewFile(FileMeta fileDetails, int bufferSize)
         {
             //create a folder to store the file
             IFolder root = await fileSystem.GetFolderFromPathAsync("./");

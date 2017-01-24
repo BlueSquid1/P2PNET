@@ -41,7 +41,7 @@ namespace P2PNET.FileLayer
             await fileTrans.WriteBytes(buffer);
         }
 
-        public FileTransReq GetFileTransReqFromFileMeta(FileMetadata mFileMeta)
+        public FileTransReq GetFileTransReqFromFileMeta(FileMeta mFileMeta)
         {
             //collect info to identify file transfer object
             string fileName = mFileMeta.FileName;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace P2PNET.FileLayer.SendableObjects
 {
-    public class FileAckMsg
+    public class FileAck
     {
         //set true to let sender know to keep sending the
         //file parts
@@ -14,16 +14,11 @@ namespace P2PNET.FileLayer.SendableObjects
         public string FileName { get; set; }
         public string FilePath { get; set; }
 
-        public FileAckMsg()
-        {
-
-        }
-
-        public FileAckMsg(FilePartObj filePart, bool acceptFutureParts = true)
+        public FileAck(FilePartObj filePart, bool acceptFutureParts = true)
         {
             this.AcceptedFile = acceptFutureParts;
-            this.FileName = filePart.FileName;
-            this.FilePath = filePart.FilePath;
+            this.FileName = filePart.FileMetadata.FileName;
+            this.FilePath = filePart.FileMetadata.FilePath;
         }
     }
 }
