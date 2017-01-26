@@ -74,6 +74,12 @@ namespace P2PNET.TransportLayer
             this.listener.PeerConnectTCPRequest += baseStation.NewTCPConnection;
         }
 
+        //deconstructor
+        ~TransportManager()
+        {
+            this.StopAsync().Wait();
+        }
+
         /// <summary>
         /// Peer will start actively listening on the specified port number.
         /// </summary>
@@ -82,6 +88,18 @@ namespace P2PNET.TransportLayer
         {
             baseStation.LocalIpAddress = await GetLocalIPAddress();
             await listener.StartAsync();
+        }
+
+        /// <summary>
+        /// Peer will stop listening and will close all establish connections. All known peers will be cleared.
+        /// </summary>
+        /// <returns></returns>
+        public async Task StopAsync()
+        {
+            await listener.StopAsync();
+
+            //clear known peers
+            KnownPeers.Clear();
         }
 
         /// <summary>

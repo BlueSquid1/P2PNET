@@ -196,14 +196,9 @@ namespace P2PNET.TransportLayer
         private void NewPeer_peerStatusChange(object sender, PeerEventArgs e)
         {
             Peer changedPeer = e.Peer;
-            int indexNum = FindPeerByIp(changedPeer.IpAddress);
-            if(indexNum < 0)
-            {
-                throw (new PeerNotKnown("This error message is imposible to reach. Changed peer is not known"));
-            }
 
             //delete inactive peers
-            bool isPeerActive = knownPeers[indexNum].IsPeerActive;
+            bool isPeerActive = changedPeer.IsPeerActive;
             if(!isPeerActive)
             {
                 //delete from list

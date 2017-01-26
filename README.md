@@ -1,5 +1,15 @@
 # P2PNET
-This is a portable peer to peer library with emphasis on being simple to use.
+P2PNET is a low level portable peer to peer library with emphasis on being simple to use and high performance ideal for soft real time systems. 
+With this library you can send and recieve messages, files and objects between peers on a local network.
+WCF
+
+-UDP and TCP
+-Symetric
+-pure network
+
+
+Unlike other Peer-to-Peer libraries WCF 
+
 
 ##Supported Plateforms:
 * Windows 8.1

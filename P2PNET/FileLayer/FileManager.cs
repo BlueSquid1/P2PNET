@@ -51,8 +51,14 @@ namespace P2PNET.FileLayer
             }
         }
 
+        /// <summary>
+        /// the default path to store incoming files
+        /// </summary>
         public string DefaultFilePath { get; set; }
 
+        /// <summary>
+        /// A reference to the object manager used to pass object messages between peers
+        /// </summary>
         public ObjectManager ObjectManager { get; set; }
 
 
@@ -73,6 +79,24 @@ namespace P2PNET.FileLayer
             this.sendFileRequests = new List<FileSentReq>();
             this.stillProcPrevMsg = new TaskCompletionSource<bool>();
             this.ObjectManager = new ObjectManager(portNum, mForwardAll);
+            this.fileSystem = FileSystem.Current;
+            this.DefaultFilePath = defaultFilePath;
+
+            this.ObjectManager.ObjReceived += ObjManager_objReceived;
+            this.ObjectManager.PeerChange += ObjManager_PeerChange;
+        }
+
+        /// <summary>
+        /// Constructor that instantiates a file manager. To commence listening call the method <C>StartAsync</C>.
+        /// </summary>
+        /// <param name="mObjectManager"> A refernece to an existing ObjectManager </param>
+        /// <param name="defaultFilePath">the root path to store incoming files</param>
+        public FileManager(ObjectManager mObjectManager, string defaultFilePath = "./temp/")
+        {
+            this.receivedFileRequests = new List<FileReceiveReq>();
+            this.sendFileRequests = new List<FileSentReq>();
+            this.stillProcPrevMsg = new TaskCompletionSource<bool>();
+            this.ObjectManager = mObjectManager;
             this.fileSystem = FileSystem.Current;
             this.DefaultFilePath = defaultFilePath;
 

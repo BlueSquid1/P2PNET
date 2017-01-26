@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace workspace.Properties
+namespace WorkPlace.Properties
 {
 
 

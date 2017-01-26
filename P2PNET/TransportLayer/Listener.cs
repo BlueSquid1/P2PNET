@@ -32,6 +32,12 @@ namespace P2PNET.TransportLayer
             await StartListeningAsyncUDP(this.portNum);
         }
 
+        public async Task StopAsync()
+        {
+            await listenerTCP.StopListeningAsync();
+            await listenerUDP.StopListeningAsync();
+        }
+
         private async Task StartListeningAsyncTCP(int portNum)
         {
             listenerTCP.ConnectionReceived += ListenerTCP_ConnectionReceived;

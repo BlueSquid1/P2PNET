@@ -80,7 +80,8 @@ namespace Test
             //string filePath = "06-train-cat-shake-hands.jpg";
             string filePath = txtFilePath.Text;
             List<string> filePaths = new List<string>();
-            filePaths.Add(filePath);
+            filePaths.Add("06-train-cat-shake-hands.jpg");
+            filePaths.Add("Debug.7z");
             await fileManager.SendFileAsync(targetIp, filePaths);
         }
     }
