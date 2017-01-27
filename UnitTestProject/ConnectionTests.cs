@@ -11,16 +11,26 @@ namespace UnitTestProject
     [TestClass]
     public class ConnectionTests
     {
-        private TransportManager TransMang;
-        private string localIP;
+        private TransportManager TransMang = new TransportManager(8080, true);
+        private string localIP= IPAddress.Loopback.ToString();
+
+        private int portNum = 8080;
+        private int PortNum
+        {
+            get
+            {
+                portNum++;
+                return portNum;
+            }
+       }
 
         
         [TestInitialize]
-        public void Setup()
+        public void Init()
         {
-            TransMang = new TransportManager(8080, true);
-            localIP = IPAddress.Loopback.ToString();
+            TransMang = new TransportManager(PortNum, true);
         }
+        
 
         [TestCleanup]
         public async void CleanUp()
@@ -77,8 +87,6 @@ namespace UnitTestProject
             Console.WriteLine("msg = " + messageReceived[0]);
             Assert.IsTrue(IsEqual(msg, messageReceived));
         }
-
-
 
 
         [TestMethod]

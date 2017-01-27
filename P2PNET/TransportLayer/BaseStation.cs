@@ -3,6 +3,7 @@ using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -180,6 +181,30 @@ namespace P2PNET.TransportLayer
             }
             ITcpSocketClient socketClient = senderTCP;
             StoreConnectedPeerTCP(socketClient);
+        }
+
+        public Stream GetWriteStream(string ipAddress)
+        {
+            int peerIndex = FindPeerByIp(ipAddress);
+
+            if(peerIndex < 0)
+            {
+                throw new PeerNotKnown("The peer does not exist");
+            }
+
+            return knownPeers[peerIndex].WriteStream;
+        }
+
+        public Stream GetReadStream(string ipAddress)
+        {
+            int peerIndex = FindPeerByIp(ipAddress);
+
+            if (peerIndex < 0)
+            {
+                throw new PeerNotKnown("The peer does not exist");
+            }
+
+            return knownPeers[peerIndex].ReadStream;
         }
 
         private void StoreConnectedPeerTCP( ITcpSocketClient socketClient )

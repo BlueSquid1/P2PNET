@@ -1,14 +1,17 @@
 # P2PNET
-P2PNET is a low level portable peer to peer library with emphasis on being simple to use and high performance ideal for soft real time systems. 
+P2PNET is a low level portable peer to peer library written in C# with an emphasises on being simple to use and high performance ideal for soft real time systems. 
 With this library you can send and recieve messages, files and objects between peers on a local network.
-WCF
 
--UDP and TCP
--Symetric
--pure network
+Establishing a low level peer-to-peer network connection can be hard as you have to deal with the asymetric nature of TCP and data seralization.
+This library is designed to simplify this. Infact you don't have to worry about establishing a connection at all. You can just use one of the supplied
+send methods to start sending messages. P2PNET will handles establishing a TCP or UDP connection for you.
 
+you can send all kinds of messages. For low level applications use: P2PNET.TransportLayer.TransportManager to send binary arrays. 
+Alternatively you can use P2PNET.ObjectLayer.ObjectManager to send objects between peers. 
+And Finally for Files you can P2PNET.FileLayer.FileManager to send and retrieve files between peers.
 
-Unlike other Peer-to-Peer libraries WCF 
+Supported protocals:
+* UDP and TCP
 
 
 ##Supported Plateforms:
@@ -21,7 +24,5 @@ Unlike other Peer-to-Peer libraries WCF
 * Mono / .Net 4.5
 
 ##How To Use
+TODO!
 ```Peer x = new Peer()```
-
-
-Important note: Object sent must have a blank constructor in their class type.

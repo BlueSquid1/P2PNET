@@ -11,6 +11,10 @@ namespace Test
     {
         private ObjectManager objectManager;
         private FileManager fileManager;
+        private TransportManager transManager;
+
+        private List<Peer> peers;
+
         public Form1()
         {
             /*
@@ -18,15 +22,34 @@ namespace Test
             objectManager.ObjReceived += ObjectManager_objReceived;
             */
 
-            
+            /*
             fileManager = new FileManager(8080, true);
             fileManager.FileProgUpdate += FileManager_FileProgUpdate;
-            fileManager.PeerChange += FileManager_PeerChange;         
+            fileManager.PeerChange += FileManager_PeerChange;     
+            */
+
+            peers = new List<Peer>();
+
+            transManager = new TransportManager(8080, true);
+            transManager.MsgReceived += TransManager_MsgReceived;
+            transManager.PeerChange += FileManager_PeerChange;
             InitializeComponent();
+        }
+
+        private void TransManager_MsgReceived(object sender, P2PNET.TransportLayer.EventArgs.MsgReceivedEventArgs e)
+        {
+            byte[] msg = e.Message;
+
+            for(int i = 0; i < msg.Length; i++)
+            {
+                Console.Write(msg[i]);
+            }
+            Console.WriteLine();
         }
 
         private void FileManager_PeerChange(object sender, P2PNET.TransportLayer.EventArgs.PeerChangeEventArgs e)
         {
+            peers = e.Peers;
             Console.WriteLine("----peer change----");
             foreach(Peer peer in e.Peers)
             {
@@ -35,11 +58,14 @@ namespace Test
             Console.WriteLine("====peer change=====");
         }
 
+        /*
         private void FileManager_FileProgUpdate(object sender, P2PNET.FileLayer.EventArgs.FileTransferEventArgs e)
         {
             Console.WriteLine("dir = " + e.Dirrection + ", percentage = " + e.Percent);
         }
+        */
 
+        /*
         private void ObjectManager_objReceived(object sender, P2PNET.ObjectLayer.EventArgs.ObjReceivedEventArgs e)
         {
             BObject bObj = e.Obj;
@@ -57,11 +83,13 @@ namespace Test
                     break;
             }
         }
+        */
 
         private async void Form1_Load(object sender, EventArgs e)
         {
             //await objectManager.StartAsync();
-            await fileManager.StartAsync();
+            //await fileManager.StartAsync();
+            await transManager.StartAsync();
         }
 
         private async void SendObj_Click(object sender, EventArgs e)
@@ -83,6 +111,38 @@ namespace Test
             filePaths.Add("06-train-cat-shake-hands.jpg");
             filePaths.Add("Debug.7z");
             await fileManager.SendFileAsync(targetIp, filePaths);
+        }
+
+        private async void SendMsg_Click(object sender, EventArgs e)
+        {
+            string targetIp = txtIpAddress.Text;
+            byte[] msg = new byte[] { 255, 0, 15, 70 };
+
+            await transManager.SendAsyncTCP(targetIp, msg);
+        }
+
+        private async void Stream_Click(object sender, EventArgs e)
+        {
+            byte[] msg = new byte[] { 0, 25, 10 };
+
+            //send number indicating message size
+            int lenMsg = (int)msg.Length;
+            byte[] lenBin = IntToBinary(lenMsg);
+            await peers[0].WriteStream.WriteAsync(lenBin, 0, lenBin.Length);
+
+            //send the msg
+            await peers[0].WriteStream.WriteAsync(msg, 0, lenMsg);
+            await peers[0].WriteStream.FlushAsync();
+        }
+
+        private byte[] IntToBinary(int value)
+        {
+            byte[] valueBin = BitConverter.GetBytes(value);
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(valueBin);
+            }
+            return valueBin;
         }
     }
 }

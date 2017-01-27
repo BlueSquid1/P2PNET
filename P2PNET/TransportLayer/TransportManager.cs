@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using P2PNET.TransportLayer.EventArgs;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace P2PNET.TransportLayer
 {
@@ -20,6 +21,7 @@ namespace P2PNET.TransportLayer
         /// Triggered when a message has been received by this peer
         /// </summary>
         public event EventHandler<MsgReceivedEventArgs> MsgReceived;
+
 
         /// <summary>
         /// A list of all peers that are known to this peer
@@ -71,7 +73,7 @@ namespace P2PNET.TransportLayer
 
             //baseStation looks up incoming messages to see if there is a new peer talk to us
             this.listener.IncomingMsg += baseStation.IncomingMsgAsync;
-            this.listener.PeerConnectTCPRequest += baseStation.NewTCPConnection;
+            this.listener.PeerConnectTCPRequest += Listener_PeerConnectTCPRequest;
         }
 
         //deconstructor
@@ -98,7 +100,6 @@ namespace P2PNET.TransportLayer
         {
             await listener.StopAsync();
 
-            //clear known peers
             KnownPeers.Clear();
         }
 
@@ -168,6 +169,31 @@ namespace P2PNET.TransportLayer
         public async Task DirrectConnectAsyncTCP(string ipAddress)
         {
             await baseStation.DirectConnectTCPAsync(ipAddress);
+        }
+
+        public Stream GetWriteStream(string ipAddress)
+        {
+            return baseStation.GetWriteStream(ipAddress);
+        }
+
+        public Stream GetReadStream(string ipAddress)
+        {
+            return baseStation.GetReadStream(ipAddress);
+        }
+
+        private void Listener_PeerConnectTCPRequest(object sender, Sockets.Plugin.Abstractions.TcpSocketListenerConnectEventArgs e)
+        {
+            //make sure its a unique peer
+            foreach (Peer peer in KnownPeers)
+            {
+                if (peer.IpAddress == e.SocketClient.RemoteAddress)
+                {
+                    //not a unique peer
+                    return;
+                }
+            }
+            //unique peer create a new TCP connection for the peer
+            baseStation.NewTCPConnection(sender, e);
         }
 
         private void IncomingMsg(object sender, MsgReceivedEventArgs e)

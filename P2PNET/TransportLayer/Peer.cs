@@ -23,6 +23,9 @@ namespace P2PNET.TransportLayer
 
         public bool IsPeerActive { get; set; }
 
+        public Stream WriteStream { get; set; }
+        public Stream ReadStream { get; set; }
+
         private ITcpSocketClient socketClient;
 
         //constructor
@@ -30,15 +33,20 @@ namespace P2PNET.TransportLayer
         {
             this.IsPeerActive = true;
             this.socketClient = mSocketClient;
+            this.WriteStream = this.socketClient.WriteStream;
+            this.ReadStream = this.socketClient.ReadStream;
 
             StartListening();
         }
-
-        //deconstructor
-        ~Peer()
+        /*
+        public void Dispose()
         {
-            this.socketClient.DisconnectAsync().Wait();
+            socketClient.ReadStream.Dispose();
+            socketClient.WriteStream.Dispose();
+            socketClient.Dispose();
+            socketClient = null;
         }
+        */
 
         public async Task<bool> SendMsgTCPAsync(byte[] msg)
         {
@@ -117,6 +125,5 @@ namespace P2PNET.TransportLayer
             }
             return BitConverter.ToInt32(binArray, 0);
         }
-        
     }
 }

@@ -32,6 +32,9 @@
             this.SendFile = new System.Windows.Forms.Button();
             this.txtFilePath = new System.Windows.Forms.TextBox();
             this.txtIpAddress = new System.Windows.Forms.TextBox();
+            this.SendMsg = new System.Windows.Forms.Button();
+            this.Close = new System.Windows.Forms.Button();
+            this.Stream = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // SendObj
@@ -70,11 +73,43 @@
             this.txtIpAddress.TabIndex = 3;
             this.txtIpAddress.Text = "192.168.1.112";
             // 
+            // SendMsg
+            // 
+            this.SendMsg.Location = new System.Drawing.Point(101, 229);
+            this.SendMsg.Name = "SendMsg";
+            this.SendMsg.Size = new System.Drawing.Size(75, 23);
+            this.SendMsg.TabIndex = 5;
+            this.SendMsg.Text = "SendMsg";
+            this.SendMsg.UseVisualStyleBackColor = true;
+            this.SendMsg.Click += new System.EventHandler(this.SendMsg_Click);
+            // 
+            // Close
+            // 
+            this.Close.Location = new System.Drawing.Point(101, 259);
+            this.Close.Name = "Close";
+            this.Close.Size = new System.Drawing.Size(75, 23);
+            this.Close.TabIndex = 6;
+            this.Close.Text = "Close";
+            this.Close.UseVisualStyleBackColor = true;
+            // 
+            // Stream
+            // 
+            this.Stream.Location = new System.Drawing.Point(197, 187);
+            this.Stream.Name = "Stream";
+            this.Stream.Size = new System.Drawing.Size(75, 23);
+            this.Stream.TabIndex = 7;
+            this.Stream.Text = "StreamSend";
+            this.Stream.UseVisualStyleBackColor = true;
+            this.Stream.Click += new System.EventHandler(this.Stream_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(284, 261);
+            this.ClientSize = new System.Drawing.Size(284, 302);
+            this.Controls.Add(this.Stream);
+            this.Controls.Add(this.Close);
+            this.Controls.Add(this.SendMsg);
             this.Controls.Add(this.txtIpAddress);
             this.Controls.Add(this.txtFilePath);
             this.Controls.Add(this.SendFile);
@@ -93,6 +128,9 @@
         private System.Windows.Forms.Button SendFile;
         private System.Windows.Forms.TextBox txtFilePath;
         private System.Windows.Forms.TextBox txtIpAddress;
+        private System.Windows.Forms.Button SendMsg;
+        private System.Windows.Forms.Button Close;
+        private System.Windows.Forms.Button Stream;
     }
 }
 
