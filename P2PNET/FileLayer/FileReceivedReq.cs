@@ -74,7 +74,7 @@ namespace P2PNET.FileLayer
         {
             foreach (FileTransReq fileTrans in fileTransReqs)
             {
-                fileTrans.CloseFileStream();
+                await fileTrans.CloseFileStream();
             }
         }
     }
