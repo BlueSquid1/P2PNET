@@ -3,9 +3,6 @@ using System.Threading.Tasks;
 using P2PNET.TransportLayer;
 using P2PNET.TransportLayer.EventArgs;
 using P2PNET.ObjectLayer.EventArgs;
-using System.IO;
-using PCLStorage;
-using P2PNET.FileLayer.EventArgs;
 using System.Collections.Generic;
 
 namespace P2PNET.ObjectLayer
