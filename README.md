@@ -1,4 +1,8 @@
 # P2PNET
+
+[![Build status](https://ci.appveyor.com/api/projects/status/5y5reox45a5fjm5u?svg=true)](https://ci.appveyor.com/project/CrazySquid1/p2pnet)
+
+
 P2PNET is a low level portable peer to peer library written in C# with an emphasises on being simple to use and high performance ideal for soft real time systems. 
 With this library you can send and recieve messages, files and objects between peers on a local network.
 
