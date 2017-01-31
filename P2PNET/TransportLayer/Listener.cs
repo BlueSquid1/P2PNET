@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace P2PNET.TransportLayer
 {
-    public class Listener
+    public class Listener : IDisposable
     {
         //triggered when a peer send a connect request to this peer
         public event EventHandler<TcpSocketListenerConnectEventArgs> PeerConnectTCPRequest;
@@ -26,17 +26,26 @@ namespace P2PNET.TransportLayer
             this.portNum = mPortNum;
         }
 
+        //destory connection
+        public void Dispose()
+        {
+            listenerUDP.Dispose();
+            listenerTCP.Dispose();
+        }
+
         public async Task StartAsync()
         {
             await StartListeningAsyncTCP(this.portNum);
             await StartListeningAsyncUDP(this.portNum);
         }
 
+        /*
         public async Task StopAsync()
         {
             await listenerTCP.StopListeningAsync();
             await listenerUDP.StopListeningAsync();
         }
+        */
 
         private async Task StartListeningAsyncTCP(int portNum)
         {
