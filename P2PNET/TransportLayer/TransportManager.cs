@@ -177,14 +177,14 @@ namespace P2PNET.TransportLayer
             await baseStation.DirectConnectTCPAsync(ipAddress);
         }
 
-        public Stream GetWriteStream(string ipAddress)
+        public async Task<Stream> GetWriteStreamAsync(string ipAddress)
         {
-            return baseStation.GetWriteStream(ipAddress);
+            return await baseStation.GetWriteStreamAsync(ipAddress);
         }
 
-        public Stream GetReadStream(string ipAddress)
+        public async Task<Stream> GetReadStreamAsync(string ipAddress)
         {
-            return baseStation.GetReadStream(ipAddress);
+            return await baseStation.GetReadStreamAsync(ipAddress);
         }
 
         private void Listener_PeerConnectTCPRequest(object sender, Sockets.Plugin.Abstractions.TcpSocketListenerConnectEventArgs e)

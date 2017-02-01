@@ -83,6 +83,12 @@ namespace P2PNET.TransportLayer
                 }
             }
 
+            //check if message is not null
+            if (msg == null)
+            {
+                throw new InvalidMessage("The message you are trying to send is null.");
+            }
+
             //check if from unknown peer
             bool peerKnown = DoesPeerExistByIp(ipAddress);
             if (!peerKnown)
@@ -183,20 +189,49 @@ namespace P2PNET.TransportLayer
             StoreConnectedPeerTCP(socketClient);
         }
 
-        public Stream GetWriteStream(string ipAddress)
+        public async Task<Stream> GetWriteStreamAsync(string ipAddress)
         {
+            bool peerKnown = DoesPeerExistByIp(ipAddress);
+            if(!peerKnown)
+            {
+                //try to establish an connection with this ipAddress
+                try
+                {
+                    await DirectConnectTCPAsync(ipAddress);
+                }
+                catch (Exception)
+                {
+                    throw (new PeerNotKnown("The ip address your have entered does not correspond to a valid Peer. Check the IP address."));
+                }
+            }
+
             int peerIndex = FindPeerByIp(ipAddress);
 
             if(peerIndex < 0)
             {
                 throw new PeerNotKnown("The peer does not exist");
+                //ipaddress is unknown                
             }
 
             return knownPeers[peerIndex].WriteStream;
         }
 
-        public Stream GetReadStream(string ipAddress)
+        public async Task<Stream> GetReadStreamAsync(string ipAddress)
         {
+            bool peerKnown = DoesPeerExistByIp(ipAddress);
+            if (!peerKnown)
+            {
+                //try to establish an connection with this ipAddress
+                try
+                {
+                    await DirectConnectTCPAsync(ipAddress);
+                }
+                catch (Exception)
+                {
+                    throw (new PeerNotKnown("The ip address your have entered does not correspond to a valid Peer. Check the IP address."));
+                }
+            }
+
             int peerIndex = FindPeerByIp(ipAddress);
 
             if (peerIndex < 0)
