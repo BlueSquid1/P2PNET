@@ -76,13 +76,13 @@ namespace P2PNET.TransportLayer
             this.listener.PeerConnectTCPRequest += Listener_PeerConnectTCPRequest;
         }
 
-        /*
+        
         //deconstructor
         ~TransportManager()
         {
-            this.StopAsync().Wait();
+            this.CloseConnection();
         }
-        */
+        
 
         /// <summary>
         /// Peer will start actively listening on the specified port number.
@@ -95,10 +95,13 @@ namespace P2PNET.TransportLayer
         }
 
         /// <summary>
-        /// Peer will stop listening and will close all establish connections. All known peers will be cleared.
+        /// Peer will destroy all connections. All known peers will be cleared.
+        /// I have been thinking about making this method public however I don't want users
+        /// to use it to temporary stop listening. It should be used to terminate all connections
+        /// at the end of an application.
         /// </summary>
         /// <returns></returns>
-        public void CloseConnection()
+        private void CloseConnection()
         {
             if( listener == null)
             {

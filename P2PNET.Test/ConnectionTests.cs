@@ -19,14 +19,15 @@ namespace P2PNET.Test
             transManager.StartAsync().Wait();
         }
 
-        ~ConnectionTests()
-        {
-            transManager.CloseConnection();
-        }
-
         [Test]
         public async Task EstablishConnection()
         {
+            bool peerChange = false;
+            transManager.PeerChange += (object obj, PeerChangeEventArgs e) =>
+            {
+                peerChange = true;
+            };
+
             string ipAddress = IPAddress.Loopback.ToString();
 
             await transManager.DirrectConnectAsyncTCP(ipAddress);
@@ -34,6 +35,7 @@ namespace P2PNET.Test
             int peerCount = transManager.KnownPeers.Count;
 
             Assert.IsTrue(peerCount > 0);
+            Assert.IsTrue(peerChange == true);
         }
 
         [Test]
@@ -58,7 +60,6 @@ namespace P2PNET.Test
             await transManager.DirrectConnectAsyncTCP(ipAddress);
 
             Assert.IsTrue(msgReceived == false);
-            transManger2.CloseConnection();
         }
 
         [Test]
@@ -79,6 +80,37 @@ namespace P2PNET.Test
 
             Assert.IsTrue(reciMsg != null);
         }
+
+        [Test]
+        public async Task KnownPeerTest()
+        {
+            byte[] reciMsg = null;
+            transManager.MsgReceived += (object obj, MsgReceivedEventArgs e) =>
+            {
+                reciMsg = e.Message;
+            };
+
+            string ipAddress = IPAddress.Loopback.ToString();
+
+            //make sure the local peer is known
+            await transManager.DirrectConnectAsyncTCP(ipAddress);
+
+            byte[] SendMsg = new byte[] { 255, 0, 153, 00 };
+            await transManager.SendToAllPeersAsyncUDP(SendMsg);
+
+            Console.WriteLine(BinToString(reciMsg));
+
+            Assert.IsTrue(reciMsg != null);
+        }
+
+        [Test]
+        public async Task GetIpAddress()
+        {
+            string localIp = await transManager.GetIpAddress();
+            Console.WriteLine("local ip address = " + localIp);
+            Assert.IsTrue(localIp != null);
+        }
+
 
         [Test]
         public async Task SendBlankTCPMsg()
@@ -106,6 +138,10 @@ namespace P2PNET.Test
 
         public string BinToString(byte[] msg)
         {
+            if(msg == null)
+            {
+                return "";
+            }
             StringBuilder sb = new StringBuilder();
             for(int i = 0; i < msg.Length; i++ )
             {
