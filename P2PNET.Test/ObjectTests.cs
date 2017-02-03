@@ -1,94 +1,84 @@
-﻿using System;
-using NUnit.Framework;
-using P2PNET.TransportLayer;
-using System.Net;
-using System.Threading.Tasks;
+﻿using NUnit.Framework;
+using P2PNET.ObjectLayer;
+using P2PNET.ObjectLayer.EventArgs;
 using P2PNET.TransportLayer.EventArgs;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace P2PNET.Test
 {
     [TestFixture]
-    public class ConnectionTests
+    class ObjectTests
     {
-        private TransportManager transManager;
+        private ObjectManager objMgr;
 
-        public ConnectionTests()
+        public ObjectTests()
         {
-            transManager = new TransportManager(8080, true);
-            transManager.StartAsync().Wait();
+            objMgr = new ObjectManager(8081, true);
+            objMgr.StartAsync().Wait();
         }
 
         [Test]
-        public async Task EstablishConnection()
+        public async Task EstablishObjConnection()
         {
             bool peerChange = false;
-            transManager.PeerChange += (object obj, PeerChangeEventArgs e) =>
+            objMgr.PeerChange += (object obj, PeerChangeEventArgs e) =>
             {
                 peerChange = true;
             };
 
             string ipAddress = IPAddress.Loopback.ToString();
 
-            await transManager.DirrectConnectAsyncTCP(ipAddress);
+            await objMgr.DirrectConnectAsyncTCP(ipAddress);
 
-            int peerCount = transManager.KnownPeers.Count;
+            int peerCount = objMgr.KnownPeers.Count;
 
             Assert.IsTrue(peerCount > 0);
             Assert.IsTrue(peerChange == true);
         }
 
-        [Test]
-        public async Task MultipleSockets()
-        {
-            bool msgReceived = false;
-            TransportManager transManger2 = new TransportManager(8100, true);
-
-            transManger2.PeerChange += (object obj, PeerChangeEventArgs e) => {
-                msgReceived = true;
-            };
-
-            transManger2.MsgReceived += (object obj, MsgReceivedEventArgs e) => {
-                msgReceived = true;
-            };
-
-            await transManger2.StartAsync();
 
 
-            string ipAddress = IPAddress.Loopback.ToString();
-
-            await transManager.DirrectConnectAsyncTCP(ipAddress);
-
-            Assert.IsTrue(msgReceived == false);
-        }
-
-        
+        /*
         [Test]
         public async Task SendTCPMsg()
         {
             byte[] reciMsg = null;
-            transManager.MsgReceived += (object obj, MsgReceivedEventArgs e) =>
+            objMgr.ObjReceived += (object obj, ObjReceivedEventArgs e) =>
             {
-                reciMsg = e.Message;
+                BObject BObj = e.Obj;
+                switch(BObj.GetType())
+                {
+                    case "":
+                        break;
+                    default:
+                        break;
+                }
             };
 
             string ipAddress = IPAddress.Loopback.ToString();
 
 
             byte[] SendMsg = new byte[] { 255, 0, 153, 00 };
-            await transManager.SendAsyncTCP(ipAddress, SendMsg);
+            await transMgr.SendAsyncTCP(ipAddress, SendMsg);
             System.Threading.Thread.Sleep(100);
             Console.WriteLine(BinToString(reciMsg));
 
             Assert.IsTrue(reciMsg != null);
         }
-        
+        */
 
+
+        /*
         [Test]
         public async Task KnownPeerTest()
         {
             byte[] reciMsg = null;
-            transManager.MsgReceived += (object obj, MsgReceivedEventArgs e) =>
+            transMgr.MsgReceived += (object obj, MsgReceivedEventArgs e) =>
             {
                 reciMsg = e.Message;
             };
@@ -96,10 +86,10 @@ namespace P2PNET.Test
             string ipAddress = IPAddress.Loopback.ToString();
 
             //make sure the local peer is known
-            await transManager.DirrectConnectAsyncTCP(ipAddress);
+            await transMgr.DirrectConnectAsyncTCP(ipAddress);
 
             byte[] SendMsg = new byte[] { 255, 0, 153, 00 };
-            await transManager.SendToAllPeersAsyncUDP(SendMsg);
+            await transMgr.SendToAllPeersAsyncUDP(SendMsg);
             System.Threading.Thread.Sleep(100);
             Console.WriteLine(BinToString(reciMsg));
 
@@ -109,7 +99,7 @@ namespace P2PNET.Test
         [Test]
         public async Task GetIpAddress()
         {
-            string localIp = await transManager.GetIpAddress();
+            string localIp = await transMgr.GetIpAddress();
             Console.WriteLine("local ip address = " + localIp);
             Assert.IsTrue(localIp != null);
         }
@@ -119,7 +109,7 @@ namespace P2PNET.Test
         public async Task SendBlankTCPMsg()
         {
             bool msgReceived = false;
-            transManager.MsgReceived += (object obj, MsgReceivedEventArgs e) =>
+            transMgr.MsgReceived += (object obj, MsgReceivedEventArgs e) =>
             {
                 msgReceived = true;
             };
@@ -129,11 +119,11 @@ namespace P2PNET.Test
             byte[] SendMsg = null;
             try
             {
-                await transManager.SendAsyncTCP(ipAddress, SendMsg);
+                await transMgr.SendAsyncTCP(ipAddress, SendMsg);
             }
             catch
             {
-                
+
             }
 
             Assert.IsTrue(msgReceived == false);
@@ -141,16 +131,17 @@ namespace P2PNET.Test
 
         public string BinToString(byte[] msg)
         {
-            if(msg == null)
+            if (msg == null)
             {
                 return "no message";
             }
             StringBuilder sb = new StringBuilder();
-            for(int i = 0; i < msg.Length; i++ )
+            for (int i = 0; i < msg.Length; i++)
             {
                 sb.Append(msg[i]);
             }
             return sb.ToString();
         }
+        */
     }
 }

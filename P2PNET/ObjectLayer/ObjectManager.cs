@@ -123,6 +123,19 @@ namespace P2PNET.ObjectLayer
             await peerManager.SendToAllPeersAsyncTCP(msg);
         }
 
+        //This is here for existing Peer to Peer systems that use asynchronous Connections.
+        //This method is not needed otherwise because this class automatically keeps track
+        //of peer connections
+        /// <summary>
+        /// This method is avaliable to make it easier to integrate existing asymetric peer to peer systems.
+        /// </summary>
+        /// <param name="ipAddress">the ip address to establish a connection with</param>
+        /// <returns></returns>
+        public async Task DirrectConnectAsyncTCP(string ipAddress)
+        {
+            await peerManager.DirrectConnectAsyncTCP(ipAddress);
+        }
+
         private async Task<byte[]> PackObjectIntoMsg<T>(T obj)
         {
             //generate metadata

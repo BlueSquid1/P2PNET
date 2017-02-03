@@ -57,7 +57,10 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConnectionTests.cs" />
+    <Compile Include="Pet.cs" />
+    <Compile Include="Person.cs" />
+    <Compile Include="TransportTests.cs" />
+    <Compile Include="ObjectTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
