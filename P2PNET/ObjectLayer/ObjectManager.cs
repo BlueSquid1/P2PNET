@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if OBJECT
+using System;
 using System.Threading.Tasks;
 using P2PNET.TransportLayer;
 using P2PNET.TransportLayer.EventArgs;
@@ -165,3 +166,5 @@ namespace P2PNET.ObjectLayer
         }
     }
 }
+
+#endif

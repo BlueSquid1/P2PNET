@@ -1,4 +1,5 @@
-﻿using P2PNET.FileLayer.EventArgs;
+﻿#if FILE
+using P2PNET.FileLayer.EventArgs;
 using P2PNET.FileLayer.SendableObjects;
 using P2PNET.ObjectLayer;
 using P2PNET.ObjectLayer.EventArgs;
@@ -385,3 +386,5 @@ namespace P2PNET.FileLayer
 
     }
 }
+
+#endif

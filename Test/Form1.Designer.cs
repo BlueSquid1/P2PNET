@@ -1,4 +1,4 @@
-﻿namespace Test
+﻿namespace WorkSpace
 {
     partial class Form1
     {

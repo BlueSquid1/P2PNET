@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace Test
+namespace WorkSpace
 {
     public partial class Form1 : Form
     {

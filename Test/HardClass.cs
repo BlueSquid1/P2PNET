@@ -5,7 +5,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Test
+namespace WorkSpace
 {
     public class HardClass
     {
@@ -14,7 +14,7 @@ namespace Test
         //constructor
         public HardClass()
         {
-            this.person = new Test.Person("Harry", "Potter", 16);
+            this.person = new WorkSpace.Person("Harry", "Potter", 16);
         }
     }
 }

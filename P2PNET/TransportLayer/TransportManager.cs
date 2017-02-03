@@ -1,4 +1,5 @@
-﻿using Sockets.Plugin;
+﻿#if MESSAGE
+using Sockets.Plugin;
 using System;
 using System.Collections.Generic;
 using P2PNET.TransportLayer.EventArgs;
@@ -232,3 +233,4 @@ namespace P2PNET.TransportLayer
         }
     }
 }
+#endif
