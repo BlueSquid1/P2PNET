@@ -62,6 +62,7 @@ namespace P2PNET.Test
             Assert.IsTrue(msgReceived == false);
         }
 
+        /*
         [Test]
         public async Task SendTCPMsg()
         {
@@ -81,6 +82,7 @@ namespace P2PNET.Test
 
             Assert.IsTrue(reciMsg != null);
         }
+        */
 
         [Test]
         public async Task KnownPeerTest()
@@ -141,7 +143,7 @@ namespace P2PNET.Test
         {
             if(msg == null)
             {
-                return "";
+                return "no message";
             }
             StringBuilder sb = new StringBuilder();
             for(int i = 0; i < msg.Length; i++ )
