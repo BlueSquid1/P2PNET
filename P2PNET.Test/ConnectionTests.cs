@@ -62,7 +62,7 @@ namespace P2PNET.Test
             Assert.IsTrue(msgReceived == false);
         }
 
-        /*
+        
         [Test]
         public async Task SendTCPMsg()
         {
@@ -77,12 +77,12 @@ namespace P2PNET.Test
 
             byte[] SendMsg = new byte[] { 255, 0, 153, 00 };
             await transManager.SendAsyncTCP(ipAddress, SendMsg);
-
+            System.Threading.Thread.Sleep(100);
             Console.WriteLine(BinToString(reciMsg));
 
             Assert.IsTrue(reciMsg != null);
         }
-        */
+        
 
         [Test]
         public async Task KnownPeerTest()
@@ -100,7 +100,7 @@ namespace P2PNET.Test
 
             byte[] SendMsg = new byte[] { 255, 0, 153, 00 };
             await transManager.SendToAllPeersAsyncUDP(SendMsg);
-
+            System.Threading.Thread.Sleep(100);
             Console.WriteLine(BinToString(reciMsg));
 
             Assert.IsTrue(reciMsg != null);
