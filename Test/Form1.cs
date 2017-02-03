@@ -10,7 +10,7 @@ namespace WorkSpace
     public partial class Form1 : Form
     {
         private ObjectManager objectManager;
-        private FileManager fileManager;
+        //private FileManager fileManager;
         private TransportManager transManager;
 
         private List<Peer> peers;
@@ -110,7 +110,7 @@ namespace WorkSpace
             List<string> filePaths = new List<string>();
             filePaths.Add("06-train-cat-shake-hands.jpg");
             filePaths.Add("Debug.7z");
-            await fileManager.SendFileAsync(targetIp, filePaths);
+            //await fileManager.SendFileAsync(targetIp, filePaths);
         }
 
         private async void SendMsg_Click(object sender, EventArgs e)
