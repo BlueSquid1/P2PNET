@@ -66,6 +66,11 @@ namespace P2PNET.ObjectLayer
         /// <returns>true if message was sucessfully sent otherwise returns false</returns>
         public async Task<bool> SendAsyncTCP<T>(string ipAddress, T obj)
         {
+            if(obj == null)
+            {
+                //no object to send
+                return false;
+            }
             byte[] msg = await PackObjectIntoMsg(obj);
 
             return await peerManager.SendAsyncTCP(ipAddress, msg);

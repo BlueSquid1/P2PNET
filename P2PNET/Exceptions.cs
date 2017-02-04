@@ -55,4 +55,12 @@ namespace P2PNET
 
         }
     }
+
+    public class DeserializingException : Exception
+    {
+        public DeserializingException(string message) : base(message)
+        {
+
+        }
+    }
 }

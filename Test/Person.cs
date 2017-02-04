@@ -4,21 +4,45 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WorkSpace
+namespace P2PNET.Test
 {
-    [Serializable]
+    
+    public class FavNum
+    {
+        public int number { get; set; }
+    }
+    
     public class Person
     {
-        public string firstName;
-        public string lastName;
-        public int age;
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
 
-        //constructor
+        public int Age { get; set; }
+
+        //public List<FavNum> favNums { get; set; }
+        public List<Pet> OwnedPets { get; set; }
+
         public Person(string firstName, string lastName, int age)
         {
-            this.firstName = firstName;
-            this.lastName = lastName;
-            this.age = age;
+            //this.favNums = new List<FavNum>();
+            this.FirstName = firstName;
+            this.LastName = lastName;
+            this.Age = age;
+
+            OwnedPets = new List<Pet>();
         }
+
+        /*
+        public void AddNum(FavNum favNum)
+        {
+            favNums.Add(favNum); 
+        }
+        */
+
+        public void AddPet(Pet newPet)
+        {
+            OwnedPets.Add(newPet);
+        }
+        
     }
 }

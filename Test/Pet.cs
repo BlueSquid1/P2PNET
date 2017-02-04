@@ -12,7 +12,7 @@ namespace P2PNET.Test
         Cat = 1,
         Fish = 2
     }
-    public class Pet
+    public abstract class Pet
     {
         public AnimalType Type { get; set; }
         public string Name { get; set; }
@@ -20,15 +20,6 @@ namespace P2PNET.Test
         public Pet(string petName)
         {
             this.Name = petName;
-        }
-
-        public bool Equals(Pet pet)
-        {
-            if(pet.Name == this.Name && pet.Type == this.Type)
-            {
-                return true;
-            }
-            return false;
         }
     }
 }

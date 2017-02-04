@@ -1,17 +1,21 @@
 ﻿using P2PNET.FileLayer;
 using P2PNET.ObjectLayer;
+using P2PNET.ObjectLayer.EventArgs;
+using P2PNET.Test;
 using P2PNET.TransportLayer;
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WorkSpace
 {
     public partial class Form1 : Form
     {
-        private ObjectManager objectManager;
+        private ObjectManager objMgr;
         //private FileManager fileManager;
-        private TransportManager transManager;
+        //private TransportManager transManager;
 
         private List<Peer> peers;
 
@@ -29,11 +33,40 @@ namespace WorkSpace
             */
 
             peers = new List<Peer>();
+            objMgr = new ObjectManager(8080, true);
 
-            transManager = new TransportManager(8080, true);
-            transManager.MsgReceived += TransManager_MsgReceived;
-            transManager.PeerChange += FileManager_PeerChange;
             InitializeComponent();
+        }
+
+        public async Task Main()
+        {
+            Person RecievedPerson = null;
+            objMgr.ObjReceived += (object obj, ObjReceivedEventArgs e) =>
+            {
+                Metadata meta = e.Obj.GetMetadata();
+                switch (meta.ObjectType)
+                {
+                    case "Person":
+                        RecievedPerson = e.Obj.GetObject<Person>();
+                        Console.WriteLine("got here");
+                        break;
+                }
+            };
+
+            await objMgr.StartAsync();
+
+            string ipAddress = IPAddress.Loopback.ToString();
+
+
+            Person sendPerson = new Person("Phillip", "King", 25);
+            //FavNum fav = new FavNum();
+            //fav.number = 10;
+            //sendPerson.AddNum(fav);
+            sendPerson.AddPet(new Dog("Calvin"));
+            //sendPerson.AddPet(new Cat("Charlie"));
+            await objMgr.SendAsyncTCP(ipAddress, sendPerson);
+            System.Threading.Thread.Sleep(100);
+
         }
 
         private void TransManager_MsgReceived(object sender, P2PNET.TransportLayer.EventArgs.MsgReceivedEventArgs e)
@@ -87,15 +120,16 @@ namespace WorkSpace
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            //await objectManager.StartAsync();
+            await Main();
+            //await objMgr.StartAsync();
             //await fileManager.StartAsync();
-            await transManager.StartAsync();
+            //await transManager.StartAsync();
         }
 
         private async void SendObj_Click(object sender, EventArgs e)
         {
             Person x = new Person("Harry", "Potter", 25);
-            await objectManager.SendBroadcastAsyncUDP(x);
+            await objMgr.SendBroadcastAsyncUDP(x);
         }
 
         private async void SendFile_Click(object sender, EventArgs e)
@@ -118,7 +152,7 @@ namespace WorkSpace
             string targetIp = txtIpAddress.Text;
             byte[] msg = new byte[] { 255, 0, 15, 70 };
 
-            await transManager.SendAsyncTCP(targetIp, msg);
+            //await transManager.SendAsyncTCP(targetIp, msg);
         }
 
         private async void Stream_Click(object sender, EventArgs e)

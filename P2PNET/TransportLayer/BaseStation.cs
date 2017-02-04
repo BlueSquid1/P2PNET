@@ -84,7 +84,7 @@ namespace P2PNET.TransportLayer
             }
 
             //check if message is not null
-            if (msg == null)
+            if (msg == null || msg.Length <= 0)
             {
                 throw new InvalidMessage("The message you are trying to send is null.");
             }
@@ -284,9 +284,10 @@ namespace P2PNET.TransportLayer
                 return true;
             }
             */
-            for(int i = 0; i < this.knownPeers.Count; ++i)
+            int count = this.knownPeers.Count;
+            for (int i = 0; i < count; ++i)
             {
-                if(this.knownPeers[i].IpAddress == ipAddress)
+                if(this.knownPeers[i]?.IpAddress == ipAddress)
                 {
                     return true;
                 }

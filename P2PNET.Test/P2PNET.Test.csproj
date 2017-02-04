@@ -57,6 +57,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cat.cs" />
+    <Compile Include="Dog.cs" />
+    <Compile Include="Fish.cs" />
     <Compile Include="Pet.cs" />
     <Compile Include="Person.cs" />
     <Compile Include="TransportTests.cs" />

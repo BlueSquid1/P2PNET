@@ -38,8 +38,15 @@ namespace P2PNET.ObjectLayer
 
         public T GetObject<T>()
         {
-            ObjPackage<T> objPackage = serializer.DeserializeObject<ObjPackage<T>>(msgBin);
-            return objPackage.Obj;
+            try
+            {
+                ObjPackage<T> objPackage = serializer.DeserializeObject<ObjPackage<T>>(msgBin);
+                return objPackage.Obj;
+            }
+            catch(Exception e)
+            {
+                throw e;
+            }
         }
         
 

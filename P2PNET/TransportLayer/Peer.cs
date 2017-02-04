@@ -73,21 +73,24 @@ namespace P2PNET.TransportLayer
             {
                 //read the first 4 bytes = sizeof(int)
                 const int intSize = sizeof(int);
+                byte[] messageBin = null;
                 try
                 {
                     Byte[] lengthBin = await ReadBytesAsync(intSize);
                     int msgSize = BinaryToInt(lengthBin);
 
                     //read message
-                    byte[] messageBin = await ReadBytesAsync(msgSize);
-
-                    MsgReceived?.Invoke(this, new MsgReceivedEventArgs(socketClient.RemoteAddress, messageBin, TransportType.TCP));
+                    messageBin = await ReadBytesAsync(msgSize);
                 }
-                catch
+                catch (Exception e)
                 {
                     //lost connection with peer
                     this.IsPeerActive = false;
                     peerStatusChange?.Invoke(this, new PeerEventArgs(this));
+                }
+                if(IsPeerActive == true)
+                {
+                    MsgReceived?.Invoke(this, new MsgReceivedEventArgs(socketClient.RemoteAddress, messageBin, TransportType.TCP));
                 }
             }
         }

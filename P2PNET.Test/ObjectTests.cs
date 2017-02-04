@@ -41,21 +41,35 @@ namespace P2PNET.Test
             Assert.IsTrue(peerChange == true);
         }
 
-
-
-        /*
         [Test]
-        public async Task SendTCPMsg()
+        public async Task SendNullTCPObj()
         {
-            byte[] reciMsg = null;
+            bool reciObj = false;
             objMgr.ObjReceived += (object obj, ObjReceivedEventArgs e) =>
             {
-                BObject BObj = e.Obj;
-                switch(BObj.GetType())
+                reciObj = true;
+            };
+
+            string ipAddress = IPAddress.Loopback.ToString();
+
+
+            object sendObj = null;
+            await objMgr.SendAsyncTCP(ipAddress, sendObj);
+            System.Threading.Thread.Sleep(100);
+
+            Assert.IsTrue(reciObj == false);
+        }
+
+        [Test]
+        public async Task SendPerson()
+        {
+            Person RecievedPerson = null;
+            objMgr.ObjReceived += (object obj, ObjReceivedEventArgs e) =>
+            {
+                switch(e.Obj.GetType())
                 {
-                    case "":
-                        break;
-                    default:
+                    case "Person":
+                        RecievedPerson = e.Obj.GetObject<Person>();
                         break;
                 }
             };
@@ -63,14 +77,15 @@ namespace P2PNET.Test
             string ipAddress = IPAddress.Loopback.ToString();
 
 
-            byte[] SendMsg = new byte[] { 255, 0, 153, 00 };
-            await transMgr.SendAsyncTCP(ipAddress, SendMsg);
-            System.Threading.Thread.Sleep(100);
-            Console.WriteLine(BinToString(reciMsg));
-
-            Assert.IsTrue(reciMsg != null);
+            Person sendPerson = new Person("Phillip", "King", 25);
+            sendPerson.AddPet(new Dog("Calvin"));
+            sendPerson.AddPet(new Cat("Charlie"));
+            await objMgr.SendAsyncTCP(ipAddress, sendPerson);
+            System.Threading.Thread.Sleep(1000);
+            Console.WriteLine(RecievedPerson?.Age);
+            //Assert.AreEqual(sendPerson, RecievedPerson);
+            Assert.IsTrue(sendPerson.Equals(RecievedPerson));
         }
-        */
 
 
         /*

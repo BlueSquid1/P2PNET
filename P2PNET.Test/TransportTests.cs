@@ -116,7 +116,7 @@ namespace P2PNET.Test
 
 
         [Test]
-        public async Task SendBlankTCPMsg()
+        public async Task SendNullTCPMsg()
         {
             bool msgReceived = false;
             transMgr.MsgReceived += (object obj, MsgReceivedEventArgs e) =>
@@ -134,6 +134,29 @@ namespace P2PNET.Test
             catch
             {
                 
+            }
+
+            Assert.IsTrue(msgReceived == false);
+        }
+
+        public async Task SendBlankTCPMsg()
+        {
+            bool msgReceived = false;
+            transMgr.MsgReceived += (object obj, MsgReceivedEventArgs e) =>
+            {
+                msgReceived = true;
+            };
+
+            string ipAddress = IPAddress.Loopback.ToString();
+
+            byte[] SendMsg = new byte[]{ };
+            try
+            {
+                await transMgr.SendAsyncTCP(ipAddress, SendMsg);
+            }
+            catch
+            {
+
             }
 
             Assert.IsTrue(msgReceived == false);
