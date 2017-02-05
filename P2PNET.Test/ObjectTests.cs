@@ -113,6 +113,31 @@ namespace P2PNET.Test
         }
 
         /*
+        [Test]
+        public async Task SendFilePart()
+        {
+            FilePart RecieveFilePart = null;
+            objMgr.ObjReceived += (object obj, ObjReceivedEventArgs e) =>
+            {
+                switch (e.Obj.GetType())
+                {
+                    case "Dog":
+                        RecieveFilePart = e.Obj.GetObject<FilePart>();
+                        break;
+                }
+            };
+
+            string ipAddress = IPAddress.Loopback.ToString();
+
+
+            FilePart sendFilePart = new FilePart(predefineData);
+            await objMgr.SendAsyncTCP(ipAddress, sendFilePart);
+            System.Threading.Thread.Sleep(1000);
+            Assert.IsTrue(sendFilePart.Equals(RecieveFilePart));
+        }
+        */
+
+        
         //send multiple objects
         [Test]
         public async Task SendMultiplePeople()
@@ -148,12 +173,13 @@ namespace P2PNET.Test
             foreach ( Person person in SendPeople)
             {
                 await objMgr.SendAsyncTCP(ipAddress, person);
+                System.Threading.Thread.Sleep(1000);
             }
             
             System.Threading.Thread.Sleep(1000);
             Assert.IsTrue(PeopleListsEqual(RecievedPeople, SendPeople));
         }
-        */
+        
 
         /*
         //send multiple objects of different types
