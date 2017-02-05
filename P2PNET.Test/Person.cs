@@ -31,8 +31,14 @@ namespace P2PNET.Test
 
         public bool Equals(Person secPerson)
         {
+            if(secPerson == null)
+            {
+                Console.WriteLine("person is null");
+                return false;
+            }
             if(secPerson.OwnedPets.Count != this.OwnedPets.Count)
             {
+                Console.WriteLine("num of pets different");
                 return false;
             }
 
@@ -41,15 +47,18 @@ namespace P2PNET.Test
             {
                 if(!this.OwnedPets[i].Equals(secPerson.OwnedPets[i]))
                 {
+                    Console.WriteLine("pet have different values");
                     return false;
                 }
             }
 
-            if(secPerson.Age == this.Age && secPerson.FirstName == this.FirstName && secPerson.LastName == this.LastName)
+            if(secPerson.Age != this.Age || secPerson.FirstName != this.FirstName || secPerson.LastName != this.LastName)
             {
-                return true;
+                Console.WriteLine("people have different values");
+                return false;
             }
-            return false;
+
+            return true;
         }
     }
 }
