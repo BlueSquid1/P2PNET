@@ -181,11 +181,24 @@ namespace P2PNET.TransportLayer
             await baseStation.DirectConnectTCPAsync(ipAddress);
         }
 
+        /// <summary>
+        /// returns a TCP stream that is used for sending data to the given ip address.
+        /// This is for systems that require a TCP stream. Consider using the method SendAsyncTCP() instead.
+        /// Make sure to flush the stream to make sure the data is sent.
+        /// </summary>
+        /// <param name="ipAddress"> the target ip address you want to connect to </param>
+        /// <returns>A TCP stream that can be written to</returns>
         public async Task<Stream> GetWriteStreamAsync(string ipAddress)
         {
             return await baseStation.GetWriteStreamAsync(ipAddress);
         }
 
+        /// <summary>
+        /// returns a TCP stream that is used for receiving data from the given ip address.
+        /// This is for systems that require a TCP stream. Consider using the event handler MsgReceived instead.
+        /// </summary>
+        /// <param name="ipAddress"> the target ip address you want to connect to </param>
+        /// <returns>A TCP stream that can be read from</returns>
         public async Task<Stream> GetReadStreamAsync(string ipAddress)
         {
             return await baseStation.GetReadStreamAsync(ipAddress);

@@ -24,6 +24,9 @@ namespace P2PNET.ObjectLayer
         /// </summary>
         public event EventHandler<ObjReceivedEventArgs> ObjReceived;
 
+        /// <summary>
+        /// A list of all peers that are known to this peer
+        /// </summary>
         public List<Peer> KnownPeers
         {
             get

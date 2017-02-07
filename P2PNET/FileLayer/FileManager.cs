@@ -105,11 +105,6 @@ namespace P2PNET.FileLayer
             this.ObjectManager.PeerChange += ObjManager_PeerChange;
         }
 
-        private void ObjManager_PeerChange(object sender, PeerChangeEventArgs e)
-        {
-            this.PeerChange?.Invoke(this, e);
-        }
-
         /// <summary>
         /// Peer will start actively listening on the specified port number.
         /// </summary>
@@ -151,6 +146,12 @@ namespace P2PNET.FileLayer
 
             //receiver will then send back a acceptance message which is proccessed in ProcessAckMessage()
         }
+
+        private void ObjManager_PeerChange(object sender, PeerChangeEventArgs e)
+        {
+            this.PeerChange?.Invoke(this, e);
+        }
+
 
         private async Task<FileSentReq> CreateFileSendReq(string ipAddress, List<string> filePaths, int bufferSize)
         {
@@ -305,36 +306,6 @@ namespace P2PNET.FileLayer
             //log incoming file
             FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileTrans, TransDirrection.receiving));
         }
-
-        /*
-        //received Ack from another peer
-        private async Task ProcessAckMessage(FileAckMsg ackMsg, Metadata metadata)
-        {
-            //get file send request info
-            FileSentReq fileSent = GetSendFileFromAck(ackMsg, metadata);
-            string targetIp = fileSent.TargetIpAddress;
-
-            //send next file part
-            FilePartObj nextFilePart = await fileSent.GetNextFilePart();
-            if (nextFilePart == null)
-            {
-                return;
-            }
-            await objManager.SendAsyncTCP(targetIp, nextFilePart);
-
-            //update logging information
-            FileProgUpdate?.Invoke(this, new FileTransferEventArgs(fileSent));
-        }
-        */
-        /*
-        private async Task SendAckBack(FilePartObj filePart, Metadata metadata)
-        {
-            //send message back to sender
-            string targetIp = metadata.SourceIp;
-            FileAckMsg ackMsg = new FileAckMsg(filePart);
-            await objManager.SendAsyncTCP(targetIp, ackMsg);
-        }
-        */
         
         private async Task<FileTransReq> SetupTransmitionForNewFile(FileMeta fileDetails, int bufferSize)
         {
