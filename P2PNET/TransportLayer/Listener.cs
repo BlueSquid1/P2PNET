@@ -3,6 +3,7 @@ using P2PNET.TransportLayer.EventArgs;
 using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace P2PNET.TransportLayer
 {
@@ -15,6 +16,9 @@ namespace P2PNET.TransportLayer
         private UdpSocketReceiver listenerUDP;
         private TcpSocketListener listenerTCP;
 
+        //private WriteStreamUtil writeUtil;
+        //private ReadStreamUtil readUtil;
+
         private int portNum;
 
         //constructor
@@ -22,6 +26,10 @@ namespace P2PNET.TransportLayer
         {
             this.listenerUDP = new UdpSocketReceiver();
             this.listenerTCP = new TcpSocketListener();
+
+            Stream listenStream = new MemoryStream();
+            //writeUtil = new WriteStreamUtil(listenStream);
+            //readUtil = new ReadStreamUtil(listenStream);
 
             this.portNum = mPortNum;
         }
@@ -57,10 +65,20 @@ namespace P2PNET.TransportLayer
         {
             listenerUDP.MessageReceived += ListenerUDP_MessageReceived;
             await listenerUDP.StartListeningAsync(portNum);
+
+            /*
+            bool udpListenerActive = true;
+            while(udpListenerActive)
+            {
+                byte[] binMsg = await readUtil.ReadBytesAsync();
+                IncomingMsg?.Invoke(this, new MsgReceivedEventArgs("255.255.255.255", binMsg, TransportType.UDP));
+            }
+            */
         }
 
-        private void ListenerUDP_MessageReceived(object sender, UdpSocketMessageReceivedEventArgs e)
+        private async void ListenerUDP_MessageReceived(object sender, UdpSocketMessageReceivedEventArgs e)
         {
+            //await writeUtil.WriteBytesAsync(e.ByteData);
             IncomingMsg?.Invoke(this, new MsgReceivedEventArgs(e.RemoteAddress, e.ByteData, TransportType.UDP));
         }
 

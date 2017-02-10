@@ -8,9 +8,10 @@ With this library you can send and receive messages, files and objects between p
 P2PNET is fast. Messages are serialized with JSON.NET and then send directly using a transport layer protocol.
 This make P2PNET ideal for soft real time systems (i.e. video games).
 
-Establishing a low level peer-to-peer network connection can be hard as you have to deal with the asymmetric nature of establishing a TCP connection (one peer needs to request a connection while the other needs to accept the connection).
-This library is designed to simplify this. In fact you don't have to worry about establishing a connection at all. You can just use one of the supplied
-send methods to start sending messages. P2PNET will handles establishing a TCP or UDP connection for you.
+Establishing a low level peer-to-peer network connection can be hard as you have to deal with the asymmetric nature of establishing a TCP connection and
+the add complexities of mutli-threaded programs. This library is designed to simplify this. In fact you don't have to worry about multiple-threads or 
+establishing a connection at all. You can just use one of the supplied send methods to start sending messages on the same thread. 
+P2PNET will handles establishing a TCP or UDP connection for you.
 
 you can send all kinds of messages. For low level applications use: P2PNET.TransportLayer.TransportManager to send binary arrays. 
 Alternatively you can use P2PNET.ObjectLayer.ObjectManager to send objects between peers. 

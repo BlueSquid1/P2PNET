@@ -49,9 +49,12 @@
             this.txtSendMsg.Name = "txtSendMsg";
             this.txtSendMsg.Size = new System.Drawing.Size(260, 20);
             this.txtSendMsg.TabIndex = 1;
+            this.txtSendMsg.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtSendMsg_KeyPress);
             // 
             // txtReceivedMsgs
             // 
+            this.txtReceivedMsgs.AcceptsReturn = true;
+            this.txtReceivedMsgs.AcceptsTab = true;
             this.txtReceivedMsgs.Location = new System.Drawing.Point(12, 12);
             this.txtReceivedMsgs.Multiline = true;
             this.txtReceivedMsgs.Name = "txtReceivedMsgs";
@@ -68,6 +71,7 @@
             this.Controls.Add(this.btnBroadcast);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

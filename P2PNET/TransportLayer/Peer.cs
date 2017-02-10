@@ -23,8 +23,24 @@ namespace P2PNET.TransportLayer
 
         public bool IsPeerActive { get; set; }
 
-        public Stream WriteStream { get; set; }
-        public Stream ReadStream { get; set; }
+        public Stream WriteStream
+        {
+            get
+            {
+                return writeUtil.ActiveStream;
+            }
+        }
+
+        public Stream ReadStream
+        {
+            get
+            {
+                return readUtil.ActiveStream;
+            }
+        }
+
+        private WriteStreamUtil writeUtil;
+        private ReadStreamUtil readUtil;
 
         private ITcpSocketClient socketClient;
 
@@ -33,20 +49,11 @@ namespace P2PNET.TransportLayer
         {
             this.IsPeerActive = true;
             this.socketClient = mSocketClient;
-            this.WriteStream = this.socketClient.WriteStream;
-            this.ReadStream = this.socketClient.ReadStream;
+            writeUtil = new WriteStreamUtil(this.socketClient.WriteStream);
+            readUtil = new ReadStreamUtil(this.socketClient.ReadStream);
 
             StartListening();
         }
-        /*
-        public void Dispose()
-        {
-            socketClient.ReadStream.Dispose();
-            socketClient.WriteStream.Dispose();
-            socketClient.Dispose();
-            socketClient = null;
-        }
-        */
 
         public async Task<bool> SendMsgTCPAsync(byte[] msg)
         {
@@ -55,14 +62,8 @@ namespace P2PNET.TransportLayer
                 //peer has disconnected
                 return false;
             }
-            //send number indicating message size
-            int lenMsg = (int)msg.Length;
-            byte[] lenBin = IntToBinary(lenMsg);
-            await socketClient.WriteStream.WriteAsync(lenBin, 0, lenBin.Length);
 
-            //send the msg
-            await socketClient.WriteStream.WriteAsync(msg, 0, lenMsg);
-            await socketClient.WriteStream.FlushAsync();
+            await writeUtil.WriteBytesAsync(msg);
             return true;
         }
 
@@ -71,18 +72,12 @@ namespace P2PNET.TransportLayer
             //set timeout for reading
             while (this.IsPeerActive)
             {
-                //read the first 4 bytes = sizeof(int)
-                const int intSize = sizeof(int);
                 byte[] messageBin = null;
                 try
                 {
-                    Byte[] lengthBin = await ReadBytesAsync(intSize);
-                    int msgSize = BinaryToInt(lengthBin);
-
-                    //read message
-                    messageBin = await ReadBytesAsync(msgSize);
+                    messageBin = await readUtil.ReadBytesAsync();
                 }
-                catch (Exception e)
+                catch
                 {
                     //lost connection with peer
                     this.IsPeerActive = false;
@@ -93,40 +88,6 @@ namespace P2PNET.TransportLayer
                     MsgReceived?.Invoke(this, new MsgReceivedEventArgs(socketClient.RemoteAddress, messageBin, TransportType.TCP));
                 }
             }
-        }
-
-        private async Task<byte[]> ReadBytesAsync(int bytesToRead)
-        {
-            Byte[] msgBin = new Byte[bytesToRead];
-            int totalBytesRd = 0;
-            while (totalBytesRd < bytesToRead)
-            {
-                //ReadAsync() can return less then intSize therefore keep on looping until intSize is reached
-                byte[] tempMsgBin = new Byte[bytesToRead];
-                int bytesRead = await socketClient.ReadStream.ReadAsync(tempMsgBin, 0, bytesToRead - totalBytesRd);
-                Array.Copy(tempMsgBin, 0, msgBin, totalBytesRd, bytesRead);
-                totalBytesRd += bytesRead;
-            }
-            return msgBin;
-        }
-
-        private byte[] IntToBinary(int value)
-        {
-            byte[] valueBin = BitConverter.GetBytes(value);
-            if(BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(valueBin);
-            }
-            return valueBin;
-        }
-
-        private int BinaryToInt(byte[] binArray)
-        {
-            if(BitConverter.IsLittleEndian)
-            {
-                Array.Reverse(binArray);
-            }
-            return BitConverter.ToInt32(binArray, 0);
         }
     }
 }
