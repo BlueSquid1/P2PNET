@@ -4,6 +4,7 @@ using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 using System.Threading.Tasks;
 using System.IO;
+using System.Threading;
 
 namespace P2PNET.TransportLayer
 {
@@ -16,8 +17,10 @@ namespace P2PNET.TransportLayer
         private UdpSocketReceiver listenerUDP;
         private TcpSocketListener listenerTCP;
 
-        //private WriteStreamUtil writeUtil;
-        //private ReadStreamUtil readUtil;
+        private SemaphoreSlim messageReceive = new SemaphoreSlim(0);
+        private SemaphoreSlim messageProccessed = new SemaphoreSlim(1);
+
+        private UdpSocketMessageReceivedEventArgs curUDPMessage;
 
         private int portNum;
 
@@ -26,10 +29,6 @@ namespace P2PNET.TransportLayer
         {
             this.listenerUDP = new UdpSocketReceiver();
             this.listenerTCP = new TcpSocketListener();
-
-            Stream listenStream = new MemoryStream();
-            //writeUtil = new WriteStreamUtil(listenStream);
-            //readUtil = new ReadStreamUtil(listenStream);
 
             this.portNum = mPortNum;
         }
@@ -66,20 +65,47 @@ namespace P2PNET.TransportLayer
             listenerUDP.MessageReceived += ListenerUDP_MessageReceived;
             await listenerUDP.StartListeningAsync(portNum);
 
-            /*
+            
             bool udpListenerActive = true;
             while(udpListenerActive)
             {
-                byte[] binMsg = await readUtil.ReadBytesAsync();
-                IncomingMsg?.Invoke(this, new MsgReceivedEventArgs("255.255.255.255", binMsg, TransportType.UDP));
+                //wait until signal is recieved
+                UdpSocketMessageReceivedEventArgs udpMsg = await MessageReceived();
+                IncomingMsg?.Invoke(this, new MsgReceivedEventArgs(udpMsg.RemoteAddress, udpMsg.ByteData, TransportType.UDP));
             }
-            */
+            
         }
 
+        private async Task<UdpSocketMessageReceivedEventArgs> MessageReceived()
+        {
+            //wait until recieved signal
+            UdpSocketMessageReceivedEventArgs tempMsgHandler;
+            try
+            {
+                await messageReceive.WaitAsync();
+                tempMsgHandler = curUDPMessage;
+            }
+            finally
+            {
+                //ready to recieve next message
+                messageProccessed.Release();
+            }
+            return tempMsgHandler;
+        }
+
+        //This method runs in a seperate thread.
+        //This is undesirable because windows form elements will complain about shared resources not being avaliable
+        //solution is to use a semaphore that is picked up in the other thread
         private async void ListenerUDP_MessageReceived(object sender, UdpSocketMessageReceivedEventArgs e)
         {
-            //await writeUtil.WriteBytesAsync(e.ByteData);
-            IncomingMsg?.Invoke(this, new MsgReceivedEventArgs(e.RemoteAddress, e.ByteData, TransportType.UDP));
+            //wait until previous message has been handled
+            await messageProccessed.WaitAsync();
+
+            //update the shared memory
+            curUDPMessage = e;
+
+            //tell main thread of new message (using signal)
+            messageReceive.Release();
         }
 
         private void ListenerTCP_ConnectionReceived(object sender, TcpSocketListenerConnectEventArgs e)

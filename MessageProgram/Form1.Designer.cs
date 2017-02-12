@@ -46,6 +46,7 @@
             // txtSendMsg
             // 
             this.txtSendMsg.Location = new System.Drawing.Point(12, 193);
+            this.txtSendMsg.Multiline = true;
             this.txtSendMsg.Name = "txtSendMsg";
             this.txtSendMsg.Size = new System.Drawing.Size(260, 20);
             this.txtSendMsg.TabIndex = 1;

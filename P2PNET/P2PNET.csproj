@@ -55,6 +55,7 @@
     <Compile Include="TransportLayer\AbstractStreamUtil.cs" />
     <Compile Include="TransportLayer\BaseStation.cs" />
     <Compile Include="ObjectLayer\EventArgs\ObjReceivedEventArgs.cs" />
+    <Compile Include="TransportLayer\BufferedUDPStream.cs" />
     <Compile Include="TransportLayer\EventArgs\PeerEventArgs.cs" />
     <Compile Include="TransportLayer\EventArgs\PeerChangeEventArgs.cs" />
     <Compile Include="Exceptions.cs" />
