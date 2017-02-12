@@ -8,10 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using P2PNET.TransportLayer;
-using System.Net;
-using System.Net.Sockets;
 
-namespace MessageProgram
+namespace SendObjects
 {
     public partial class Form1 : Form
     {
@@ -38,32 +36,39 @@ namespace MessageProgram
             AppendMsg("");
         }
 
-        private async void sendBroadcast_Click(object sender, EventArgs e)
+        private async void btnSend_Click(object sender, EventArgs e)
         {
-            await SendMsg(txtSendMsg.Text);
-        }
-
-        private async Task SendMsg(string msgString)
-        {
-            byte[] msgBits = Encoding.ASCII.GetBytes(msgString);
-            await transMgr.SendBroadcastAsyncUDP(msgBits);
-
-            //clear message
-            txtSendMsg.Text = "";
-
+            await SendMessageImp();
         }
 
         private void AppendMsg(string message)
         {
-            txtReceivedMsgs.AppendText(message + Environment.NewLine);
+            txtReceivedMessages.AppendText(message + Environment.NewLine);
         }
 
-        private async void txtSendMsg_KeyPress(object sender, KeyPressEventArgs e)
+        private async Task SendMsg(string ipAddress, string msgString)
         {
-            if(e.KeyChar == '\r')
+            byte[] msgBits = Encoding.ASCII.GetBytes(msgString);
+            await transMgr.SendBroadcastAsyncUDP(msgBits);
+        }
+
+        private async void txtSendMessage_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == '\r')
             {
-                await SendMsg(txtSendMsg.Text);
+                await SendMessageImp();
             }
+
+        }
+
+        private async Task SendMessageImp()
+        {
+            string ipAddress = txtAddress.Text;
+            string message = txtSendMessage.Text;
+
+            await SendMsg(ipAddress, message);
+            //clear message
+            txtSendMessage.Text = "";
         }
     }
 }
