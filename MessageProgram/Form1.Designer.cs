@@ -38,7 +38,7 @@
             this.btnBroadcast.Location = new System.Drawing.Point(177, 219);
             this.btnBroadcast.Name = "btnBroadcast";
             this.btnBroadcast.Size = new System.Drawing.Size(95, 23);
-            this.btnBroadcast.TabIndex = 0;
+            this.btnBroadcast.TabIndex = 1;
             this.btnBroadcast.Text = "Send Broadcast";
             this.btnBroadcast.UseVisualStyleBackColor = true;
             this.btnBroadcast.Click += new System.EventHandler(this.sendBroadcast_Click);
@@ -49,7 +49,7 @@
             this.txtSendMsg.Multiline = true;
             this.txtSendMsg.Name = "txtSendMsg";
             this.txtSendMsg.Size = new System.Drawing.Size(260, 20);
-            this.txtSendMsg.TabIndex = 1;
+            this.txtSendMsg.TabIndex = 0;
             this.txtSendMsg.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtSendMsg_KeyPress);
             // 
             // txtReceivedMsgs
@@ -59,6 +59,8 @@
             this.txtReceivedMsgs.Location = new System.Drawing.Point(12, 12);
             this.txtReceivedMsgs.Multiline = true;
             this.txtReceivedMsgs.Name = "txtReceivedMsgs";
+            this.txtReceivedMsgs.ReadOnly = true;
+            this.txtReceivedMsgs.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtReceivedMsgs.Size = new System.Drawing.Size(260, 175);
             this.txtReceivedMsgs.TabIndex = 2;
             // 
@@ -71,7 +73,7 @@
             this.Controls.Add(this.txtSendMsg);
             this.Controls.Add(this.btnBroadcast);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "Broadcaster";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
             this.PerformLayout();

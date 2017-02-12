@@ -27,13 +27,15 @@ namespace MessageProgram
         private async void Form1_Load(object sender, EventArgs e)
         {
             transMgr.MsgReceived += TransMgr_MsgReceived;
-            transMgr.StartAsync();
+            await transMgr.StartAsync();
         }
 
         private void TransMgr_MsgReceived(object sender, P2PNET.TransportLayer.EventArgs.MsgReceivedEventArgs e)
         {
             string receivedMsg = Encoding.ASCII.GetString(e.Message);
+            AppendMsg("From ip = " + e.RemoteIp);
             AppendMsg(receivedMsg);
+            AppendMsg("");
         }
 
         private async void sendBroadcast_Click(object sender, EventArgs e)
@@ -45,8 +47,6 @@ namespace MessageProgram
         {
             byte[] msgBits = Encoding.ASCII.GetBytes(msgString);
             await transMgr.SendBroadcastAsyncUDP(msgBits);
-            //await transMgr.SendAsyncTCP(IPAddress.Loopback.ToString(), msgBits);
-            AppendMsg(msgString);
 
             //clear message
             txtSendMsg.Text = "";
@@ -55,7 +55,7 @@ namespace MessageProgram
 
         private void AppendMsg(string message)
         {
-            txtReceivedMsgs.Text += (message + Environment.NewLine);
+            txtReceivedMsgs.AppendText(message + Environment.NewLine);
         }
 
         private async void txtSendMsg_KeyPress(object sender, KeyPressEventArgs e)

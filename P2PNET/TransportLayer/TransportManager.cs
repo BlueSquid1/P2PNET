@@ -104,6 +104,13 @@ namespace P2PNET.TransportLayer
         /// <returns></returns>
         public async Task StartAsync()
         {
+            //check if already started
+            if ( Islistening == true )
+            {
+                //nothing to do
+                return;
+            }
+
             baseStation.LocalIpAddress = await GetLocalIPAddress();
             await listener.StartAsync();
         }

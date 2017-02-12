@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkSpace", "Test\WorkSpace
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P2PNET.Test", "P2PNET.Test\P2PNET.Test.csproj", "{067456C0-086C-46A8-B37F-1405717B7BFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageProgram", "MessageProgram\MessageProgram.csproj", "{D415DD7F-5517-46CB-898B-95387248F33D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BroadcastProgram", "MessageProgram\BroadcastProgram.csproj", "{D415DD7F-5517-46CB-898B-95387248F33D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
