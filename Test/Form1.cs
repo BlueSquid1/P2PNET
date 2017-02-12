@@ -48,12 +48,12 @@ namespace WorkSpace
                 {
                     case "Person":
                         RecievedPerson = e.Obj.GetObject<Person>();
-                        Console.WriteLine("got here");
+                        Console.WriteLine(RecievedPerson.FirstName + " " + RecievedPerson.LastName);
                         break;
                 }
             };
 
-            await objMgr.StartAsync();
+            objMgr.StartAsync();
 
             string ipAddress = IPAddress.Loopback.ToString();
 

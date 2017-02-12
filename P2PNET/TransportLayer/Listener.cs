@@ -22,11 +22,22 @@ namespace P2PNET.TransportLayer
 
         private UdpSocketMessageReceivedEventArgs curUDPMessage;
 
+        private bool isListening;
+        public bool IsListening
+        {
+            get
+            {
+                return isListening;
+            }
+        }
+
         private int portNum;
 
         //constructor
         public Listener(int mPortNum)
         {
+            isListening = false;
+
             this.listenerUDP = new UdpSocketReceiver();
             this.listenerTCP = new TcpSocketListener();
 
@@ -44,15 +55,8 @@ namespace P2PNET.TransportLayer
         {
             await StartListeningAsyncTCP(this.portNum);
             await StartListeningAsyncUDP(this.portNum);
+            isListening = true;
         }
-
-        /*
-        public async Task StopAsync()
-        {
-            await listenerTCP.StopListeningAsync();
-            await listenerUDP.StopListeningAsync();
-        }
-        */
 
         private async Task StartListeningAsyncTCP(int portNum)
         {
@@ -65,15 +69,18 @@ namespace P2PNET.TransportLayer
             listenerUDP.MessageReceived += ListenerUDP_MessageReceived;
             await listenerUDP.StartListeningAsync(portNum);
 
-            
+            ListenLoop();
+        }
+
+        private async void ListenLoop()
+        {
             bool udpListenerActive = true;
-            while(udpListenerActive)
+            while (udpListenerActive)
             {
                 //wait until signal is recieved
                 UdpSocketMessageReceivedEventArgs udpMsg = await MessageReceived();
                 IncomingMsg?.Invoke(this, new MsgReceivedEventArgs(udpMsg.RemoteAddress, udpMsg.ByteData, TransportType.UDP));
             }
-            
         }
 
         private async Task<UdpSocketMessageReceivedEventArgs> MessageReceived()

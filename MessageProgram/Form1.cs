@@ -27,7 +27,7 @@ namespace MessageProgram
         private async void Form1_Load(object sender, EventArgs e)
         {
             transMgr.MsgReceived += TransMgr_MsgReceived;
-            await transMgr.StartAsync();
+            transMgr.StartAsync();
         }
 
         private void TransMgr_MsgReceived(object sender, P2PNET.TransportLayer.EventArgs.MsgReceivedEventArgs e)

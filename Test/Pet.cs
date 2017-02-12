@@ -12,7 +12,7 @@ namespace P2PNET.Test
         Cat = 1,
         Fish = 2
     }
-    public abstract class Pet
+    public class Pet
     {
         public AnimalType Type { get; set; }
         public string Name { get; set; }

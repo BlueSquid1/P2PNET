@@ -34,6 +34,19 @@ namespace P2PNET.TransportLayer
                 return this.baseStation.KnownPeers;
             }
         }
+
+        /// <summary>
+        /// true = listening for incoming messages
+        /// false = not actively listening for incoming messages
+        /// </summary>
+        public bool Islistening 
+        {
+            get
+            {
+                return listener.IsListening;
+            } 
+        }
+
         private string ipAddress = null;
 
         /// <summary>

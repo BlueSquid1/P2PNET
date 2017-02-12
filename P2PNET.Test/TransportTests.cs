@@ -12,10 +12,13 @@ namespace P2PNET.Test
     public class ConnectionTests
     {
         private TransportManager transMgr;
+        TransportManager transManger2;
 
         public ConnectionTests()
         {
             transMgr = new TransportManager(8080, true);
+            transManger2 = new TransportManager(8100, true);
+
             transMgr.StartAsync().Wait();
         }
 
@@ -42,7 +45,6 @@ namespace P2PNET.Test
         public async Task MultipleSockets()
         {
             bool msgReceived = false;
-            TransportManager transManger2 = new TransportManager(8100, true);
 
             transManger2.PeerChange += (object obj, PeerChangeEventArgs e) => {
                 msgReceived = true;
@@ -52,7 +54,7 @@ namespace P2PNET.Test
                 msgReceived = true;
             };
 
-            await transManger2.StartAsync();
+            transManger2.StartAsync().Wait();
 
 
             string ipAddress = IPAddress.Loopback.ToString();
