@@ -176,14 +176,12 @@ namespace P2PNET.ObjectLayer
         private void PeerManager_msgReceived(object sender, TransportLayer.EventArgs.MsgReceivedEventArgs e)
         {
             byte[] msg = e.Message;
-            BObject obj = ProcessReceivedMsg(msg);
-            ObjReceived?.Invoke(this, new ObjReceivedEventArgs(obj));
-        }
+            BObject obj = new BObject(msg, serializer);
 
-        private BObject ProcessReceivedMsg(byte[] msg )
-        {
-            BObject bObject = new BObject(msg, serializer);
-            return bObject;
+            //generate metadata
+            Metadata metadata = obj.GetMetadata();
+            metadata.BindType = e.BindingType;
+            ObjReceived?.Invoke(this, new ObjReceivedEventArgs(obj, metadata));
         }
     }
 }

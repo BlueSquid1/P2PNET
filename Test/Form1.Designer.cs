@@ -71,7 +71,7 @@
             this.txtIpAddress.Name = "txtIpAddress";
             this.txtIpAddress.Size = new System.Drawing.Size(100, 20);
             this.txtIpAddress.TabIndex = 3;
-            this.txtIpAddress.Text = "192.168.1.112";
+            this.txtIpAddress.Text = "192.168.1.110";
             // 
             // SendMsg
             // 

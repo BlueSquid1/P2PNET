@@ -30,9 +30,75 @@ namespace ObjectSender
 
         private void ObjMgr_ObjReceived(object sender, P2PNET.ObjectLayer.EventArgs.ObjReceivedEventArgs e)
         {
-            //TODO
-            throw new NotImplementedException();
+            Metadata metadata = e.Meta;
+            PrintMetadata(metadata);
+            switch (metadata.ObjectType)
+            {
+                case "Dog":
+                    Dog receivedDog = e.Obj.GetObject<Dog>();
+                    PrintDog(receivedDog);
+                    break;
+                case "Cat":
+                    Cat receivedCat = e.Obj.GetObject<Cat>();
+                    PrintCat(receivedCat);
+                    break;
+                case "Fish":
+                    Fish receivedFish = e.Obj.GetObject<Fish>();
+                    PrintFish(receivedFish);
+                    break;
+                case "Person":
+                    Person receivedPerson = e.Obj.GetObject<Person>();
+                    PrintPerson(receivedPerson);
+                    break;
+                default:
+                    Console.WriteLine("unknown object type");
+                    break;
+            }
         }
+
+        private void PrintMetadata(Metadata meta)
+        {
+            Console.WriteLine("source = " + meta.SourceIp + ", " + meta.BindType);
+        }
+
+        private void PrintDog(Dog dog)
+        {
+            Console.WriteLine("dog name = "+ dog.Name);
+        }
+
+        private void PrintCat(Cat cat)
+        {
+            Console.WriteLine("cat name = " + cat.Name);
+        }
+
+        private void PrintFish(Fish fish)
+        {
+            Console.WriteLine("fish name = " + fish.Name + ", is fresh water = " + fish.FreshWater);
+        }
+
+        private void PrintPerson(Person person)
+        {
+            Console.WriteLine("person name = " + person.FirstName + " " + person.LastName + ", Age = " + person.Age);
+            foreach(Pet pet in person.OwnedPets)
+            {
+                switch(pet.Type)
+                {
+                    case AnimalType.Cat:
+                        PrintCat((Cat)pet);
+                        break;
+                    case AnimalType.Dog:
+                        PrintDog((Dog)pet);
+                        break;
+                    case AnimalType.Fish:
+                        PrintFish((Fish)pet);
+                        break;
+                    default:
+                        Console.WriteLine("unknown animal");
+                        break;
+                }
+            }
+        }
+
 
         private async void btnSendDog_Click(object sender, EventArgs e)
         {

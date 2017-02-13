@@ -46,10 +46,17 @@ namespace SendObjects
             txtReceivedMessages.AppendText(message + Environment.NewLine);
         }
 
-        private async Task SendMsg(string ipAddress, string msgString)
+        private async Task SendMsg( string ipAddress, string msgString, TransportType binding)
         {
             byte[] msgBits = Encoding.ASCII.GetBytes(msgString);
-            await transMgr.SendBroadcastAsyncUDP(msgBits);
+            if(binding == TransportType.UDP)
+            {
+                await transMgr.SendAsyncUDP(ipAddress, msgBits);
+            }
+            else
+            {
+                await transMgr.SendAsyncTCP(ipAddress, msgBits);
+            }
         }
 
         private async void txtSendMessage_KeyPress(object sender, KeyPressEventArgs e)
@@ -66,7 +73,18 @@ namespace SendObjects
             string ipAddress = txtAddress.Text;
             string message = txtSendMessage.Text;
 
-            await SendMsg(ipAddress, message);
+            TransportType bindType;
+
+            if (radTCP.Checked == true)
+            {
+                bindType = TransportType.TCP;
+            }
+            else
+            {
+                bindType = TransportType.UDP;
+            }
+
+            await SendMsg(ipAddress, message, bindType);
             //clear message
             txtSendMessage.Text = "";
         }

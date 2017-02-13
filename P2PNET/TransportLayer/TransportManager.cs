@@ -231,8 +231,10 @@ namespace P2PNET.TransportLayer
             {
                 if (peer.IpAddress == e.SocketClient.RemoteAddress)
                 {
-                    //not a unique peer
-                    return;
+                    if( baseStation.forwardAll == false)
+                    {
+                        return;
+                    }
                 }
             }
             //unique peer create a new TCP connection for the peer

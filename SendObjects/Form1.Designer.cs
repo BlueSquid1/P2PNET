@@ -36,13 +36,15 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.txtReceivedMessages = new System.Windows.Forms.TextBox();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.radUDP = new System.Windows.Forms.RadioButton();
+            this.radTCP = new System.Windows.Forms.RadioButton();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // txtAddress
             // 
-            this.txtAddress.Location = new System.Drawing.Point(119, 38);
+            this.txtAddress.Location = new System.Drawing.Point(119, 58);
             this.txtAddress.Name = "txtAddress";
             this.txtAddress.Size = new System.Drawing.Size(125, 20);
             this.txtAddress.TabIndex = 0;
@@ -50,7 +52,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(6, 38);
+            this.label1.Location = new System.Drawing.Point(6, 58);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(58, 13);
             this.label1.TabIndex = 1;
@@ -59,7 +61,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 61);
+            this.label2.Location = new System.Drawing.Point(6, 81);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(53, 13);
             this.label2.TabIndex = 2;
@@ -67,7 +69,7 @@
             // 
             // txtSendMessage
             // 
-            this.txtSendMessage.Location = new System.Drawing.Point(6, 80);
+            this.txtSendMessage.Location = new System.Drawing.Point(6, 100);
             this.txtSendMessage.Name = "txtSendMessage";
             this.txtSendMessage.Size = new System.Drawing.Size(238, 20);
             this.txtSendMessage.TabIndex = 3;
@@ -75,7 +77,7 @@
             // 
             // btnSend
             // 
-            this.btnSend.Location = new System.Drawing.Point(169, 106);
+            this.btnSend.Location = new System.Drawing.Point(169, 126);
             this.btnSend.Name = "btnSend";
             this.btnSend.Size = new System.Drawing.Size(75, 23);
             this.btnSend.TabIndex = 4;
@@ -85,6 +87,8 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.radTCP);
+            this.groupBox1.Controls.Add(this.radUDP);
             this.groupBox1.Controls.Add(this.txtSendMessage);
             this.groupBox1.Controls.Add(this.btnSend);
             this.groupBox1.Controls.Add(this.txtAddress);
@@ -92,7 +96,7 @@
             this.groupBox1.Controls.Add(this.label2);
             this.groupBox1.Location = new System.Drawing.Point(12, 199);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(256, 136);
+            this.groupBox1.Size = new System.Drawing.Size(256, 157);
             this.groupBox1.TabIndex = 5;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Send Message";
@@ -118,11 +122,33 @@
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Received Messages";
             // 
+            // radUDP
+            // 
+            this.radUDP.AutoSize = true;
+            this.radUDP.Location = new System.Drawing.Point(9, 20);
+            this.radUDP.Name = "radUDP";
+            this.radUDP.Size = new System.Drawing.Size(48, 17);
+            this.radUDP.TabIndex = 5;
+            this.radUDP.Text = "UDP";
+            this.radUDP.UseVisualStyleBackColor = true;
+            // 
+            // radTCP
+            // 
+            this.radTCP.AutoSize = true;
+            this.radTCP.Checked = true;
+            this.radTCP.Location = new System.Drawing.Point(119, 20);
+            this.radTCP.Name = "radTCP";
+            this.radTCP.Size = new System.Drawing.Size(46, 17);
+            this.radTCP.TabIndex = 6;
+            this.radTCP.TabStop = true;
+            this.radTCP.Text = "TCP";
+            this.radTCP.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(283, 351);
+            this.ClientSize = new System.Drawing.Size(283, 368);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Name = "Form1";
@@ -146,6 +172,8 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.TextBox txtReceivedMessages;
         private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.RadioButton radTCP;
+        private System.Windows.Forms.RadioButton radUDP;
     }
 }
 

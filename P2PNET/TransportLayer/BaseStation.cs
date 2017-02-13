@@ -25,7 +25,7 @@ namespace P2PNET.TransportLayer
 
         private List<Peer> knownPeers;
         private int portNum;
-        private bool forwardAll;
+        public bool forwardAll;
 
         private UdpSocketClient senderUDP;
 
@@ -44,7 +44,14 @@ namespace P2PNET.TransportLayer
             bool isPeerKnown = DoesPeerExistByIp(ipAddress);
             if(!isPeerKnown)
             {
-                return false;
+                try
+                {
+                    await DirectConnectTCPAsync(ipAddress);
+                }
+                catch
+                {
+                    throw new PeerNotKnown("The peer is not known");
+                }
             }
 
             await senderUDP.SendToAsync(msg, ipAddress, this.portNum);
