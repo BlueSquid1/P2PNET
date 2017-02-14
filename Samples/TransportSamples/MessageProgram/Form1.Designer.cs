@@ -1,4 +1,4 @@
-﻿namespace MessageProgram
+﻿namespace BroadcastProgram
 {
     partial class Form1
     {

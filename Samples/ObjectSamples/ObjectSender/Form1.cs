@@ -66,6 +66,11 @@ namespace ObjectSender
             Console.WriteLine("dog name = "+ dog.Name);
         }
 
+        private void PrintPet(Pet pet)
+        {
+            Console.WriteLine("Pet type = " + pet.Type + ", name = " + pet.Name);
+        }
+
         private void PrintCat(Cat cat)
         {
             Console.WriteLine("cat name = " + cat.Name);
@@ -81,21 +86,7 @@ namespace ObjectSender
             Console.WriteLine("person name = " + person.FirstName + " " + person.LastName + ", Age = " + person.Age);
             foreach(Pet pet in person.OwnedPets)
             {
-                switch(pet.Type)
-                {
-                    case AnimalType.Cat:
-                        PrintCat((Cat)pet);
-                        break;
-                    case AnimalType.Dog:
-                        PrintDog((Dog)pet);
-                        break;
-                    case AnimalType.Fish:
-                        PrintFish((Fish)pet);
-                        break;
-                    default:
-                        Console.WriteLine("unknown animal");
-                        break;
-                }
+                PrintPet(pet);
             }
         }
 
@@ -116,7 +107,7 @@ namespace ObjectSender
 
         private async void btnSendFish_Click(object sender, EventArgs e)
         {
-            Fish petFish = new Fish(txtFishName.Text, chkFreshWater.Checked);
+            Fish petFish = new Fish(txtFishName.Text);
             string ipAddress = GetIpAddress();
             await ObjMgr.SendAsyncTCP(ipAddress, petFish);
         }
@@ -130,14 +121,14 @@ namespace ObjectSender
                 person.AddPet(new Dog(txtDogName.Text));
             }
 
-            if (chkIncludeDog.Checked)
+            if (chkIncludeCat.Checked)
             {
                 person.AddPet(new Cat(txtCatName.Text));
             }
 
-            if (chkIncludeDog.Checked)
+            if (chkIncludeFish.Checked)
             {
-                person.AddPet(new Fish(txtFishName.Text, chkFreshWater.Checked));
+                person.AddPet(new Fish(txtFishName.Text));
             }
 
             string ipAddress = GetIpAddress();

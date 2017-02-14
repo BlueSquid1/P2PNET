@@ -11,7 +11,7 @@ using P2PNET.TransportLayer;
 using System.Net;
 using System.Net.Sockets;
 
-namespace MessageProgram
+namespace BroadcastProgram
 {
     public partial class Form1 : Form
     {

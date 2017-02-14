@@ -9,10 +9,9 @@ namespace ObjectSender
     class Fish : Pet
     {
         public bool FreshWater { get; set; }
-        public Fish(string petName, bool isFreshWater) : base(petName)
+        public Fish(string petName) : base(petName)
         {
             this.Type = AnimalType.Fish;
-            this.FreshWater = isFreshWater;
         }
     }
 }

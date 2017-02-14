@@ -1,4 +1,4 @@
-﻿namespace SendObjects
+﻿namespace MessageSender
 {
     partial class Form1
     {

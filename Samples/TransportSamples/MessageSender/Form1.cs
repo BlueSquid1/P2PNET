@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using P2PNET.TransportLayer;
 
-namespace SendObjects
+namespace MessageSender
 {
     public partial class Form1 : Form
     {
@@ -31,7 +31,7 @@ namespace SendObjects
         private void TransMgr_MsgReceived(object sender, P2PNET.TransportLayer.EventArgs.MsgReceivedEventArgs e)
         {
             string receivedMsg = Encoding.ASCII.GetString(e.Message);
-            AppendMsg("From ip = " + e.RemoteIp);
+            AppendMsg("From ip = " + e.RemoteIp + " (" + e.BindingType + ")");
             AppendMsg(receivedMsg);
             AppendMsg("");
         }
