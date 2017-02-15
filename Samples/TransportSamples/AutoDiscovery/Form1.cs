@@ -19,7 +19,7 @@ namespace AutoDiscovery
 
         public Form1()
         {
-            transMgr = new TransportManager(portNum, true);
+            transMgr = new TransportManager(portNum);
             hrtBtMgr = new HeartBeatManager("heartbeat", transMgr);
 
             InitializeComponent();
