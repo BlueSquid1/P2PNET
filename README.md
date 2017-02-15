@@ -22,17 +22,17 @@ Supported protocols:
 
 
 ##Supported Platforms:
-* Windows 8.1
+* Mono / .Net Framework 4.5
+* ASP.NET Core 1.0
+* Windows 8
 * Windows Phone 8.1
+* Windows Phone Silverlight 8
 * Xamarin.Android
 * Xamarin.iOS
 * Xamarin.iOS (Classic)
 * UWP
-* Mono / .Net 4.5
 
 ##How To Use
-
-Listen for an incoming message
 ```c#
 int portNum = 8080;
 TransportManager transMgr = new TransportManager(portNum);
@@ -51,3 +51,5 @@ string ipAddress = "255.255.255.255";
 byte[] message = Encoding.ASCII.GetBytes("Hello world");
 transMgr.SendAsyncTCP(ipAddress, message);
 ```
+
+Refer to wiki for more details.
