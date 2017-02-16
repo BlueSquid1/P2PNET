@@ -43,9 +43,9 @@ namespace P2PNET.ObjectLayer
         /// </summary>
         /// <param name="mPortNum"> The port number which this peer will listen on and send messages with </param>
         /// <param name="mForwardAll"> When true, all messages received trigger a MsgReceived event. This includes UDB broadcasts that are reflected back to the local peer.</param>
-        public ObjectManager(int mPortNum = 8080, bool mForwardAll = false)
+        public ObjectManager(int mPortNum = 8080, bool mForwardAll = false, ILogger mLogger = null)
         {
-            peerManager = new TransportManager(mPortNum, mForwardAll);
+            peerManager = new TransportManager(mPortNum, mForwardAll, mLogger);
             serializer = new Serializer();
 
             peerManager.MsgReceived += PeerManager_msgReceived;

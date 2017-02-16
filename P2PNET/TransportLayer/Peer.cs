@@ -12,6 +12,7 @@ namespace P2PNET.TransportLayer
     {
         public event EventHandler<MsgReceivedEventArgs> MsgReceived;
         public event EventHandler<PeerEventArgs> peerStatusChange;
+        public ILogger logger;
 
         public string IpAddress
         {
@@ -45,10 +46,11 @@ namespace P2PNET.TransportLayer
         private ITcpSocketClient socketClient;
 
         //constructor
-        public Peer(ITcpSocketClient mSocketClient)
+        public Peer(ITcpSocketClient mSocketClient, ILogger mLogger)
         {
             this.IsPeerActive = true;
             this.socketClient = mSocketClient;
+            this.logger = mLogger;
             writeUtil = new WriteStreamUtil(this.socketClient.WriteStream);
             readUtil = new ReadStreamUtil(this.socketClient.ReadStream);
 

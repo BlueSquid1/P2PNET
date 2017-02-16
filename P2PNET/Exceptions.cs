@@ -40,6 +40,14 @@ namespace P2PNET
         }
     }
 
+    public class LowLevelTransitionError : Exception
+    {
+        public LowLevelTransitionError(string message) : base(message)
+        {
+
+        }
+    }
+
     public class FileBoundaryException : Exception
     {
         public FileBoundaryException(string message) : base(message)

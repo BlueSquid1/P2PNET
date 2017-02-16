@@ -4,6 +4,7 @@ using Sockets.Plugin.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,6 +14,7 @@ namespace P2PNET.TransportLayer
     {
         public event EventHandler<PeerChangeEventArgs> PeerChange;
         public event EventHandler<MsgReceivedEventArgs> MsgReceived;
+        public ILogger logger;
 
         public List<Peer> KnownPeers {
             get
@@ -30,10 +32,11 @@ namespace P2PNET.TransportLayer
         private UdpSocketClient senderUDP;
 
         //constructor
-        public BaseStation(int mPortNum, bool mForwardAll = false)
+        public BaseStation(int mPortNum, bool mForwardAll = false, ILogger mLogger = null)
         {
             this.knownPeers = new List<Peer>();
             this.senderUDP = new UdpSocketClient();
+            this.logger = mLogger;
 
             this.forwardAll = mForwardAll;
             this.portNum = mPortNum;
@@ -53,7 +56,6 @@ namespace P2PNET.TransportLayer
                     throw new PeerNotKnown("The peer is not known");
                 }
             }
-
             await senderUDP.SendToAsync(msg, ipAddress, this.portNum);
             return true;
         }
@@ -119,6 +121,7 @@ namespace P2PNET.TransportLayer
                 //peer not active
                 return false;
             }
+            //logger.WriteLine(Encoding.UTF8.GetString(msg, 0, msg.Length));
             return await this.KnownPeers[indexNum].SendMsgTCPAsync(msg);
 
         }
@@ -251,7 +254,7 @@ namespace P2PNET.TransportLayer
 
         private void StoreConnectedPeerTCP( ITcpSocketClient socketClient )
         {
-            Peer newPeer = new Peer(socketClient);
+            Peer newPeer = new Peer(socketClient, logger);
             newPeer.MsgReceived += NewPeer_MsgReceived;
             newPeer.peerStatusChange += NewPeer_peerStatusChange;
             knownPeers.Add(newPeer);

@@ -74,12 +74,12 @@ namespace P2PNET.FileLayer
         /// <param name="mPortNum"> The port number which this peer will listen on and send messages with </param>
         /// <param name="mForwardAll"> When true, all messages received trigger a MsgReceived event. This includes UDB broadcasts that are reflected back to the local peer.</param>
         /// <param name="defaultFilePath">the root path to store incoming files</param>
-        public FileManager(int portNum = 8080, bool mForwardAll = false, string defaultFilePath = "./temp/")
+        public FileManager(int portNum = 8080, string defaultFilePath = "./temp/", bool mForwardAll = false, ILogger mLogger = null)
         {
             this.receivedFileRequests = new List<FileReceiveReq>();
             this.sendFileRequests = new List<FileSentReq>();
             this.stillProcPrevMsg = new TaskCompletionSource<bool>();
-            this.ObjectManager = new ObjectManager(portNum, mForwardAll);
+            this.ObjectManager = new ObjectManager(portNum, mForwardAll, mLogger);
             this.fileSystem = FileSystem.Current;
             this.DefaultFilePath = defaultFilePath;
 
