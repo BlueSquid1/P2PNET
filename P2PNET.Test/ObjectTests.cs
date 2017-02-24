@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace P2PNET.Test
 {
     [TestFixture]
-    class ObjectTests
+    class ObjectTests: IDisposable
     {
         private ObjectManager objMgr;
 
@@ -35,7 +35,7 @@ namespace P2PNET.Test
 
             string ipAddress = IPAddress.Loopback.ToString();
 
-            await objMgr.DirrectConnectAsyncTCP(ipAddress);
+            await objMgr.DirectConnectAsyncTCP(ipAddress);
 
             int peerCount = objMgr.KnownPeers.Count;
 
@@ -264,6 +264,11 @@ namespace P2PNET.Test
             }
 
             return true;
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)objMgr).Dispose();
         }
 
 

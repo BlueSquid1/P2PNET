@@ -26,24 +26,29 @@ namespace P2PNET.TransportLayer
         public string LocalIpAddress { get; set; }
 
         private List<Peer> knownPeers;
-        private int portNum;
+        public readonly int portNum;
+        public readonly bool tcpOnly;
         public bool forwardAll;
 
         private UdpSocketClient senderUDP;
 
         //constructor
-        public BaseStation(int mPortNum, bool mForwardAll = false, ILogger mLogger = null)
+        public BaseStation(int mPortNum, bool mForwardAll = false, ILogger mLogger = null, bool mTcpOnly = false)
         {
             this.knownPeers = new List<Peer>();
-            this.senderUDP = new UdpSocketClient();
+            if (!mTcpOnly)
+                this.senderUDP = new UdpSocketClient();
             this.logger = mLogger;
 
             this.forwardAll = mForwardAll;
             this.portNum = mPortNum;
+            this.tcpOnly = mTcpOnly;
         }
 
         public async Task<bool> SendUDPMsgAsync(string ipAddress, byte[] msg)
         {
+            if (tcpOnly) return false;
+
             bool isPeerKnown = DoesPeerExistByIp(ipAddress);
             if(!isPeerKnown)
             {
@@ -62,13 +67,19 @@ namespace P2PNET.TransportLayer
 
         public async Task SendUDPBroadcastAsync(byte[] msg)
         {
+            if (tcpOnly)
+                throw new InvalidOperationException("Operating in TCP-only mode - cannot send or receive UDP");
+
             string brdcstAddress = "255.255.255.255";
             await senderUDP.SendToAsync(msg, brdcstAddress, this.portNum);
         }
 
-        public async Task SendTCPMsgToAllUDPAsync(byte[] msg)
+        public async Task SendUDPMsgToAllTCPAsync(byte[] msg)
         {
-            foreach(Peer peer in knownPeers)
+            if (tcpOnly)
+                throw new InvalidOperationException("Operating in TCP-only mode - cannot send or receive UDP");
+
+            foreach (Peer peer in knownPeers)
             {
                 string curIpAddress = peer.IpAddress;
                 bool isActive = peer.IsPeerActive;
