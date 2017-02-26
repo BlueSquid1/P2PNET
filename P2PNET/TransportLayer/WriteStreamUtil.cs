@@ -28,24 +28,31 @@ namespace P2PNET.TransportLayer
 
             //make sure only one message is sent at a time
             await messageSem.WaitAsync();
-
-            //read next message from buffer
-            if (msgBuffer.Count <= 0)
+            try
             {
-                throw new LowLevelTransitionError("Expected more messages in the write buffer.");
+                //read next message from buffer
+                if (msgBuffer.Count <= 0)
+                {
+                    throw new LowLevelTransitionError("Expected more messages in the write buffer.");
+                }
+                byte[] nextMsg = msgBuffer.Dequeue();
+
+                //send number indicating message size
+                int lenMsg = (int)nextMsg.Length;
+                byte[] lenBin = IntToBinary(lenMsg);
+                await base.ActiveStream.WriteAsync(lenBin, 0, lenBin.Length);
+
+                //send the msg
+                if (lenMsg > 0)
+                {
+                    await base.ActiveStream.WriteAsync(nextMsg, 0, lenMsg);
+                }
+                await base.ActiveStream.FlushAsync();
             }
-            byte[] nextMsg = msgBuffer.Dequeue();
-
-            //send number indicating message size
-            int lenMsg = (int)nextMsg.Length;
-            byte[] lenBin = IntToBinary(lenMsg);
-            await base.ActiveStream.WriteAsync(lenBin, 0, lenBin.Length);
-
-            //send the msg
-            await base.ActiveStream.WriteAsync(nextMsg, 0, lenMsg);
-            await base.ActiveStream.FlushAsync();
-
-            messageSem.Release();
+            finally
+            {
+                messageSem.Release();
+            }
         }
     }
 }
