@@ -11,6 +11,7 @@ namespace P2PNET.TransportLayer
 {
     class WriteStreamUtil : AbstractStreamUtil
     {
+        private SemaphoreSlim queueSem = new SemaphoreSlim(1);
         private SemaphoreSlim messageSem = new SemaphoreSlim(1);
 
         private Queue<byte[]> msgBuffer;
@@ -24,18 +25,35 @@ namespace P2PNET.TransportLayer
         public async Task WriteBytesAsync(byte[] msg)
         {
             //add message to buffer
-            msgBuffer.Enqueue(msg);
+            await queueSem.WaitAsync();
+            try
+            {
+                msgBuffer.Enqueue(msg);
+            }
+            finally
+            {
+                queueSem.Release();
+            }
 
             //make sure only one message is sent at a time
             await messageSem.WaitAsync();
             try
             {
-                //read next message from buffer
-                if (msgBuffer.Count <= 0)
+                byte[] nextMsg;
+                await queueSem.WaitAsync();
+                try
                 {
-                    throw new LowLevelTransitionError("Expected more messages in the write buffer.");
+                    //read next message from buffer
+                    if (msgBuffer.Count <= 0)
+                    {
+                        throw new LowLevelTransitionError("Expected more messages in the write buffer.");
+                    }
+                    nextMsg = msgBuffer.Dequeue();
                 }
-                byte[] nextMsg = msgBuffer.Dequeue();
+                finally
+                {
+                    queueSem.Release();
+                }
 
                 //send number indicating message size
                 int lenMsg = (int)nextMsg.Length;
