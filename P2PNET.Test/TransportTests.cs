@@ -9,7 +9,7 @@ using System.Text;
 namespace P2PNET.Test
 {
     [TestFixture]
-    public class ConnectionTests
+    public sealed class ConnectionTests: IDisposable
     {
         private TransportManager transMgr;
         TransportManager transManger2;
@@ -33,7 +33,7 @@ namespace P2PNET.Test
 
             string ipAddress = IPAddress.Loopback.ToString();
 
-            await transMgr.DirrectConnectAsyncTCP(ipAddress);
+            await transMgr.DirectConnectAsyncTCP(ipAddress);
 
             int peerCount = transMgr.KnownPeers.Count;
 
@@ -59,7 +59,7 @@ namespace P2PNET.Test
 
             string ipAddress = IPAddress.Loopback.ToString();
 
-            await transMgr.DirrectConnectAsyncTCP(ipAddress);
+            await transMgr.DirectConnectAsyncTCP(ipAddress);
 
             Assert.IsTrue(msgReceived == false);
         }
@@ -98,7 +98,7 @@ namespace P2PNET.Test
             string ipAddress = IPAddress.Loopback.ToString();
 
             //make sure the local peer is known
-            await transMgr.DirrectConnectAsyncTCP(ipAddress);
+            await transMgr.DirectConnectAsyncTCP(ipAddress);
 
             byte[] SendMsg = new byte[] { 255, 0, 153, 00 };
             await transMgr.SendToAllPeersAsyncUDP(SendMsg);
@@ -177,5 +177,43 @@ namespace P2PNET.Test
             }
             return sb.ToString();
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                    ((IDisposable)transManger2).Dispose();
+                    ((IDisposable)transMgr).Dispose();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~ConnectionTests() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
+
     }
 }

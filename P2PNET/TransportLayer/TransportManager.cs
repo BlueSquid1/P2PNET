@@ -11,7 +11,7 @@ namespace P2PNET.TransportLayer
     /// <summary>
     /// Low level class that sends and receives messages between peers.
     /// </summary>
-    public class TransportManager
+    public class TransportManager: IDisposable
     {
         /// <summary>
         /// Triggered when a new peer is detected or an existing peer becomes inactive
@@ -39,7 +39,7 @@ namespace P2PNET.TransportLayer
         /// true = listening for incoming messages
         /// false = not actively listening for incoming messages
         /// </summary>
-        public bool Islistening 
+        public bool IsListening 
         {
             get
             {
@@ -66,7 +66,7 @@ namespace P2PNET.TransportLayer
         /// The port number used for sending and receiving messages
         /// </summary>
         public int PortNum { get; }
-
+        public bool tcpOnly { get; }
 
         private Listener listener;
         private BaseStation baseStation;
@@ -75,12 +75,12 @@ namespace P2PNET.TransportLayer
         /// </summary>
         /// <param name="mPortNum"> The port number which this peer will listen on and send messages with </param>
         /// <param name="mForwardAll"> When true, all messages received trigger a MsgReceived event. This includes UDB broadcasts that are reflected back to the local peer.</param>
-        public TransportManager(int mPortNum = 8080, bool mForwardAll = false, ILogger mLogger = null)
+        public TransportManager(int mPortNum = 8080, bool mForwardAll = false, ILogger mLogger = null, bool mTcpOnly = false)
         {
-
             this.PortNum = mPortNum;
-            this.listener = new Listener(this.PortNum);
-            this.baseStation = new BaseStation(this.PortNum, mForwardAll, mLogger);
+            this.tcpOnly = mTcpOnly;
+            this.listener = new Listener(this.PortNum, mTcpOnly);
+            this.baseStation = new BaseStation(this.PortNum, mForwardAll, mLogger, mTcpOnly);
 
             this.baseStation.PeerChange += BaseStation_PeerChange;
             this.baseStation.MsgReceived += IncomingMsg;
@@ -105,7 +105,7 @@ namespace P2PNET.TransportLayer
         public async Task StartAsync()
         {
             //check if already started
-            if ( Islistening == true )
+            if ( IsListening == true )
             {
                 //nothing to do
                 return;
@@ -175,7 +175,7 @@ namespace P2PNET.TransportLayer
         /// <returns></returns>
         public async Task SendToAllPeersAsyncUDP(byte[] msg)
         {
-            await baseStation.SendTCPMsgToAllUDPAsync(msg);
+            await baseStation.SendUDPMsgToAllTCPAsync(msg);
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace P2PNET.TransportLayer
         /// </summary>
         /// <param name="ipAddress">the ip address to establish a connection with</param>
         /// <returns></returns>
-        public async Task DirrectConnectAsyncTCP(string ipAddress)
+        public async Task DirectConnectAsyncTCP(string ipAddress)
         {
             await baseStation.DirectConnectTCPAsync(ipAddress);
         }
@@ -266,6 +266,42 @@ namespace P2PNET.TransportLayer
             //raise exception
             throw (new NoNetworkInterface("Unable to find an active network interface connection. Is this device connected to wifi?"));
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                    CloseConnection();
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~TransportManager() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
     }
 }
 #endif

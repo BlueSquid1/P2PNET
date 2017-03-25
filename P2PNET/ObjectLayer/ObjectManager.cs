@@ -12,7 +12,7 @@ namespace P2PNET.ObjectLayer
     /// Class for sending and receiving objects between peers.
     /// Built on top of TransportManager.
     /// </summary>
-    public class ObjectManager
+    public class ObjectManager: IDisposable
     {
         /// <summary>
         /// Triggered when a new peer is detected or an existing peer becomes inactive
@@ -43,9 +43,9 @@ namespace P2PNET.ObjectLayer
         /// </summary>
         /// <param name="mPortNum"> The port number which this peer will listen on and send messages with </param>
         /// <param name="mForwardAll"> When true, all messages received trigger a MsgReceived event. This includes UDB broadcasts that are reflected back to the local peer.</param>
-        public ObjectManager(int mPortNum = 8080, bool mForwardAll = false, ILogger mLogger = null)
+        public ObjectManager(int mPortNum = 8080, bool mForwardAll = false, ILogger mLogger = null, bool tcpOnly = false)
         {
-            peerManager = new TransportManager(mPortNum, mForwardAll, mLogger);
+            peerManager = new TransportManager(mPortNum, mForwardAll, mLogger, tcpOnly);
             serializer = new Serializer();
 
             peerManager.MsgReceived += PeerManager_msgReceived;
@@ -139,9 +139,9 @@ namespace P2PNET.ObjectLayer
         /// </summary>
         /// <param name="ipAddress">the ip address to establish a connection with</param>
         /// <returns></returns>
-        public async Task DirrectConnectAsyncTCP(string ipAddress)
+        public async Task DirectConnectAsyncTCP(string ipAddress)
         {
-            await peerManager.DirrectConnectAsyncTCP(ipAddress);
+            await peerManager.DirectConnectAsyncTCP(ipAddress);
         }
 
         private async Task<byte[]> PackObjectIntoMsg<T>(T obj)
@@ -182,6 +182,11 @@ namespace P2PNET.ObjectLayer
             Metadata metadata = obj.GetMetadata();
             metadata.BindType = e.BindingType;
             ObjReceived?.Invoke(this, new ObjReceivedEventArgs(obj, metadata));
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)peerManager).Dispose();
         }
     }
 }

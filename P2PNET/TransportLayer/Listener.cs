@@ -37,11 +37,12 @@ namespace P2PNET.TransportLayer
         private int portNum;
 
         //constructor
-        public Listener(int mPortNum)
+        public Listener(int mPortNum, bool mTcpOnly=false)
         {
             isListening = false;
 
-            this.listenerUDP = new UdpSocketReceiver();
+            if (!mTcpOnly)
+                this.listenerUDP = new UdpSocketReceiver();
             this.listenerTCP = new TcpSocketListener();
 
             this.portNum = mPortNum;
@@ -50,14 +51,15 @@ namespace P2PNET.TransportLayer
         //destory connection
         public void Dispose()
         {
-            listenerUDP.Dispose();
+            listenerUDP?.Dispose();
             listenerTCP.Dispose();
         }
 
         public async Task StartAsync()
         {
             await StartListeningAsyncTCP(this.portNum);
-            await StartListeningAsyncUDP(this.portNum);
+            if (listenerUDP != null)
+                await StartListeningAsyncUDP(this.portNum);
             isListening = true;
         }
 
@@ -116,6 +118,9 @@ namespace P2PNET.TransportLayer
 
         private async Task StartListeningAsyncUDP(int portNum)
         {
+            if (listenerUDP == null)
+                throw new InvalidOperationException("Cannot listen on UDP when in TCP only mode.");
+
             listenerUDP.MessageReceived += ListenerUDP_MessageReceived;
             await listenerUDP.StartListeningAsync(portNum);
 
