@@ -24,6 +24,9 @@ Supported protocols:
 * Xamarin.iOS (Classic)
 * UWP
 
+## How do I add this library to my project?
+The latest release can be found on [NuGet](https://www.nuget.org/packages/SquidInc.P2PNET/). Use a [Nuget Package Manager](http://www.c-sharpcorner.com/UploadFile/8a67c0/use-nuget-package-manager-in-visual-studio-2015/) to include it into your C# project.
+
 ## How To Use
 ```c#
 int portNum = 8080;
