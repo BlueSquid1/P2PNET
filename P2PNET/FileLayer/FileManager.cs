@@ -79,7 +79,7 @@ namespace P2PNET.FileLayer
             this.receivedFileRequests = new List<FileReceiveReq>();
             this.sendFileRequests = new List<FileSentReq>();
             this.stillProcPrevMsg = new TaskCompletionSource<bool>();
-            this.ObjectManager = new ObjectManager(portNum, mForwardAll, mLogger);
+            this.ObjectManager = new ObjectManager(portNum, mForwardAll, false, mLogger);
             this.fileSystem = FileSystem.Current;
             this.DefaultFilePath = defaultFilePath;
 

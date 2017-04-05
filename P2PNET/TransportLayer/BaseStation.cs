@@ -33,7 +33,7 @@ namespace P2PNET.TransportLayer
         private UdpSocketClient senderUDP;
 
         //constructor
-        public BaseStation(int mPortNum, bool mForwardAll = false, ILogger mLogger = null, bool mTcpOnly = false)
+        public BaseStation(int mPortNum, bool mForwardAll = false, bool mTcpOnly = false, ILogger mLogger = null)
         {
             this.knownPeers = new List<Peer>();
             if (!mTcpOnly)

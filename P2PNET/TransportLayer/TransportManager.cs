@@ -75,12 +75,12 @@ namespace P2PNET.TransportLayer
         /// </summary>
         /// <param name="mPortNum"> The port number which this peer will listen on and send messages with </param>
         /// <param name="mForwardAll"> When true, all messages received trigger a MsgReceived event. This includes UDB broadcasts that are reflected back to the local peer.</param>
-        public TransportManager(int mPortNum = 8080, bool mForwardAll = false, ILogger mLogger = null, bool mTcpOnly = false)
+        public TransportManager(int mPortNum = 8080, bool mForwardAll = false, bool mTcpOnly = false, ILogger mLogger = null)
         {
             this.PortNum = mPortNum;
             this.tcpOnly = mTcpOnly;
             this.listener = new Listener(this.PortNum, mTcpOnly);
-            this.baseStation = new BaseStation(this.PortNum, mForwardAll, mLogger, mTcpOnly);
+            this.baseStation = new BaseStation(this.PortNum, mForwardAll, mTcpOnly, mLogger);
 
             this.baseStation.PeerChange += BaseStation_PeerChange;
             this.baseStation.MsgReceived += IncomingMsg;
