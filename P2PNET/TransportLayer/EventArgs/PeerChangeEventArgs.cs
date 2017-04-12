@@ -3,7 +3,7 @@
 
 namespace P2PNET.TransportLayer.EventArgs
 {
-    public class PeerChangeEventArgs
+    public class PeerChangeEventArgs : System.EventArgs
     {
         public List<Peer> Peers { get; }
 
